@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
+import PropertyMap from '@/components/PropertyMap';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -214,6 +214,19 @@ const PropertyDetails = () => {
                         <div className="text-sm text-muted-foreground">{language === 'ar' ? 'سنة البناء' : 'Year Built'}</div>
                       </div>
                     </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Map Section */}
+                  <div>
+                    <h3 className="text-xl font-semibold mb-3">
+                      {language === 'ar' ? 'الموقع' : 'Location'}
+                    </h3>
+                    <PropertyMap 
+                      address={language === 'ar' ? mockProperty.addressAr : mockProperty.address}
+                      className="mb-4"
+                    />
                   </div>
 
                   <Separator />
