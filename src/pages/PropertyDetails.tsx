@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   MapPin, 
   Bed, 
@@ -218,45 +220,44 @@ const PropertyDetails = () => {
 
                   <Separator />
 
-                  {/* Map Section */}
-                  <div>
-                    <h3 className="text-xl font-semibold mb-3">
-                      {language === 'ar' ? 'الموقع' : 'Location'}
-                    </h3>
-                    <PropertyMap 
-                      address={language === 'ar' ? mockProperty.addressAr : mockProperty.address}
-                      className="mb-4"
-                    />
-                  </div>
-
-                  <Separator />
-
-                  {/* Description */}
-                  <div>
-                    <h3 className="text-xl font-semibold mb-3">
-                      {language === 'ar' ? 'الوصف' : 'Description'}
-                    </h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {language === 'ar' ? mockProperty.descriptionAr : mockProperty.description}
-                    </p>
-                  </div>
-
-                  <Separator />
-
-                  {/* Amenities */}
-                  <div>
-                    <h3 className="text-xl font-semibold mb-3">
-                      {language === 'ar' ? 'المرافق' : 'Amenities'}
-                    </h3>
-                    <div className="grid grid-cols-2 gap-3">
-                      {(language === 'ar' ? mockProperty.amenitiesAr : mockProperty.amenities).map((amenity, index) => (
-                        <div key={index} className="flex items-center space-x-2 rtl:space-x-reverse">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">{amenity}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  {/* Tabs for Location, Description, and Amenities */}
+                  <Tabs defaultValue="location" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="location">
+                        {language === 'ar' ? 'الموقع' : 'Location'}
+                      </TabsTrigger>
+                      <TabsTrigger value="description">
+                        {language === 'ar' ? 'الوصف' : 'Description'}
+                      </TabsTrigger>
+                      <TabsTrigger value="amenities">
+                        {language === 'ar' ? 'المرافق' : 'Amenities'}
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="location" className="space-y-4">
+                      <PropertyMap 
+                        address={language === 'ar' ? mockProperty.addressAr : mockProperty.address}
+                        className="w-full"
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="description" className="space-y-4">
+                      <p className="text-muted-foreground leading-relaxed">
+                        {language === 'ar' ? mockProperty.descriptionAr : mockProperty.description}
+                      </p>
+                    </TabsContent>
+                    
+                    <TabsContent value="amenities" className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        {(language === 'ar' ? mockProperty.amenitiesAr : mockProperty.amenities).map((amenity, index) => (
+                          <div key={index} className="flex items-center space-x-2 rtl:space-x-reverse">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span className="text-sm">{amenity}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </CardContent>
             </Card>
