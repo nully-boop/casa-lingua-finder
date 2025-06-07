@@ -24,6 +24,7 @@ import {
   Building,
   CheckCircle
 } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 // Mock property data - in real app this would come from API
 const mockProperty = {
@@ -309,6 +310,7 @@ const PropertyDetails = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
