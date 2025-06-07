@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -84,6 +84,10 @@ const Index = () => {
     const formattedPrice = price.toLocaleString();
     const period = forSale ? '' : (language === 'ar' ? '/شهر' : '/month');
     return `${formattedPrice} ${currency}${period}`;
+  };
+
+  const handlePropertyClick = (propertyId: number) => {
+    navigate(`/property/${propertyId}`);
   };
 
   return (
@@ -178,7 +182,11 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredProperties.map((property) => (
-              <Card key={property.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-fade-in">
+              <Card 
+                key={property.id} 
+                className="overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-fade-in cursor-pointer"
+                onClick={() => handlePropertyClick(property.id)}
+              >
                 <div className="relative">
                   <img 
                     src={property.image} 
@@ -231,7 +239,10 @@ const Index = () => {
                     <div className="text-2xl font-bold text-primary">
                       {formatPrice(property.price, property.currency, property.forSale)}
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={(e) => {
+                      e.stopPropagation();
+                      handlePropertyClick(property.id);
+                    }}>
                       {t('common.view')}
                     </Button>
                   </div>
@@ -241,6 +252,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };
