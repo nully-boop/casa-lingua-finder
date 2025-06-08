@@ -1,3 +1,4 @@
+
 import ILogin from "@/interfaces/ILogin";
 import IRegister from "@/interfaces/IRegister";
 import axios from "axios";
@@ -95,6 +96,12 @@ export const propertiesAPI = {
 export const dashboardAPI = {
   getStats: () => api.get("/dashboard/stats"),
   getRecentProperties: () => api.get("/dashboard/recent-properties"),
+};
+
+// استدعاءات الملف الشخصي
+export const profileAPI = {
+  getProfile: () => api.get("/profile"),
+  updateProfile: (data: any) => api.put("/profile", data),
 };
 
 export default api;

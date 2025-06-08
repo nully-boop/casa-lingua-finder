@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -18,62 +19,79 @@ import {
   Star,
   MessageSquare,
   Eye,
+  Loader2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { profileAPI } from "@/services/api";
 
 // Interface for user profile data
 interface UserProfile {
+  id: number;
   name: string;
   email: string;
-  phone: string;
-  location: string;
-  avatar: string;
+  phone?: string;
+  location?: string;
+  avatar?: string;
   joinDate: string;
-  bio: string;
+  bio?: string;
+  user_type: string;
 }
 
 // Interface for seller profile data extending user profile
 interface SellerProfile extends UserProfile {
-  companyName: string;
-  license: string;
-  rating: number;
-  totalSales: number;
-  activeListings: number;
-  totalReviews: number;
-  yearsExperience: number;
+  companyName?: string;
+  license?: string;
+  rating?: number;
+  totalSales?: number;
+  activeListings?: number;
+  totalReviews?: number;
+  yearsExperience?: number;
 }
-
-// Mock data for user profile
-const mockUserProfile: UserProfile = {
-  name: "Ahmed Al-Rashid",
-  email: "ahmed@example.com",
-  phone: "+971 50 123 4567",
-  location: "Dubai, UAE",
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-  joinDate: "January 2023",
-  bio: "Real estate enthusiast looking for the perfect home in Dubai.",
-};
-
-// Mock data for seller profile
-const mockSellerProfile: SellerProfile = {
-  ...mockUserProfile,
-  companyName: "Prime Properties UAE",
-  license: "RERA-12345",
-  rating: 4.8,
-  totalSales: 156,
-  activeListings: 12,
-  totalReviews: 89,
-  yearsExperience: 8,
-  bio: "Experienced real estate agent specializing in luxury properties in Dubai Marina and Downtown areas.",
-};
 
 const Profile = () => {
   const { t, language, user, isAuthenticated } = useLanguage();
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState<UserProfile | SellerProfile>(
-    user?.user_type === "seller" ? mockSellerProfile : mockUserProfile
-  );
+  const queryClient = useQueryClient();
+
+  // Fetch profile data from API
+  const { data: profileData, isLoading, error } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      console.log('Fetching profile data...');
+      const response = await profileAPI.getProfile();
+      console.log('Profile data received:', response.data);
+      return response.data;
+    },
+    enabled: isAuthenticated,
+  });
+
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: Partial<UserProfile | SellerProfile>) => {
+      console.log('Updating profile with data:', data);
+      return profileAPI.updateProfile(data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      });
+      setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    },
+    onError: (error: any) => {
+      console.error('Profile update error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const [editData, setEditData] = useState<Partial<UserProfile | SellerProfile>>({});
 
   if (!isAuthenticated) {
     return (
@@ -92,28 +110,57 @@ const Profile = () => {
     );
   }
 
-  const isSeller = user?.user_type === "seller";
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold mb-4">Error</h1>
+          <p className="text-muted-foreground mb-4">
+            Failed to load profile data. Please try again.
+          </p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const isSeller = profileData?.user_type === "seller";
 
   // Type guard to check if profileData is SellerProfile
   const isSellerProfile = (profile: UserProfile | SellerProfile): profile is SellerProfile => {
-    return isSeller && 'companyName' in profile;
+    return isSeller && profile.user_type === "seller";
   };
 
   const handleSave = () => {
-    // Mock save functionality
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated.",
-    });
-    setIsEditing(false);
+    updateProfileMutation.mutate(editData);
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setProfileData(prev => ({
+    setEditData(prev => ({
       ...prev,
       [field]: value
     }));
   };
+
+  const startEditing = () => {
+    setEditData(profileData);
+    setIsEditing(true);
+  };
+
+  const currentData = isEditing ? { ...profileData, ...editData } : profileData;
 
   return (
     <div className="min-h-screen bg-background">
@@ -126,35 +173,37 @@ const Profile = () => {
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse">
                 <Avatar className="w-24 h-24">
-                  <AvatarImage src={profileData.avatar} alt={profileData.name} />
+                  <AvatarImage src={currentData?.avatar} alt={currentData?.name} />
                   <AvatarFallback>
-                    {profileData.name.split(' ').map(n => n[0]).join('')}
+                    {currentData?.name?.split(' ').map(n => n[0]).join('') || 'U'}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="flex-1 text-center md:text-left">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                     <div>
-                      <h1 className="text-3xl font-bold mb-2">{profileData.name}</h1>
-                      {isSellerProfile(profileData) && (
+                      <h1 className="text-3xl font-bold mb-2">{currentData?.name}</h1>
+                      {isSellerProfile(currentData) && currentData.companyName && (
                         <p className="text-lg text-muted-foreground mb-2">
-                          {profileData.companyName}
+                          {currentData.companyName}
                         </p>
                       )}
                       <div className="flex items-center justify-center md:justify-start space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
-                        <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                          <MapPin className="h-4 w-4" />
-                          <span>{profileData.location}</span>
-                        </div>
+                        {currentData?.location && (
+                          <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                            <MapPin className="h-4 w-4" />
+                            <span>{currentData.location}</span>
+                          </div>
+                        )}
                         <div className="flex items-center space-x-1 rtl:space-x-reverse">
                           <User className="h-4 w-4" />
-                          <span>{language === "ar" ? "انضم في" : "Joined"} {profileData.joinDate}</span>
+                          <span>{language === "ar" ? "انضم في" : "Joined"} {currentData?.joinDate || "Recently"}</span>
                         </div>
                       </div>
                     </div>
 
                     <Button
-                      onClick={() => setIsEditing(!isEditing)}
+                      onClick={() => isEditing ? setIsEditing(false) : startEditing()}
                       variant="outline"
                       className="flex items-center space-x-2 rtl:space-x-reverse"
                     >
@@ -163,29 +212,29 @@ const Profile = () => {
                     </Button>
                   </div>
 
-                  {isSellerProfile(profileData) && (
+                  {isSellerProfile(currentData) && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{profileData.rating}</div>
+                        <div className="text-2xl font-bold text-primary">{currentData.rating || 0}</div>
                         <div className="text-sm text-muted-foreground flex items-center justify-center">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
                           {language === "ar" ? "التقييم" : "Rating"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{profileData.totalSales}</div>
+                        <div className="text-2xl font-bold text-primary">{currentData.totalSales || 0}</div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar" ? "إجمالي المبيعات" : "Total Sales"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{profileData.activeListings}</div>
+                        <div className="text-2xl font-bold text-primary">{currentData.activeListings || 0}</div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar" ? "العقارات النشطة" : "Active Listings"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{profileData.yearsExperience}</div>
+                        <div className="text-2xl font-bold text-primary">{currentData.yearsExperience || 0}</div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar" ? "سنوات الخبرة" : "Years Experience"}
                         </div>
@@ -193,7 +242,7 @@ const Profile = () => {
                     </div>
                   )}
 
-                  <p className="text-muted-foreground">{profileData.bio}</p>
+                  <p className="text-muted-foreground">{currentData?.bio || "No bio available."}</p>
                 </div>
               </div>
             </CardContent>
@@ -224,7 +273,7 @@ const Profile = () => {
                       <Label htmlFor="name">{language === "ar" ? "الاسم الكامل" : "Full Name"}</Label>
                       <Input
                         id="name"
-                        value={profileData.name}
+                        value={currentData?.name || ''}
                         onChange={(e) => handleInputChange("name", e.target.value)}
                         disabled={!isEditing}
                       />
@@ -235,7 +284,7 @@ const Profile = () => {
                       <Input
                         id="email"
                         type="email"
-                        value={profileData.email}
+                        value={currentData?.email || ''}
                         onChange={(e) => handleInputChange("email", e.target.value)}
                         disabled={!isEditing}
                       />
@@ -245,7 +294,7 @@ const Profile = () => {
                       <Label htmlFor="phone">{language === "ar" ? "رقم الهاتف" : "Phone Number"}</Label>
                       <Input
                         id="phone"
-                        value={profileData.phone}
+                        value={currentData?.phone || ''}
                         onChange={(e) => handleInputChange("phone", e.target.value)}
                         disabled={!isEditing}
                       />
@@ -255,19 +304,19 @@ const Profile = () => {
                       <Label htmlFor="location">{language === "ar" ? "الموقع" : "Location"}</Label>
                       <Input
                         id="location"
-                        value={profileData.location}
+                        value={currentData?.location || ''}
                         onChange={(e) => handleInputChange("location", e.target.value)}
                         disabled={!isEditing}
                       />
                     </div>
 
-                    {isSellerProfile(profileData) && (
+                    {isSellerProfile(currentData) && (
                       <>
                         <div className="space-y-2">
                           <Label htmlFor="company">{language === "ar" ? "اسم الشركة" : "Company Name"}</Label>
                           <Input
                             id="company"
-                            value={profileData.companyName}
+                            value={currentData.companyName || ''}
                             onChange={(e) => handleInputChange("companyName", e.target.value)}
                             disabled={!isEditing}
                           />
@@ -277,7 +326,7 @@ const Profile = () => {
                           <Label htmlFor="license">{language === "ar" ? "رقم الترخيص" : "License Number"}</Label>
                           <Input
                             id="license"
-                            value={profileData.license}
+                            value={currentData.license || ''}
                             onChange={(e) => handleInputChange("license", e.target.value)}
                             disabled={!isEditing}
                           />
@@ -291,8 +340,16 @@ const Profile = () => {
                       <Button onClick={() => setIsEditing(false)} variant="outline">
                         {t("common.cancel")}
                       </Button>
-                      <Button onClick={handleSave} className="flex items-center space-x-2 rtl:space-x-reverse">
-                        <Save className="h-4 w-4" />
+                      <Button 
+                        onClick={handleSave} 
+                        className="flex items-center space-x-2 rtl:space-x-reverse"
+                        disabled={updateProfileMutation.isPending}
+                      >
+                        {updateProfileMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4" />
+                        )}
                         <span>{t("common.save")}</span>
                       </Button>
                     </div>
