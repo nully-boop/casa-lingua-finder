@@ -1,21 +1,47 @@
-
-import React from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { Languages, Home, Building, User, LogOut } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Languages, Home, Building, User, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
+import { authAPI } from "@/services/api";
 
 const Header = () => {
-  const { language, setLanguage, isRTL, t, user, logout, isAuthenticated } = useLanguage();
+  const { language, setLanguage, isRTL, t, user, logout, isAuthenticated } =
+    useLanguage();
   const navigate = useNavigate();
 
   const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'ar' : 'en');
+    setLanguage(language === "en" ? "ar" : "en");
   };
+  const isSeller: () => boolean = () =>
+    isAuthenticated && user.user_type === "seller";
+  const handleLogout = async () => {
+    try {
+      // Mock API call - replace with actual API integration
+      const userData = localStorage.getItem("user");
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+      if (!userData) return;
+      const user = JSON.parse(userData);
+      const token = user.token;
+      const response = await authAPI.logout(token);
+
+      toast({
+        title: "Logout successful",
+        description: "See you again!",
+      });
+
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Logout failed",
+        description: "Error happened",
+        variant: "destructive",
+      });
+    } finally {
+      localStorage.removeItem("user");
+    }
   };
 
   return (
@@ -23,36 +49,39 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 rtl:space-x-reverse">
+          <Link
+            to="/"
+            className="flex items-center space-x-2 rtl:space-x-reverse"
+          >
             <Building className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-primary">Casa Lingua</span>
           </Link>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="flex items-center space-x-2 rtl:space-x-reverse text-foreground hover:text-primary transition-colors"
             >
               <Home className="h-4 w-4" />
-              <span>{t('nav.home')}</span>
+              <span>{t("nav.home")}</span>
             </Link>
-            
-            <Link 
-              to="/properties" 
+
+            <Link
+              to="/properties"
               className="flex items-center space-x-2 rtl:space-x-reverse text-foreground hover:text-primary transition-colors"
             >
               <Building className="h-4 w-4" />
-              <span>{t('nav.properties')}</span>
+              <span>{t("nav.properties")}</span>
             </Link>
 
-            {isAuthenticated && (
-              <Link 
-                to="/dashboard" 
+            {isSeller() && (
+              <Link
+                to="/dashboard"
                 className="flex items-center space-x-2 rtl:space-x-reverse text-foreground hover:text-primary transition-colors"
               >
                 <User className="h-4 w-4" />
-                <span>{t('nav.dashboard')}</span>
+                <span>{t("nav.dashboard")}</span>
               </Link>
             )}
           </nav>
@@ -67,14 +96,14 @@ const Header = () => {
               className="flex items-center space-x-2 rtl:space-x-reverse"
             >
               <Languages className="h-4 w-4" />
-              <span>{t('nav.language')}</span>
+              <span>{t("nav.language")}</span>
             </Button>
 
             {/* Auth Buttons */}
             {isAuthenticated ? (
               <div className="flex items-center space-x-3 rtl:space-x-reverse">
                 <span className="text-sm text-foreground">
-                  {t('dashboard.welcome')}, {user?.name}
+                  {t("dashboard.welcome")}, {user?.name}
                 </span>
                 <Button
                   variant="ghost"
@@ -83,20 +112,18 @@ const Header = () => {
                   className="flex items-center space-x-2 rtl:space-x-reverse"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span>{t('nav.logout')}</span>
+                  <span>{t("nav.logout")}</span>
                 </Button>
               </div>
             ) : (
               <div className="flex items-center space-x-2 rtl:space-x-reverse">
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
-                    {t('nav.login')}
+                    {t("nav.login")}
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button size="sm">
-                    {t('nav.register')}
-                  </Button>
+                  <Button size="sm">{t("nav.register")}</Button>
                 </Link>
               </div>
             )}
