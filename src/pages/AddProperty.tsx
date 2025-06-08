@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
@@ -37,7 +36,7 @@ const AddProperty = () => {
   const [images, setImages] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!isAuthenticated || user?.type !== 'seller') {
+  if (!isAuthenticated || user?.user_type !== 'seller') {
     return (
       <div className="min-h-screen bg-background">
         <Header />

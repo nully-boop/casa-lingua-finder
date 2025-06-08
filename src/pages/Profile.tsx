@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -23,8 +22,30 @@ import {
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
+// Interface for user profile data
+interface UserProfile {
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  avatar: string;
+  joinDate: string;
+  bio: string;
+}
+
+// Interface for seller profile data extending user profile
+interface SellerProfile extends UserProfile {
+  companyName: string;
+  license: string;
+  rating: number;
+  totalSales: number;
+  activeListings: number;
+  totalReviews: number;
+  yearsExperience: number;
+}
+
 // Mock data for user profile
-const mockUserProfile = {
+const mockUserProfile: UserProfile = {
   name: "Ahmed Al-Rashid",
   email: "ahmed@example.com",
   phone: "+971 50 123 4567",
@@ -35,7 +56,7 @@ const mockUserProfile = {
 };
 
 // Mock data for seller profile
-const mockSellerProfile = {
+const mockSellerProfile: SellerProfile = {
   ...mockUserProfile,
   companyName: "Prime Properties UAE",
   license: "RERA-12345",
@@ -50,7 +71,7 @@ const mockSellerProfile = {
 const Profile = () => {
   const { t, language, user, isAuthenticated } = useLanguage();
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState(
+  const [profileData, setProfileData] = useState<UserProfile | SellerProfile>(
     user?.user_type === "seller" ? mockSellerProfile : mockUserProfile
   );
 
@@ -72,6 +93,11 @@ const Profile = () => {
   }
 
   const isSeller = user?.user_type === "seller";
+
+  // Type guard to check if profileData is SellerProfile
+  const isSellerProfile = (profile: UserProfile | SellerProfile): profile is SellerProfile => {
+    return isSeller && 'companyName' in profile;
+  };
 
   const handleSave = () => {
     // Mock save functionality
@@ -110,7 +136,7 @@ const Profile = () => {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                     <div>
                       <h1 className="text-3xl font-bold mb-2">{profileData.name}</h1>
-                      {isSeller && (
+                      {isSellerProfile(profileData) && (
                         <p className="text-lg text-muted-foreground mb-2">
                           {profileData.companyName}
                         </p>
@@ -137,7 +163,7 @@ const Profile = () => {
                     </Button>
                   </div>
 
-                  {isSeller && (
+                  {isSellerProfile(profileData) && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-primary">{profileData.rating}</div>
@@ -235,7 +261,7 @@ const Profile = () => {
                       />
                     </div>
 
-                    {isSeller && (
+                    {isSellerProfile(profileData) && (
                       <>
                         <div className="space-y-2">
                           <Label htmlFor="company">{language === "ar" ? "اسم الشركة" : "Company Name"}</Label>
