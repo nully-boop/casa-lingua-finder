@@ -1,24 +1,25 @@
 
+import IUser from '@/interfaces/IUser';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type Language = 'en' | 'ar';
 export type UserType = 'buyer' | 'seller';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  type: UserType;
-  token: string;
-}
+// interface User {
+//   id: string;
+//   name: string;
+//   email: string;
+//   type: UserType;
+//   token: string;
+// }
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   isRTL: boolean;
   t: (key: string) => string;
-  user: User | null;
-  login: (user: User) => void;
+  user: IUser | null;
+  login: (user: IUser) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -230,7 +231,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('en');
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language') as Language;
@@ -262,7 +263,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return translations[language][key] || key;
   };
 
-  const login = (newUser: User) => {
+  const login = (newUser: IUser) => {
     setUser(newUser);
     localStorage.setItem('user', JSON.stringify(newUser));
   };
