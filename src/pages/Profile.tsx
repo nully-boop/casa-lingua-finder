@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -55,22 +54,49 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
 
+  // Check if user has token
+  const hasToken = () => {
+    try {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+        return !!parsedUser?.token;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
   // Fetch profile data from API
   const { data: profileData, isLoading, error } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       console.log('Fetching profile data...');
+      if (!hasToken()) {
+        throw new Error('No authentication token found');
+      }
       const response = await profileAPI.getProfile();
       console.log('Profile data received:', response.data);
       return response.data;
     },
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && hasToken(),
+    retry: (failureCount, error: any) => {
+      // Don't retry on 401 errors
+      if (error?.response?.status === 401) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: (data: Partial<UserProfile | SellerProfile>) => {
       console.log('Updating profile with data:', data);
+      if (!hasToken()) {
+        throw new Error('No authentication token found');
+      }
       return profileAPI.updateProfile(data);
     },
     onSuccess: () => {
@@ -83,17 +109,25 @@ const Profile = () => {
     },
     onError: (error: any) => {
       console.error('Profile update error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      });
+      if (error?.response?.status === 401) {
+        toast({
+          title: "Authentication Error",
+          description: "Please login again to update your profile.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update profile. Please try again.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
   const [editData, setEditData] = useState<Partial<UserProfile | SellerProfile>>({});
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !hasToken()) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -123,15 +157,18 @@ const Profile = () => {
   }
 
   if (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Error</h1>
           <p className="text-muted-foreground mb-4">
-            Failed to load profile data. Please try again.
+            Failed to load profile data: {errorMessage}
           </p>
-          <Button onClick={() => window.location.reload()}>Retry</Button>
+          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['profile'] })}>
+            Retry
+          </Button>
         </div>
       </div>
     );

@@ -22,7 +22,12 @@ api.interceptors.request.use(
         const userData = JSON.parse(user);
         if (userData?.token) {
           config.headers.Authorization = `Bearer ${userData.token}`;
+          console.log('Token added to request:', config.url);
+        } else {
+          console.warn('No token found in user data');
         }
+      } else {
+        console.warn('No user found in localStorage');
       }
     } catch (error) {
       console.error("Error parsing user token:", error);
@@ -38,6 +43,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      console.error('Unauthorized request, removing user data');
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
@@ -100,8 +106,14 @@ export const dashboardAPI = {
 
 // استدعاءات الملف الشخصي
 export const profileAPI = {
-  getProfile: () => api.get("/profile"),
-  updateProfile: (data: any) => api.put("/profile", data),
+  getProfile: () => {
+    console.log('Fetching profile data with token...');
+    return api.get("/profile");
+  },
+  updateProfile: (data: any) => {
+    console.log('Updating profile data with token...');
+    return api.put("/profile", data);
+  },
 };
 
 export default api;
