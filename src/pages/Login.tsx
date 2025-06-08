@@ -1,21 +1,22 @@
-
-import React, { useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import Header from '@/components/Header';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building, Mail, Lock } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import Header from "@/components/Header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building, Mail, Lock } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { authAPI } from "@/services/api";
+import IUser from "@/interfaces/IUser";
 
 const Login = () => {
   const { t, login } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,23 +25,33 @@ const Login = () => {
 
     try {
       // Mock API call - replace with actual API integration
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const response = await authAPI.login({
+        email: email,
+        password: password,
+      });
+      const userData = response.data["user"];
       // Mock user data
-      const user = {
-        id: '1',
-        name: 'John Doe',
-        email,
-        type: 'seller' as const,
-        token: 'mock-jwt-token'
+      const user: IUser = {
+        id: userData["id"],
+        name: userData["name"],
+        email: userData["email"],
+        user_type: userData["user_type"],
+        token: response.data["access_token"],
       };
+      localStorage.setItem("user", JSON.stringify(user));
 
       login(user);
+      console.log(user);
       toast({
         title: "Login successful",
         description: "Welcome back!",
       });
-      navigate('/dashboard');
+
+      if (userData["user_type"] === "seller") {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       toast({
         title: "Login failed",
@@ -55,7 +66,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto">
           <Card className="animate-scale-in">
@@ -63,14 +74,16 @@ const Login = () => {
               <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
                 <Building className="h-8 w-8 text-primary" />
               </div>
-              <CardTitle className="text-2xl font-bold">{t('auth.loginTitle')}</CardTitle>
-              <p className="text-muted-foreground">{t('auth.loginSubtitle')}</p>
+              <CardTitle className="text-2xl font-bold">
+                {t("auth.loginTitle")}
+              </CardTitle>
+              <p className="text-muted-foreground">{t("auth.loginSubtitle")}</p>
             </CardHeader>
-            
+
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">{t('auth.email')}</Label>
+                  <Label htmlFor="email">{t("auth.email")}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 rtl:left-auto rtl:right-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -83,9 +96,9 @@ const Login = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="password">{t('auth.password')}</Label>
+                  <Label htmlFor="password">{t("auth.password")}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 rtl:left-auto rtl:right-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -98,28 +111,24 @@ const Login = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="text-right rtl:text-left">
-                  <Link 
-                    to="/forgot-password" 
+                  <Link
+                    to="/forgot-password"
                     className="text-sm text-primary hover:underline"
                   >
-                    {t('auth.forgotPassword')}
+                    {t("auth.forgotPassword")}
                   </Link>
                 </div>
-                
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Loading...' : t('auth.login')}
+
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Loading..." : t("auth.login")}
                 </Button>
-                
+
                 <div className="text-center text-sm text-muted-foreground">
-                  Don't have an account?{' '}
+                  Don't have an account?{" "}
                   <Link to="/register" className="text-primary hover:underline">
-                    {t('auth.register')}
+                    {t("auth.register")}
                   </Link>
                 </div>
               </form>
