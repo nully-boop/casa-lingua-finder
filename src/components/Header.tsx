@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -102,9 +103,16 @@ const Header = () => {
             {/* Auth Buttons */}
             {isAuthenticated ? (
               <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                <span className="text-sm text-foreground">
-                  {t("dashboard.welcome")}, {user?.name}
-                </span>
+                <Link to="/profile">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center space-x-2 rtl:space-x-reverse"
+                  >
+                    <User className="h-4 w-4" />
+                    <span>{user?.name}</span>
+                  </Button>
+                </Link>
                 <Button
                   variant="ghost"
                   size="sm"
