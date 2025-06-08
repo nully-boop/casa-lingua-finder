@@ -1,99 +1,100 @@
+import ILogin from "@/interfaces/ILogin";
+import IRegister from "@/interfaces/IRegister";
+import axios from "axios";
 
-import axios from 'axios';
-
-// Create axios instance with base configuration
+// إنشاء نسخة من axios بإعدادات أساسية
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://your-laravel-api.com/api',
+  baseURL: "http://192.168.1.6:8000/api",
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
-// Request interceptor to add auth token
+// طلب Interceptor لإضافة التوكن
 api.interceptors.request.use(
   (config) => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const userData = JSON.parse(user);
-      config.headers.Authorization = `Bearer ${userData.token}`;
+    try {
+      const user = localStorage.getItem("user");
+      if (user) {
+        const userData = JSON.parse(user);
+        if (userData?.token) {
+          config.headers.Authorization = `Bearer ${userData.token}`;
+        }
+      }
+    } catch (error) {
+      console.error("Error parsing user token:", error);
+      localStorage.removeItem("user");
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
+// Response Interceptor لمعالجة الأخطاء
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear user data and redirect to login
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      localStorage.removeItem("user");
+      window.location.href = "/login";
     }
+    console.error("API Error:", error); // عرض الخطأ في الكونسول لمساعدتك في التصحيح
     return Promise.reject(error);
   }
 );
 
-// Auth API calls
+// استدعاءات المصادقة
 export const authAPI = {
-  login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }),
-  
-  register: (data: {
-    name: string;
-    email: string;
-    password: string;
-    password_confirmation: string;
-    user_type: string;
-  }) => api.post('/auth/register', data),
-  
-  logout: () => api.post('/auth/logout'),
-  
+  login: (data: ILogin) => api.post("/auth/login", data),
+
+  register: (data: IRegister) => api.post("/auth/register", data),
+
+  logout: (token: string) =>
+    api.post(
+      "/auth/logout",
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    ),
+
   forgotPassword: (email: string) =>
-    api.post('/auth/forgot-password', { email }),
-  
+    api.post("/auth/forgot-password", { email }),
+
   resetPassword: (data: {
     token: string;
     email: string;
     password: string;
     password_confirmation: string;
-  }) => api.post('/auth/reset-password', data),
+  }) => api.post("/auth/reset-password", data),
 };
 
-// Properties API calls
+// استدعاءات العقارات
 export const propertiesAPI = {
-  getProperties: (params?: any) =>
-    api.get('/properties', { params }),
-  
-  getProperty: (id: string) =>
-    api.get(`/properties/${id}`),
-  
+  getProperties: (params?: { name: string }) =>
+    api.get("/properties", { params }),
+
+  getProperty: (id: string) => api.get(`/properties/${id}`),
+
   createProperty: (data: FormData) =>
-    api.post('/properties', data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    api.post("/properties", data, {
+      headers: { "Content-Type": "multipart/form-data" },
     }),
-  
+
   updateProperty: (id: string, data: FormData) =>
     api.put(`/properties/${id}`, data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { "Content-Type": "multipart/form-data" },
     }),
-  
-  deleteProperty: (id: string) =>
-    api.delete(`/properties/${id}`),
-  
-  getMyProperties: () =>
-    api.get('/my-properties'),
+
+  deleteProperty: (id: string) => api.delete(`/properties/${id}`),
+
+  getMyProperties: () => api.get("/my-properties"),
 };
 
-// Dashboard API calls
+// استدعاءات لوحة التحكم
 export const dashboardAPI = {
-  getStats: () => api.get('/dashboard/stats'),
-  getRecentProperties: () => api.get('/dashboard/recent-properties'),
+  getStats: () => api.get("/dashboard/stats"),
+  getRecentProperties: () => api.get("/dashboard/recent-properties"),
 };
 
 export default api;
