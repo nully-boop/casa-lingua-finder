@@ -1,7 +1,6 @@
+
 import ILogin from "@/interfaces/ILogin";
 import IRegister from "@/interfaces/IRegister";
-import ISellerProfile from "@/interfaces/ISellerProfile";
-import IUser from "@/interfaces/IUser";
 import axios from "axios";
 
 // إنشاء نسخة من axios بإعدادات أساسية
@@ -101,10 +100,8 @@ export const dashboardAPI = {
 
 // استدعاءات الملف الشخصي
 export const profileAPI = {
-  getProfile: (token: string) =>
-    api.get("/profile", { headers: { Authorization: `Bearer ${token}` } }),
-  updateProfile: (data: Partial<IUser | ISellerProfile>) =>
-    api.put("/profile", data),
+  getProfile: () => api.get("/profile"),
+  updateProfile: (data: any) => api.put("/profile", data),
 };
 
 export default api;

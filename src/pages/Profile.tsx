@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -24,21 +25,30 @@ import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileAPI } from "@/services/api";
-import IUser from "@/interfaces/IUser";
-import ISellerProfile from "@/interfaces/ISellerProfile";
 
 // Interface for user profile data
-// interface UserProfile {
-//   id: number;
-//   name: string;
-//   email: string;
-//   phone?: string;
-//   location?: string;
-//   avatar?: string;
-//   joinDate: string;
-//   bio?: string;
-//   user_type: string;
-// }
+interface UserProfile {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  avatar?: string;
+  joinDate: string;
+  bio?: string;
+  user_type: string;
+}
+
+// Interface for seller profile data extending user profile
+interface SellerProfile extends UserProfile {
+  companyName?: string;
+  license?: string;
+  rating?: number;
+  totalSales?: number;
+  activeListings?: number;
+  totalReviews?: number;
+  yearsExperience?: number;
+}
 
 const Profile = () => {
   const { t, language, user, isAuthenticated } = useLanguage();
@@ -46,22 +56,12 @@ const Profile = () => {
   const queryClient = useQueryClient();
 
   // Fetch profile data from API
-  const {
-    data: profileData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["user"],
+  const { data: profileData, isLoading, error } = useQuery({
+    queryKey: ['profile'],
     queryFn: async () => {
-      console.log("Fetching profile data...");
-      const userData = localStorage.getItem("user");
-
-      if (!userData) return;
-      const user = JSON.parse(userData);
-      const token = user.token;
-
-      const response = await profileAPI.getProfile(token);
-      console.log("Profile data received:", response.data);
+      console.log('Fetching profile data...');
+      const response = await profileAPI.getProfile();
+      console.log('Profile data received:', response.data);
       return response.data;
     },
     enabled: isAuthenticated,
@@ -69,8 +69,8 @@ const Profile = () => {
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
-    mutationFn: (data: Partial<IUser | ISellerProfile>) => {
-      console.log("Updating profile with data:", data);
+    mutationFn: (data: Partial<UserProfile | SellerProfile>) => {
+      console.log('Updating profile with data:', data);
       return profileAPI.updateProfile(data);
     },
     onSuccess: () => {
@@ -79,10 +79,10 @@ const Profile = () => {
         description: "Your profile has been successfully updated.",
       });
       setIsEditing(false);
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
-    onError: (error: Error) => {
-      console.error("Profile update error:", error);
+    onError: (error: any) => {
+      console.error('Profile update error:', error);
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",
@@ -91,7 +91,7 @@ const Profile = () => {
     },
   });
 
-  const [editData, setEditData] = useState<Partial<IUser | ISellerProfile>>({});
+  const [editData, setEditData] = useState<Partial<UserProfile | SellerProfile>>({});
 
   if (!isAuthenticated) {
     return (
@@ -140,9 +140,7 @@ const Profile = () => {
   const isSeller = profileData?.user_type === "seller";
 
   // Type guard to check if profileData is SellerProfile
-  const isSellerProfile = (
-    profile: IUser | ISellerProfile
-  ): profile is ISellerProfile => {
+  const isSellerProfile = (profile: UserProfile | SellerProfile): profile is SellerProfile => {
     return isSeller && profile.user_type === "seller";
   };
 
@@ -151,9 +149,9 @@ const Profile = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setEditData((prev) => ({
+    setEditData(prev => ({
       ...prev,
-      [field]: value,
+      [field]: value
     }));
   };
 
@@ -175,30 +173,21 @@ const Profile = () => {
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse">
                 <Avatar className="w-24 h-24">
-                  <AvatarImage
-                    src={currentData?.avatar}
-                    alt={currentData?.name}
-                  />
+                  <AvatarImage src={currentData?.avatar} alt={currentData?.name} />
                   <AvatarFallback>
-                    {currentData?.name
-                      ?.split(" ")
-                      .map((n) => n[0])
-                      .join("") || "U"}
+                    {currentData?.name?.split(' ').map(n => n[0]).join('') || 'U'}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="flex-1 text-center md:text-left">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                     <div>
-                      <h1 className="text-3xl font-bold mb-2">
-                        {currentData?.name}
-                      </h1>
-                      {isSellerProfile(currentData) &&
-                        currentData.companyName && (
-                          <p className="text-lg text-muted-foreground mb-2">
-                            {currentData.companyName}
-                          </p>
-                        )}
+                      <h1 className="text-3xl font-bold mb-2">{currentData?.name}</h1>
+                      {isSellerProfile(currentData) && currentData.companyName && (
+                        <p className="text-lg text-muted-foreground mb-2">
+                          {currentData.companyName}
+                        </p>
+                      )}
                       <div className="flex items-center justify-center md:justify-start space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
                         {currentData?.location && (
                           <div className="flex items-center space-x-1 rtl:space-x-reverse">
@@ -208,75 +197,52 @@ const Profile = () => {
                         )}
                         <div className="flex items-center space-x-1 rtl:space-x-reverse">
                           <User className="h-4 w-4" />
-                          <span>
-                            {language === "ar" ? "انضم في" : "Joined"}{" "}
-                            {currentData?.joinDate || "Recently"}
-                          </span>
+                          <span>{language === "ar" ? "انضم في" : "Joined"} {currentData?.joinDate || "Recently"}</span>
                         </div>
                       </div>
                     </div>
 
                     <Button
-                      onClick={() =>
-                        isEditing ? setIsEditing(false) : startEditing()
-                      }
+                      onClick={() => isEditing ? setIsEditing(false) : startEditing()}
                       variant="outline"
                       className="flex items-center space-x-2 rtl:space-x-reverse"
                     >
                       <Edit3 className="h-4 w-4" />
-                      <span>
-                        {isEditing ? t("common.cancel") : t("common.edit")}
-                      </span>
+                      <span>{isEditing ? t("common.cancel") : t("common.edit")}</span>
                     </Button>
                   </div>
 
                   {isSellerProfile(currentData) && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">
-                          {currentData.rating || 0}
-                        </div>
+                        <div className="text-2xl font-bold text-primary">{currentData.rating || 0}</div>
                         <div className="text-sm text-muted-foreground flex items-center justify-center">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
                           {language === "ar" ? "التقييم" : "Rating"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">
-                          {currentData.totalSales || 0}
-                        </div>
+                        <div className="text-2xl font-bold text-primary">{currentData.totalSales || 0}</div>
                         <div className="text-sm text-muted-foreground">
-                          {language === "ar"
-                            ? "إجمالي المبيعات"
-                            : "Total Sales"}
+                          {language === "ar" ? "إجمالي المبيعات" : "Total Sales"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">
-                          {currentData.activeListings || 0}
-                        </div>
+                        <div className="text-2xl font-bold text-primary">{currentData.activeListings || 0}</div>
                         <div className="text-sm text-muted-foreground">
-                          {language === "ar"
-                            ? "العقارات النشطة"
-                            : "Active Listings"}
+                          {language === "ar" ? "العقارات النشطة" : "Active Listings"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">
-                          {currentData.yearsExperience || 0}
-                        </div>
+                        <div className="text-2xl font-bold text-primary">{currentData.yearsExperience || 0}</div>
                         <div className="text-sm text-muted-foreground">
-                          {language === "ar"
-                            ? "سنوات الخبرة"
-                            : "Years Experience"}
+                          {language === "ar" ? "سنوات الخبرة" : "Years Experience"}
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <p className="text-muted-foreground">
-                    {currentData?.bio || "No bio available."}
-                  </p>
+                  <p className="text-muted-foreground">{currentData?.bio || "No bio available."}</p>
                 </div>
               </div>
             </CardContent>
@@ -298,68 +264,48 @@ const Profile = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <User className="h-5 w-5" />
-                    <span>
-                      {language === "ar"
-                        ? "المعلومات الشخصية"
-                        : "Personal Information"}
-                    </span>
+                    <span>{language === "ar" ? "المعلومات الشخصية" : "Personal Information"}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">
-                        {language === "ar" ? "الاسم الكامل" : "Full Name"}
-                      </Label>
+                      <Label htmlFor="name">{language === "ar" ? "الاسم الكامل" : "Full Name"}</Label>
                       <Input
                         id="name"
-                        value={currentData?.name || ""}
-                        onChange={(e) =>
-                          handleInputChange("name", e.target.value)
-                        }
+                        value={currentData?.name || ''}
+                        onChange={(e) => handleInputChange("name", e.target.value)}
                         disabled={!isEditing}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email">
-                        {language === "ar" ? "البريد الإلكتروني" : "Email"}
-                      </Label>
+                      <Label htmlFor="email">{language === "ar" ? "البريد الإلكتروني" : "Email"}</Label>
                       <Input
                         id="email"
                         type="email"
-                        value={currentData?.email || ""}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
+                        value={currentData?.email || ''}
+                        onChange={(e) => handleInputChange("email", e.target.value)}
                         disabled={!isEditing}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phone">
-                        {language === "ar" ? "رقم الهاتف" : "Phone Number"}
-                      </Label>
+                      <Label htmlFor="phone">{language === "ar" ? "رقم الهاتف" : "Phone Number"}</Label>
                       <Input
                         id="phone"
-                        value={currentData?.phone || ""}
-                        onChange={(e) =>
-                          handleInputChange("phone", e.target.value)
-                        }
+                        value={currentData?.phone || ''}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
                         disabled={!isEditing}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="location">
-                        {language === "ar" ? "الموقع" : "Location"}
-                      </Label>
+                      <Label htmlFor="location">{language === "ar" ? "الموقع" : "Location"}</Label>
                       <Input
                         id="location"
-                        value={currentData?.location || ""}
-                        onChange={(e) =>
-                          handleInputChange("location", e.target.value)
-                        }
+                        value={currentData?.location || ''}
+                        onChange={(e) => handleInputChange("location", e.target.value)}
                         disabled={!isEditing}
                       />
                     </div>
@@ -367,31 +313,21 @@ const Profile = () => {
                     {isSellerProfile(currentData) && (
                       <>
                         <div className="space-y-2">
-                          <Label htmlFor="company">
-                            {language === "ar" ? "اسم الشركة" : "Company Name"}
-                          </Label>
+                          <Label htmlFor="company">{language === "ar" ? "اسم الشركة" : "Company Name"}</Label>
                           <Input
                             id="company"
-                            value={currentData.companyName || ""}
-                            onChange={(e) =>
-                              handleInputChange("companyName", e.target.value)
-                            }
+                            value={currentData.companyName || ''}
+                            onChange={(e) => handleInputChange("companyName", e.target.value)}
                             disabled={!isEditing}
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="license">
-                            {language === "ar"
-                              ? "رقم الترخيص"
-                              : "License Number"}
-                          </Label>
+                          <Label htmlFor="license">{language === "ar" ? "رقم الترخيص" : "License Number"}</Label>
                           <Input
                             id="license"
-                            value={currentData.license || ""}
-                            onChange={(e) =>
-                              handleInputChange("license", e.target.value)
-                            }
+                            value={currentData.license || ''}
+                            onChange={(e) => handleInputChange("license", e.target.value)}
                             disabled={!isEditing}
                           />
                         </div>
@@ -401,14 +337,11 @@ const Profile = () => {
 
                   {isEditing && (
                     <div className="flex justify-end space-x-2 rtl:space-x-reverse pt-4">
-                      <Button
-                        onClick={() => setIsEditing(false)}
-                        variant="outline"
-                      >
+                      <Button onClick={() => setIsEditing(false)} variant="outline">
                         {t("common.cancel")}
                       </Button>
-                      <Button
-                        onClick={handleSave}
+                      <Button 
+                        onClick={handleSave} 
                         className="flex items-center space-x-2 rtl:space-x-reverse"
                         disabled={updateProfileMutation.isPending}
                       >
@@ -429,15 +362,13 @@ const Profile = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    {language === "ar"
-                      ? "تفضيلات الحساب"
-                      : "Account Preferences"}
+                    {language === "ar" ? "تفضيلات الحساب" : "Account Preferences"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    {language === "ar"
-                      ? "إعدادات التفضيلات قيد التطوير..."
+                    {language === "ar" 
+                      ? "إعدادات التفضيلات قيد التطوير..." 
                       : "Preference settings coming soon..."}
                   </p>
                 </CardContent>
