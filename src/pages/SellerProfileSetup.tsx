@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { User, Phone, MapPin, Building, FileText, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +27,7 @@ const SellerProfileSetup = () => {
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
   const [workplace, setWorkplace] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [license, setLicense] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -47,9 +47,11 @@ const SellerProfileSetup = () => {
         phone: phone || null,
         location: location || null,
         workplace: workplace || null,
+        company_name: workplace === "company" ? companyName : null,
         license: license || null,
       };
 
+      console.log('Submitting profile data:', profileData);
       await profileAPI.updateProfile(profileData);
       
       toast({
@@ -59,6 +61,7 @@ const SellerProfileSetup = () => {
 
       navigate("/dashboard");
     } catch (error) {
+      console.error('Profile update error:', error);
       toast({
         title: "Error updating profile",
         description: "Please try again",
@@ -163,7 +166,12 @@ const SellerProfileSetup = () => {
                 {/* Workplace */}
                 <div className="space-y-2">
                   <Label htmlFor="workplace">Work Type</Label>
-                  <Select value={workplace} onValueChange={setWorkplace}>
+                  <Select value={workplace} onValueChange={(value) => {
+                    setWorkplace(value);
+                    if (value !== "company") {
+                      setCompanyName("");
+                    }
+                  }}>
                     <SelectTrigger>
                       <div className="flex items-center space-x-2">
                         <Building className="h-4 w-4 text-muted-foreground" />
@@ -176,6 +184,24 @@ const SellerProfileSetup = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Company Name - Only show if work for company is selected */}
+                {workplace === "company" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName">Company Name</Label>
+                    <div className="relative">
+                      <Building className="absolute left-3 rtl:left-auto rtl:right-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="companyName"
+                        type="text"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        className="pl-10 rtl:pl-3 rtl:pr-10"
+                        placeholder="Enter your company name"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* License Number */}
                 <div className="space-y-2">
