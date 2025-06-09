@@ -45,8 +45,6 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      // Mock API call - replace with actual API integration
-      // await new Promise(resolve => setTimeout(resolve, 1000));
       const response = await authAPI.register({
         name: name,
         email: email,
@@ -55,7 +53,7 @@ const Register = () => {
         user_type: userType,
       });
       const userData = response.data["user"];
-      // Mock user data
+      
       const user: IUser = {
         id: userData["id"],
         name: userData["name"],
@@ -72,7 +70,7 @@ const Register = () => {
       });
 
       if (userData["user_type"] === "seller") {
-        navigate("/dashboard");
+        navigate("/seller-setup");
       } else {
         navigate("/");
       }
