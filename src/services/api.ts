@@ -108,11 +108,18 @@ export const dashboardAPI = {
 export const profileAPI = {
   getProfile: () => {
     console.log('Fetching profile data with token...');
-    return api.get("/profile");
+    return api.get("/profile").then(response => {
+      // Extract user data from nested response
+      console.log('Raw API response:', response.data);
+      return { ...response, data: response.data.user };
+    });
   },
   updateProfile: (data: any) => {
     console.log('Updating profile data with token...');
-    return api.put("/profile", data);
+    return api.put("/profile", data).then(response => {
+      // Extract user data from nested response if needed
+      return response.data.user ? { ...response, data: response.data.user } : response;
+    });
   },
 };
 
