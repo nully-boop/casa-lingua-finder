@@ -16,8 +16,7 @@ import { Building, Mail, Lock, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import type { UserType } from "@/contexts/LanguageContext";
-import { authAPI } from "@/services/api";
-import IUser from "@/interfaces/IUser";
+import { authService } from "@/services/authService";
 
 const Register = () => {
   const { t, login } = useLanguage();
@@ -45,23 +44,13 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await authAPI.register({
+      const { user, userData } = await authService.register({
         name: name,
         email: email,
         password: password,
         password_confirmation: confirmPassword,
         user_type: userType,
       });
-      const userData = response.data["user"];
-      
-      const user: IUser = {
-        id: userData["id"],
-        name: userData["name"],
-        email: userData["email"],
-        user_type: userData["user_type"],
-        token: response.data["access_token"],
-      };
-      localStorage.setItem("user", JSON.stringify(user));
 
       login(user);
       toast({

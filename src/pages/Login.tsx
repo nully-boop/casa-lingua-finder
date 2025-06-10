@@ -8,8 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building, Mail, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { authAPI } from "@/services/api";
-import IUser from "@/interfaces/IUser";
+import { authService } from "@/services/authService";
 
 const Login = () => {
   const { t, login } = useLanguage();
@@ -24,21 +23,10 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Mock API call - replace with actual API integration
-      const response = await authAPI.login({
+      const { user, userData } = await authService.login({
         email: email,
         password: password,
       });
-      const userData = response.data["user"];
-      // Mock user data
-      const user: IUser = {
-        id: userData["id"],
-        name: userData["name"],
-        email: userData["email"],
-        user_type: userData["user_type"],
-        token: response.data["access_token"],
-      };
-      localStorage.setItem("user", JSON.stringify(user));
 
       login(user);
       console.log(user);

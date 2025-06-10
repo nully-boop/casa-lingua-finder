@@ -15,7 +15,7 @@ import {
 import { User, Phone, MapPin, Building, FileText, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { profileAPI } from "@/services/api";
+import { authService } from "@/services/authService";
 
 const SellerProfileSetup = () => {
   const { t } = useLanguage();
@@ -42,32 +42,28 @@ const SellerProfileSetup = () => {
     setIsLoading(true);
 
     try {
-      // Create a cleaner data structure
       const profileData: any = {};
 
-      // Only include fields that have values
       if (phone.trim()) profileData.phone = phone.trim();
       if (location.trim()) profileData.location = location.trim();
       if (workplace) {
         if (workplace === "company" && companyName.trim()) {
           profileData.company_name = companyName.trim();
-          // profileData.workplace = "company";
         } else if (workplace === "freelance") {
           profileData.company_name = "freelance";
         }
       }
       if (license.trim()) profileData.license_number = license.trim();
 
-      const userData = localStorage.getItem("user");
-      const parsedUser = userData
-        ? JSON.parse(userData)
-        : new Error("User data is null");
-      profileData.user_id = parsedUser.id;
-      console.log("Submitting profile data:", profileData);
-      console.log("Data keys:", Object.keys(profileData));
-      console.log("Data values:", Object.values(profileData));
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) {
+        throw new Error("User not found");
+      }
+      profileData.user_id = currentUser.id;
 
-      const response = await profileAPI.createSeller(profileData);
+      console.log("Submitting profile data:", profileData);
+
+      const response = await authService.createSellerProfile(profileData);
       console.log("API Response:", response);
 
       toast({
@@ -82,7 +78,6 @@ const SellerProfileSetup = () => {
       console.error("Error status:", error.response?.status);
       console.error("Error message:", error.message);
 
-      // Show more specific error message
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
