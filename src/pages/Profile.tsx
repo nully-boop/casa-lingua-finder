@@ -69,16 +69,20 @@ const Profile = () => {
   };
 
   // Fetch profile data from API
-  const { data: profileData, isLoading, error } = useQuery({
-    queryKey: ['profile'],
+  const {
+    data: profileData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["profile"],
     queryFn: async () => {
-      console.log('Fetching profile data...');
+      console.log("Fetching profile data...");
       if (!hasToken()) {
-        throw new Error('No authentication token found');
+        throw new Error("No authentication token found");
       }
       const response = await profileAPI.getProfile();
-      console.log('Profile data received:', response.data);
-      return response.data;
+      console.log("Profile data received:", response.data, response.seller);
+      return { user: response.data, seller: response.seller };
     },
     enabled: isAuthenticated && hasToken(),
     retry: (failureCount, error: any) => {
@@ -93,9 +97,9 @@ const Profile = () => {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: (data: Partial<UserProfile | SellerProfile>) => {
-      console.log('Updating profile with data:', data);
+      console.log("Updating profile with data:", data);
       if (!hasToken()) {
-        throw new Error('No authentication token found');
+        throw new Error("No authentication token found");
       }
       return profileAPI.updateProfile(data);
     },
@@ -105,10 +109,10 @@ const Profile = () => {
         description: "Your profile has been successfully updated.",
       });
       setIsEditing(false);
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
     onError: (error: any) => {
-      console.error('Profile update error:', error);
+      console.error("Profile update error:", error);
       if (error?.response?.status === 401) {
         toast({
           title: "Authentication Error",
@@ -125,7 +129,9 @@ const Profile = () => {
     },
   });
 
-  const [editData, setEditData] = useState<Partial<UserProfile | SellerProfile>>({});
+  const [editData, setEditData] = useState<
+    Partial<UserProfile | SellerProfile>
+  >({});
 
   if (!isAuthenticated || !hasToken()) {
     return (
@@ -157,7 +163,8 @@ const Profile = () => {
   }
 
   if (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -166,7 +173,11 @@ const Profile = () => {
           <p className="text-muted-foreground mb-4">
             Failed to load profile data: {errorMessage}
           </p>
-          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['profile'] })}>
+          <Button
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ["profile"] })
+            }
+          >
             Retry
           </Button>
         </div>
@@ -174,10 +185,12 @@ const Profile = () => {
     );
   }
 
-  const isSeller = profileData?.user_type === "seller";
+  const isSeller = profileData?.user.user_type === "seller";
 
   // Type guard to check if profileData is SellerProfile
-  const isSellerProfile = (profile: UserProfile | SellerProfile): profile is SellerProfile => {
+  const isSellerProfile = (
+    profile: UserProfile | SellerProfile
+  ): profile is SellerProfile => {
     return isSeller && profile.user_type === "seller";
   };
 
@@ -186,14 +199,14 @@ const Profile = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setEditData(prev => ({
+    setEditData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const startEditing = () => {
-    setEditData(profileData);
+    setEditData(profileData.user);
     setIsEditing(true);
   };
 
@@ -210,76 +223,108 @@ const Profile = () => {
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse">
                 <Avatar className="w-24 h-24">
-                  <AvatarImage src={currentData?.avatar} alt={currentData?.name} />
+                  <AvatarImage
+                    src={currentData?.user.avatar}
+                    alt={currentData?.user.name}
+                  />
                   <AvatarFallback>
-                    {currentData?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                    {currentData?.user.name
+                      ?.split(" ")
+                      .map((n) => n[0])
+                      .join("") || "U"}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="flex-1 text-center md:text-left">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                     <div>
-                      <h1 className="text-3xl font-bold mb-2">{currentData?.name}</h1>
-                      {isSellerProfile(currentData) && currentData.companyName && (
-                        <p className="text-lg text-muted-foreground mb-2">
-                          {currentData.companyName}
-                        </p>
-                      )}
+                      <h1 className="text-3xl font-bold mb-2">
+                        {currentData?.user.name}
+                      </h1>
+                      {isSellerProfile(currentData.user) &&
+                        currentData.seller.company_name && (
+                          <p className="text-lg text-muted-foreground mb-2">
+                            {currentData.seller.company_name}
+                          </p>
+                        )}
                       <div className="flex items-center justify-center md:justify-start space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
-                        {currentData?.location && (
+                        {currentData?.user.location && (
                           <div className="flex items-center space-x-1 rtl:space-x-reverse">
                             <MapPin className="h-4 w-4" />
-                            <span>{currentData.location}</span>
+                            <span>{currentData.user.location}</span>
                           </div>
                         )}
                         <div className="flex items-center space-x-1 rtl:space-x-reverse">
                           <User className="h-4 w-4" />
-                          <span>{language === "ar" ? "انضم في" : "Joined"} {currentData?.joinDate || "Recently"}</span>
+                          <span>
+                            {language === "ar" ? "انضم في" : "Joined"}{" "}
+                            {currentData?.user.created_at || "Recently"}
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     <Button
-                      onClick={() => isEditing ? setIsEditing(false) : startEditing()}
+                      onClick={() =>
+                        isEditing ? setIsEditing(false) : startEditing()
+                      }
                       variant="outline"
                       className="flex items-center space-x-2 rtl:space-x-reverse"
                     >
                       <Edit3 className="h-4 w-4" />
-                      <span>{isEditing ? t("common.cancel") : t("common.edit")}</span>
+                      <span>
+                        {isEditing ? t("common.cancel") : t("common.edit")}
+                      </span>
                     </Button>
                   </div>
 
-                  {isSellerProfile(currentData) && (
+                  {isSellerProfile(currentData.user) && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{currentData.rating || 0}</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {currentData.seller.rating || 0}
+                        </div>
                         <div className="text-sm text-muted-foreground flex items-center justify-center">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
                           {language === "ar" ? "التقييم" : "Rating"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{currentData.totalSales || 0}</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {currentData.seller.totalSales || 0}
+                        </div>
                         <div className="text-sm text-muted-foreground">
-                          {language === "ar" ? "إجمالي المبيعات" : "Total Sales"}
+                          {language === "ar"
+                            ? "إجمالي المبيعات"
+                            : "Total Sales"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{currentData.activeListings || 0}</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {currentData.seller.activeListings || 0}
+                        </div>
                         <div className="text-sm text-muted-foreground">
-                          {language === "ar" ? "العقارات النشطة" : "Active Listings"}
+                          {language === "ar"
+                            ? "العقارات النشطة"
+                            : "Active Listings"}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{currentData.yearsExperience || 0}</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {currentData.seller.yearsExperience || 0}
+                        </div>
                         <div className="text-sm text-muted-foreground">
-                          {language === "ar" ? "سنوات الخبرة" : "Years Experience"}
+                          {language === "ar"
+                            ? "سنوات الخبرة"
+                            : "Years Experience"}
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <p className="text-muted-foreground">{currentData?.bio || "No bio available."}</p>
+                  <p className="text-muted-foreground">
+                    {currentData?.user.bio || "No bio available."}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -301,70 +346,100 @@ const Profile = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <User className="h-5 w-5" />
-                    <span>{language === "ar" ? "المعلومات الشخصية" : "Personal Information"}</span>
+                    <span>
+                      {language === "ar"
+                        ? "المعلومات الشخصية"
+                        : "Personal Information"}
+                    </span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">{language === "ar" ? "الاسم الكامل" : "Full Name"}</Label>
+                      <Label htmlFor="name">
+                        {language === "ar" ? "الاسم الكامل" : "Full Name"}
+                      </Label>
                       <Input
                         id="name"
-                        value={currentData?.name || ''}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        value={currentData?.user.name || ""}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
                         disabled={!isEditing}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email">{language === "ar" ? "البريد الإلكتروني" : "Email"}</Label>
+                      <Label htmlFor="email">
+                        {language === "ar" ? "البريد الإلكتروني" : "Email"}
+                      </Label>
                       <Input
                         id="email"
                         type="email"
-                        value={currentData?.email || ''}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        value={currentData?.user.email || ""}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         disabled={!isEditing}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phone">{language === "ar" ? "رقم الهاتف" : "Phone Number"}</Label>
+                      <Label htmlFor="phone">
+                        {language === "ar" ? "رقم الهاتف" : "Phone Number"}
+                      </Label>
                       <Input
                         id="phone"
-                        value={currentData?.phone || ''}
-                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        value={currentData?.user.phone || ""}
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
                         disabled={!isEditing}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="location">{language === "ar" ? "الموقع" : "Location"}</Label>
+                      <Label htmlFor="location">
+                        {language === "ar" ? "الموقع" : "Location"}
+                      </Label>
                       <Input
                         id="location"
-                        value={currentData?.location || ''}
-                        onChange={(e) => handleInputChange("location", e.target.value)}
+                        value={currentData?.user.location || ""}
+                        onChange={(e) =>
+                          handleInputChange("location", e.target.value)
+                        }
                         disabled={!isEditing}
                       />
                     </div>
 
-                    {isSellerProfile(currentData) && (
+                    {isSellerProfile(currentData.user) && (
                       <>
                         <div className="space-y-2">
-                          <Label htmlFor="company">{language === "ar" ? "اسم الشركة" : "Company Name"}</Label>
+                          <Label htmlFor="company">
+                            {language === "ar" ? "اسم الشركة" : "Company Name"}
+                          </Label>
                           <Input
                             id="company"
-                            value={currentData.companyName || ''}
-                            onChange={(e) => handleInputChange("companyName", e.target.value)}
+                            value={currentData.seller.company_name || ""}
+                            onChange={(e) =>
+                              handleInputChange("companyName", e.target.value)
+                            }
                             disabled={!isEditing}
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="license">{language === "ar" ? "رقم الترخيص" : "License Number"}</Label>
+                          <Label htmlFor="license">
+                            {language === "ar"
+                              ? "رقم الترخيص"
+                              : "License Number"}
+                          </Label>
                           <Input
                             id="license"
-                            value={currentData.license || ''}
-                            onChange={(e) => handleInputChange("license", e.target.value)}
+                            value={currentData.seller.license_number || ""}
+                            onChange={(e) =>
+                              handleInputChange("license", e.target.value)
+                            }
                             disabled={!isEditing}
                           />
                         </div>
@@ -374,11 +449,14 @@ const Profile = () => {
 
                   {isEditing && (
                     <div className="flex justify-end space-x-2 rtl:space-x-reverse pt-4">
-                      <Button onClick={() => setIsEditing(false)} variant="outline">
+                      <Button
+                        onClick={() => setIsEditing(false)}
+                        variant="outline"
+                      >
                         {t("common.cancel")}
                       </Button>
-                      <Button 
-                        onClick={handleSave} 
+                      <Button
+                        onClick={handleSave}
                         className="flex items-center space-x-2 rtl:space-x-reverse"
                         disabled={updateProfileMutation.isPending}
                       >
@@ -399,13 +477,15 @@ const Profile = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    {language === "ar" ? "تفضيلات الحساب" : "Account Preferences"}
+                    {language === "ar"
+                      ? "تفضيلات الحساب"
+                      : "Account Preferences"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    {language === "ar" 
-                      ? "إعدادات التفضيلات قيد التطوير..." 
+                    {language === "ar"
+                      ? "إعدادات التفضيلات قيد التطوير..."
                       : "Preference settings coming soon..."}
                   </p>
                 </CardContent>
