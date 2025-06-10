@@ -44,15 +44,15 @@ const SellerProfileSetup = () => {
 
     try {
       const profileData = {
-        phone: phone || null,
-        location: location || null,
-        workplace: workplace || null,
-        company_name: workplace === "company" ? companyName : null,
-        license: license || null,
+        phone: phone,
+        location: location,
+        // workplace: workplace || null,
+        company_name: workplace === "company" ? companyName : workplace,
+        license_number: license,
       };
 
       console.log('Submitting profile data:', profileData);
-      await profileAPI.updateProfile(profileData);
+      await profileAPI.createSeller(profileData);
       
       toast({
         title: "Profile updated successfully",
