@@ -4,7 +4,7 @@ import axios from "axios";
 
 // إنشاء نسخة من axios بإعدادات أساسية
 const api = axios.create({
-  baseURL: "http://192.168.99.209:8000/api",
+  baseURL: "http://192.168.1.3:8000/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
