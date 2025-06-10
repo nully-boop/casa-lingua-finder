@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -22,7 +21,7 @@ const SellerProfileSetup = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [avatar, setAvatar] = useState<File | null>(null);
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
@@ -45,27 +44,32 @@ const SellerProfileSetup = () => {
     try {
       // Create a cleaner data structure
       const profileData: any = {};
-      
+
       // Only include fields that have values
       if (phone.trim()) profileData.phone = phone.trim();
       if (location.trim()) profileData.location = location.trim();
       if (workplace) {
         if (workplace === "company" && companyName.trim()) {
           profileData.company_name = companyName.trim();
-          profileData.workplace = "company";
+          // profileData.workplace = "company";
         } else if (workplace === "freelance") {
-          profileData.workplace = "freelance";
+          profileData.company_name = "freelance";
         }
       }
       if (license.trim()) profileData.license_number = license.trim();
 
-      console.log('Submitting profile data:', profileData);
-      console.log('Data keys:', Object.keys(profileData));
-      console.log('Data values:', Object.values(profileData));
-      
+      const userData = localStorage.getItem("user");
+      const parsedUser = userData
+        ? JSON.parse(userData)
+        : new Error("User data is null");
+      profileData.user_id = parsedUser.id;
+      console.log("Submitting profile data:", profileData);
+      console.log("Data keys:", Object.keys(profileData));
+      console.log("Data values:", Object.values(profileData));
+
       const response = await profileAPI.createSeller(profileData);
-      console.log('API Response:', response);
-      
+      console.log("API Response:", response);
+
       toast({
         title: "Profile updated successfully",
         description: "Welcome to Casa Lingua!",
@@ -73,16 +77,17 @@ const SellerProfileSetup = () => {
 
       navigate("/dashboard");
     } catch (error: any) {
-      console.error('Profile update error:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
-      console.error('Error message:', error.message);
-      
+      console.error("Profile update error:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      console.error("Error message:", error.message);
+
       // Show more specific error message
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error || 
-                          "Please check your input and try again";
-      
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Please check your input and try again";
+
       toast({
         title: "Error updating profile",
         description: errorMessage,
@@ -187,12 +192,15 @@ const SellerProfileSetup = () => {
                 {/* Workplace */}
                 <div className="space-y-2">
                   <Label htmlFor="workplace">Work Type</Label>
-                  <Select value={workplace} onValueChange={(value) => {
-                    setWorkplace(value);
-                    if (value !== "company") {
-                      setCompanyName("");
-                    }
-                  }}>
+                  <Select
+                    value={workplace}
+                    onValueChange={(value) => {
+                      setWorkplace(value);
+                      if (value !== "company") {
+                        setCompanyName("");
+                      }
+                    }}
+                  >
                     <SelectTrigger>
                       <div className="flex items-center space-x-2">
                         <Building className="h-4 w-4 text-muted-foreground" />
@@ -200,7 +208,9 @@ const SellerProfileSetup = () => {
                       </div>
                     </SelectTrigger>
                     <SelectContent className="bg-white">
-                      <SelectItem value="company">Work for a company</SelectItem>
+                      <SelectItem value="company">
+                        Work for a company
+                      </SelectItem>
                       <SelectItem value="freelance">Work for myself</SelectItem>
                     </SelectContent>
                   </Select>
@@ -250,11 +260,7 @@ const SellerProfileSetup = () => {
                   >
                     Skip for now
                   </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1"
-                    disabled={isLoading}
-                  >
+                  <Button type="submit" className="flex-1" disabled={isLoading}>
                     {isLoading ? "Saving..." : "Complete Profile"}
                   </Button>
                 </div>
