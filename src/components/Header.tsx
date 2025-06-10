@@ -1,8 +1,9 @@
 
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
-import { Languages, Home, Building, User, LogOut } from "lucide-react";
+import { Languages, Home, Building, User, LogOut, Settings, Moon, Sun } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { authAPI } from "@/services/api";
@@ -10,13 +11,20 @@ import { authAPI } from "@/services/api";
 const Header = () => {
   const { language, setLanguage, isRTL, t, user, logout, isAuthenticated } =
     useLanguage();
+  const { theme, setTheme, isDark } = useTheme();
   const navigate = useNavigate();
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "ar" : "en");
   };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
   const isSeller: () => boolean = () =>
     isAuthenticated && user.user_type === "seller";
+
   const handleLogout = async () => {
     try {
       // Mock API call - replace with actual API integration
@@ -46,7 +54,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-background shadow-sm border-b border-border">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -89,6 +97,16 @@ const Header = () => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
+            {/* Theme Toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleTheme}
+              className="flex items-center space-x-2 rtl:space-x-reverse"
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+
             {/* Language Toggle */}
             <Button
               variant="outline"
@@ -111,6 +129,15 @@ const Header = () => {
                   >
                     <User className="h-4 w-4" />
                     <span>{user?.name}</span>
+                  </Button>
+                </Link>
+                <Link to="/settings">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center space-x-2 rtl:space-x-reverse"
+                  >
+                    <Settings className="h-4 w-4" />
                   </Button>
                 </Link>
                 <Button
