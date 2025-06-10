@@ -43,16 +43,28 @@ const SellerProfileSetup = () => {
     setIsLoading(true);
 
     try {
-      const profileData = {
-        phone: phone,
-        location: location,
-        // workplace: workplace || null,
-        company_name: workplace === "company" ? companyName : workplace,
-        license_number: license,
-      };
+      // Create a cleaner data structure
+      const profileData: any = {};
+      
+      // Only include fields that have values
+      if (phone.trim()) profileData.phone = phone.trim();
+      if (location.trim()) profileData.location = location.trim();
+      if (workplace) {
+        if (workplace === "company" && companyName.trim()) {
+          profileData.company_name = companyName.trim();
+          profileData.workplace = "company";
+        } else if (workplace === "freelance") {
+          profileData.workplace = "freelance";
+        }
+      }
+      if (license.trim()) profileData.license_number = license.trim();
 
       console.log('Submitting profile data:', profileData);
-      await profileAPI.createSeller(profileData);
+      console.log('Data keys:', Object.keys(profileData));
+      console.log('Data values:', Object.values(profileData));
+      
+      const response = await profileAPI.createSeller(profileData);
+      console.log('API Response:', response);
       
       toast({
         title: "Profile updated successfully",
@@ -60,11 +72,20 @@ const SellerProfileSetup = () => {
       });
 
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Profile update error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      console.error('Error message:', error.message);
+      
+      // Show more specific error message
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          "Please check your input and try again";
+      
       toast({
         title: "Error updating profile",
-        description: "Please try again",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
