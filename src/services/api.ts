@@ -1,11 +1,10 @@
-
 import ILogin from "@/interfaces/ILogin";
 import IRegister from "@/interfaces/IRegister";
 import axios from "axios";
 
 // إنشاء نسخة من axios بإعدادات أساسية
 const api = axios.create({
-  baseURL: "http://192.168.1.7:8000/api",
+  baseURL: "http://192.168.99.209:8000/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -22,12 +21,12 @@ api.interceptors.request.use(
         const userData = JSON.parse(user);
         if (userData?.token) {
           config.headers.Authorization = `Bearer ${userData.token}`;
-          console.log('Token added to request:', config.url);
+          console.log("Token added to request:", config.url);
         } else {
-          console.warn('No token found in user data');
+          console.warn("No token found in user data");
         }
       } else {
-        console.warn('No user found in localStorage');
+        console.warn("No user found in localStorage");
       }
     } catch (error) {
       console.error("Error parsing user token:", error);
@@ -43,7 +42,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.error('Unauthorized request, removing user data');
+      console.error("Unauthorized request, removing user data");
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
@@ -107,18 +106,37 @@ export const dashboardAPI = {
 // استدعاءات الملف الشخصي
 export const profileAPI = {
   getProfile: () => {
-    console.log('Fetching profile data with token...');
-    return api.get("/profile").then(response => {
+    console.log("Fetching profile data with token...");
+    return api.get("/profile").then((response) => {
       // Extract user data from nested response
-      console.log('Raw API response:', response.data);
-      return { ...response, data: response.data.user };
+      console.log("Raw API response:", response.data);
+      return {
+        ...response,
+        data: response.data.user,
+        seller: response.data.seller,
+      };
     });
   },
   updateProfile: (data: any) => {
-    console.log('Updating profile data with token...');
-    return api.put("/profile", data).then(response => {
+    console.log("Updating profile data with token...");
+    return api.put("/profile", data).then((response) => {
       // Extract user data from nested response if needed
-      return response.data.user ? { ...response, data: response.data.user } : response;
+      return response.data.user
+        ? { ...response, data: response.data.user }
+        : response;
+    });
+  },
+
+  createSeller: (data: any) => {
+    console.log("Updating profile data with token...");
+    return api.post("/auth/create-seller", data).then((response) => {
+      // Extract user data from nested response if needed
+      return response.data.user && response.data.seller
+        ? {
+            ...response,
+            data: { user: response.data.user, seller: response.data.seller },
+          }
+        : response;
     });
   },
 };
