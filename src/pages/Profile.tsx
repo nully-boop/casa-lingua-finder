@@ -24,6 +24,8 @@ import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileAPI } from "@/services/api";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
 
 // Interface for user profile data
 interface UserProfile {
@@ -211,6 +213,9 @@ const Profile = () => {
   };
 
   const currentData = isEditing ? { ...profileData, ...editData } : profileData;
+  const date = format(new Date(currentData?.user.created_at), "dd-MM-yyyy", {
+    locale: language === "ar" ? ar : undefined,
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -257,8 +262,8 @@ const Profile = () => {
                         <div className="flex items-center space-x-1 rtl:space-x-reverse">
                           <User className="h-4 w-4" />
                           <span>
-                            {language === "ar" ? "انضم في" : "Joined"}{" "}
-                            {currentData?.user.created_at || "Recently"}
+                            {language === "ar" ? "انضم في" : "Joined at"}{" "}
+                            {date || "Recently"}
                           </span>
                         </div>
                       </div>
