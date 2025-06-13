@@ -1,9 +1,9 @@
 interface IRegister {
   name: string;
-  email: string;
+  phone: string;
   password: string;
   password_confirmation: string;
-  user_type: string;
+  // user_type: string;
 }
 
 export default IRegister;
