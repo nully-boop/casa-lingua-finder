@@ -25,7 +25,7 @@ const Settings = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
-    email: user?.email || '',
+    phone: user?.phone || '',
   });
 
   if (!isAuthenticated) {
@@ -108,19 +108,19 @@ const Settings = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="phone">Phone</Label>
                     <Input
-                      id="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                       disabled={!isEditing}
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <Label>User Type</Label>
                     <Input value={user?.user_type || ''} disabled />
-                  </div>
+                  </div> */}
 
                   <div className="flex gap-2 pt-4">
                     {!isEditing ? (
