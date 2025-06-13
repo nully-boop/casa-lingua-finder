@@ -4,7 +4,7 @@ import axios from "axios";
 
 // إنشاء نسخة من axios بإعدادات أساسية
 const api = axios.create({
-  baseURL: "http://192.168.1.3:8000/api",
+  baseURL: "http://192.168.1.5:8000/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -53,16 +53,12 @@ api.interceptors.response.use(
 
 // استدعاءات المصادقة
 export const authAPI = {
-  login: (data: ILogin) => api.post("/auth/login", data),
+  login: (data: ILogin) => api.post("/login", data),
 
-  register: (data: IRegister) => api.post("/auth/register", data),
+  register: (data: IRegister) => api.post("/register", data),
 
   logout: (token: string) =>
-    api.post(
-      "/auth/logout",
-      {},
-      { headers: { Authorization: `Bearer ${token}` } }
-    ),
+    api.post("/logout", {}, { headers: { Authorization: `Bearer ${token}` } }),
 
   forgotPassword: (email: string) =>
     api.post("/auth/forgot-password", { email }),
@@ -107,7 +103,7 @@ export const dashboardAPI = {
 export const profileAPI = {
   getProfile: () => {
     console.log("Fetching profile data with token...");
-    return api.get("/profile").then((response) => {
+    return api.get("/user/getProfile").then((response) => {
       // Extract user data from nested response
       console.log("Raw API response:", response.data);
       return {
@@ -119,7 +115,7 @@ export const profileAPI = {
   },
   updateProfile: (data: any) => {
     console.log("Updating profile data with token...");
-    return api.put("/profile", data).then((response) => {
+    return api.put("/user/updateProfile", data).then((response) => {
       // Extract user data from nested response if needed
       return response.data.user
         ? { ...response, data: response.data.user }
