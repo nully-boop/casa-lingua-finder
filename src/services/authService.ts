@@ -1,4 +1,3 @@
-
 import { authAPI, profileAPI } from "./api";
 import IUser from "@/interfaces/IUser";
 import IRegister from "@/interfaces/IRegister";
@@ -8,16 +7,20 @@ export const authService = {
   // Registration service
   register: async (data: IRegister) => {
     const response = await authAPI.register(data);
-    const userData = response.data["user"];
-    
+    const token = response.data["token"]["original"];
+    const userData = token["user"];
+    const accessToken = token["access_token"];
+
+    console.log(userData);
+
     const user: IUser = {
       id: userData["id"],
       name: userData["name"],
-      email: userData["email"],
-      user_type: userData["user_type"],
-      token: response.data["access_token"],
+      phone: userData["phone"],
+      // user_type: "",
+      token: accessToken,
     };
-    
+
     localStorage.setItem("user", JSON.stringify(user));
     return { user, userData };
   },
@@ -26,15 +29,17 @@ export const authService = {
   login: async (data: ILogin) => {
     const response = await authAPI.login(data);
     const userData = response.data["user"];
-    
+    const accessToken = response.data["access_token"];
+    console.log(userData);
+
     const user: IUser = {
       id: userData["id"],
       name: userData["name"],
-      email: userData["email"],
-      user_type: userData["user_type"],
-      token: response.data["access_token"],
+      phone: userData["phone"],
+      // user_type: "",
+      token: accessToken,
     };
-    
+
     localStorage.setItem("user", JSON.stringify(user));
     return { user, userData };
   },
@@ -84,5 +89,5 @@ export const authService = {
   isAuthenticated: (): boolean => {
     const user = authService.getCurrentUser();
     return !!user?.token;
-  }
+  },
 };
