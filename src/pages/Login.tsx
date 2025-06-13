@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building, Mail, Lock } from "lucide-react";
+import { Building, Mail, Lock, PhoneCall } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
@@ -14,7 +14,8 @@ const Login = () => {
   const { t, login } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,7 +25,7 @@ const Login = () => {
 
     try {
       const { user, userData } = await authService.login({
-        email: email,
+        phone: phone,
         password: password,
       });
 
@@ -35,11 +36,12 @@ const Login = () => {
         description: "Welcome back!",
       });
 
-      if (userData["user_type"] === "seller") {
-        navigate("/dashboard");
-      } else {
-        navigate("/");
-      }
+      // if (userData["user_type"] === "seller") {
+      //   navigate("/dashboard");
+      // } else {
+      //   navigate("/");
+      // }
+      navigate("/");
     } catch (error) {
       toast({
         title: "Login failed",
@@ -71,14 +73,14 @@ const Login = () => {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">{t("auth.email")}</Label>
+                  <Label htmlFor="phone">{t("auth.phone")}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 rtl:left-auto rtl:right-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <PhoneCall className="absolute left-3 rtl:left-auto rtl:right-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="phone"
+                      type="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                       className="pl-10 rtl:pl-3 rtl:pr-10"
                       required
                     />

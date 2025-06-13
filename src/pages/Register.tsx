@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building, Mail, Lock, User } from "lucide-react";
+import { Building, Mail, Lock, User, PhoneCall } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import type { UserType } from "@/contexts/LanguageContext";
@@ -23,7 +23,8 @@ const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userType, setUserType] = useState<UserType>("buyer");
@@ -44,12 +45,12 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const { user, userData } = await authService.register({
+      const { user } = await authService.register({
         name: name,
-        email: email,
+        phone: phone,
         password: password,
         password_confirmation: confirmPassword,
-        user_type: userType,
+        // user_type: "",
       });
 
       login(user);
@@ -58,15 +59,21 @@ const Register = () => {
         description: "Welcome to Casa Lingua!",
       });
 
-      if (userData["user_type"] === "seller") {
-        navigate("/seller-setup");
-      } else {
-        navigate("/");
-      }
+      // if (userData["user_type"] === "seller") {
+      //   navigate("/seller-setup");
+      // } else {
+      //   navigate("/");
+      // }
+      navigate("/");
     } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Please check your input and try again";
+
       toast({
         title: "Registration failed",
-        description: "Please try again",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -111,14 +118,14 @@ const Register = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">{t("auth.email")}</Label>
+                  <Label htmlFor="phone">{t("auth.phone")}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 rtl:left-auto rtl:right-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <PhoneCall className="absolute left-3 rtl:left-auto rtl:right-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="phone"
+                      type="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                       className="pl-10 rtl:pl-3 rtl:pr-10"
                       required
                     />
