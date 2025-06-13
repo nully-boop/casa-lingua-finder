@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -93,12 +92,12 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
   }
 
   /* RTL Support */
   [dir="rtl"] {
-    font-family: 'Rubik', sans-serif;
+    font-family: "Rubik", sans-serif;
   }
 
   [dir="rtl"] .rtl\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
