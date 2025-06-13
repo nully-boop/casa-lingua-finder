@@ -71,6 +71,7 @@ const translations = {
     // Authentication
     'auth.email': 'Email',
     'auth.password': 'Password',
+    'auth.phone':'Phone',
     'auth.confirmPassword': 'Confirm Password',
     'auth.name': 'Name',
     'auth.userType': 'Account Type',
@@ -170,6 +171,7 @@ const translations = {
     
     // Authentication
     'auth.email': 'البريد الإلكتروني',
+    'auth.phone':'رقم الهاتف',
     'auth.password': 'كلمة المرور',
     'auth.confirmPassword': 'تأكيد كلمة المرور',
     'auth.name': 'الاسم',
