@@ -1,9 +1,17 @@
-
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
-import { Languages, Home, Building, User, LogOut, Settings, Moon, Sun } from "lucide-react";
+import {
+  Languages,
+  Home,
+  Building,
+  User,
+  LogOut,
+  Settings,
+  Moon,
+  Sun,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { authAPI } from "@/services/api";
@@ -19,11 +27,13 @@ const Header = () => {
   };
 
   const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
+    setTheme(theme === "light" ? "dark" : "light");
   };
 
-  const isSeller: () => boolean = () =>
-    isAuthenticated && user.user_type === "seller";
+  // const isSeller: () => boolean = () =>
+  //   isAuthenticated && user.user_type === "seller";
+
+  const isSeller: () => boolean = () => isAuthenticated;
 
   const handleLogout = async () => {
     try {
@@ -104,7 +114,11 @@ const Header = () => {
               onClick={toggleTheme}
               className="flex items-center space-x-2 rtl:space-x-reverse"
             >
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {isDark ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
             </Button>
 
             {/* Language Toggle */}
