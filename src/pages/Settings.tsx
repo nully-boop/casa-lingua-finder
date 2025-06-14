@@ -14,6 +14,7 @@ import {
   Tabs, TabsContent, TabsList, TabsTrigger,
 } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
+import { Sun, Moon, Monitor } from "lucide-react";
 
 const placeholderImg =
   "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=facearea&w=128&q=80";
