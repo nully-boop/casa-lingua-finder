@@ -2,13 +2,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, User, Star, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { profileAPI } from "@/services/api";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
+import ProfileHeader from "@/components/profile/ProfileHeader";
 
 // Interface for user profile data
 interface UserProfile {
@@ -65,15 +63,11 @@ const Profile = () => {
         throw new Error("No authentication token found");
       }
       const response = await profileAPI.getProfile();
-      console.log(response.data);
       return { user: response.data, seller: response.seller };
     },
     enabled: isAuthenticated && hasToken(),
     retry: (failureCount, error: any) => {
-      // Don't retry on 401 errors
-      if (error?.response?.status === 401) {
-        return false;
-      }
+      if (error?.response?.status === 401) return false;
       return failureCount < 3;
     },
   });
@@ -130,111 +124,15 @@ const Profile = () => {
     );
   }
 
-  const isSeller = profileData?.user.user_type === "seller";
-  const date = format(new Date(profileData?.user.created_at), "dd-MM-yyyy", {
-    locale: language === "ar" ? ar : undefined,
-  });
-
-  const profileImage = profileData?.user.image?.url;
-  console.log(profileImage);
+  // Remove all editing, only display info now
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Profile Header */}
           <Card className="mb-8">
             <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse">
-                <Avatar className="w-24 h-24">
-                  <AvatarImage
-                    src={profileImage}
-                    alt={profileData?.user?.name}
-                  />
-                  <AvatarFallback>
-                    {profileData?.user?.name
-                      ?.split(" ")
-                      .map((n: string) => n[0])
-                      .join("") || "U"}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="flex-1 text-center md:text-left">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                    <div>
-                      <h1 className="text-3xl font-bold mb-2">
-                        {profileData?.user.name}
-                      </h1>
-                      {isSeller && profileData?.seller?.company_name && (
-                        <p className="text-lg text-muted-foreground mb-2">
-                          {profileData.seller.company_name}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-center md:justify-start space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
-                        {profileData?.user.location && (
-                          <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                            <MapPin className="h-4 w-4" />
-                            <span>{profileData.user.location}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                          <User className="h-4 w-4" />
-                          <span>
-                            {language === "ar" ? "انضم في" : "Joined at"}{" "}
-                            {date || "Recently"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {isSeller && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">
-                          {profileData.seller.rating || 0}
-                        </div>
-                        <div className="text-sm text-muted-foreground flex items-center justify-center">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                          {language === "ar" ? "التقييم" : "Rating"}
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">
-                          {profileData.seller.totalSales || 0}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {language === "ar"
-                            ? "إجمالي المبيعات"
-                            : "Total Sales"}
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">
-                          {profileData.seller.activeListings || 0}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {language === "ar"
-                            ? "العقارات النشطة"
-                            : "Active Listings"}
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">
-                          {profileData.seller.yearsExperience || 0}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {language === "ar"
-                            ? "سنوات الخبرة"
-                            : "Years Experience"}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  <p className="text-muted-foreground">
-                    {profileData?.user.bio || "No bio available."}
-                  </p>
-                </div>
-              </div>
+              <ProfileHeader user={profileData.user} language={language} />
             </CardContent>
           </Card>
         </div>
