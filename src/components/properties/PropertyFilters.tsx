@@ -21,7 +21,8 @@ interface PropertyFiltersProps {
   selectedType: string;
   setSelectedType: (val: string) => void;
   priceRange: [number, number];
-  setPriceRange: (val: [number, number]) => void;
+-  setPriceRange: (val: [number, number]) => void;
++  setPriceRange: (val: number[]) => void;
   clearFilters: () => void;
 }
 
@@ -124,12 +125,18 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
               </label>
               <div className="px-2">
                 <Slider
-                  value={priceRange}
-                  onValueChange={(val) => setPriceRange(val as [number, number])}
-                  max={5000000}
-                  min={0}
-                  step={50000}
-                  className="w-full"
+-                  value={priceRange}
+-                  onValueChange={(val) => setPriceRange(val as [number, number])}
+-                  max={5000000}
+-                  min={0}
+-                  step={50000}
+-                  className="w-full"
++                  value={priceRange}
++                  onValueChange={setPriceRange}
++                  max={5000000}
++                  min={0}
++                  step={50000}
++                  className="w-full"
                 />
                 <div className="flex justify-between mt-2 text-sm text-muted-foreground">
                   <span>{priceRange[0].toLocaleString()} AED</span>
