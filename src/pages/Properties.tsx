@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -15,91 +16,47 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Search, Filter, MapPin, Bed, Bath, Square, Star } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import api from "@/services/api";
 
-// Mock properties data
-const mockProperties = [
-  {
-    id: 1,
-    title: "Modern Downtown Apartment",
-    titleAr: "شقة عصرية في وسط المدينة",
-    type: "apartment",
-    price: 850000,
-    currency: "AED",
-    location: "Dubai Marina",
-    locationAr: "مرسى دبي",
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 1200,
+const API_URL = "/user/properties";
+
+// Normalizes a property object from API to UI
+function normalizeProperty(apiProp: any) {
+  return {
+    id: apiProp.id,
+    title: apiProp.title,
+    titleAr: apiProp.title_ar || apiProp.title, // fallback to English if not exists
+    type: apiProp.type,
+    price: parseFloat(apiProp.price),
+    currency: apiProp.currency || "AED",
+    location: apiProp.location,
+    locationAr: apiProp.location_ar || apiProp.location, // fallback
+    bedrooms: apiProp.rooms ?? 0,
+    bathrooms: apiProp.bathrooms ?? 0,
+    area: apiProp.area ? parseFloat(apiProp.area) : 0,
     image:
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop",
-    forSale: true,
-    rating: 4.8,
-    description: "Beautiful modern apartment with stunning views",
-    descriptionAr: "شقة عصرية جميلة مع إطلالات خلابة",
-  },
-  {
-    id: 2,
-    title: "Luxury Villa with Pool",
-    titleAr: "فيلا فاخرة مع مسبح",
-    type: "villa",
-    price: 12000,
-    currency: "AED",
-    location: "Palm Jumeirah",
-    locationAr: "نخلة جميرا",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 3500,
-    image:
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop",
-    forSale: false,
-    rating: 4.9,
-    description: "Stunning villa with private pool and garden",
-    descriptionAr: "فيلا مذهلة مع مسبح خاص وحديقة",
-  },
-  {
-    id: 3,
-    title: "Commercial Office Space",
-    titleAr: "مساحة مكتبية تجارية",
-    type: "office",
-    price: 2500000,
-    currency: "AED",
-    location: "Business Bay",
-    locationAr: "خليج الأعمال",
-    bedrooms: 0,
-    bathrooms: 2,
-    area: 800,
-    image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop",
-    forSale: true,
-    rating: 4.7,
-    description: "Prime office location in business district",
-    descriptionAr: "موقع مكتبي مميز في المنطقة التجارية",
-  },
-  {
-    id: 4,
-    title: "Cozy Studio Apartment",
-    titleAr: "شقة استوديو مريحة",
-    type: "apartment",
-    price: 3500,
-    currency: "AED",
-    location: "JLT",
-    locationAr: "أبراج بحيرة الجميرا",
-    bedrooms: 0,
-    bathrooms: 1,
-    area: 450,
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=300&fit=crop",
-    forSale: false,
-    rating: 4.5,
-    description: "Perfect for young professionals",
-    descriptionAr: "مثالية للمهنيين الشباب",
-  },
-];
+      (apiProp.images && apiProp.images[0] && apiProp.images[0].url) ||
+      "https://placehold.co/400x300?text=No+Image",
+    forSale: apiProp.ad_type === "sale" || apiProp.forSale || false,
+    rating: 4.5, // Placeholder until API supports ratings
+    description: apiProp.description || "",
+    descriptionAr: apiProp.description_ar || apiProp.description || "",
+  };
+}
+
+const fetchProperties = async () => {
+  const res = await api.get(API_URL);
+  // API gives response as { current_page, data, ... }
+  return res.data.data;
+};
 
 const Properties = () => {
   const { t, language, isRTL } = useLanguage();
   const [searchParams] = useSearchParams();
-  const [filteredProperties, setFilteredProperties] = useState(mockProperties);
+
+  // Local state for filters/controls
+  const [filteredProperties, setFilteredProperties] = useState([]);
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || ""
   );
@@ -113,43 +70,56 @@ const Properties = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
 
+  // Fetch properties data from API
+  const {
+    data: apiProperties,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["properties"],
+    queryFn: fetchProperties,
+  });
+
+  // Memoize the normalized properties for performance
+  const properties = useMemo(() => {
+    if (!apiProperties) return [];
+    return apiProperties.map(normalizeProperty);
+  }, [apiProperties]);
+
+  // Filtering logic (reuses existing code, now with API data)
   useEffect(() => {
-    applyFilters();
-  }, [searchQuery, selectedLocation, selectedType, priceRange, sortBy]);
+    if (!properties) return;
 
-  const applyFilters = () => {
-    let filtered = [...mockProperties];
+    let filtered = [...properties];
 
-    // Search query filter
     if (searchQuery) {
       filtered = filtered.filter(
         (property) =>
           property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          property.titleAr.includes(searchQuery) ||
+          (property.titleAr &&
+            property.titleAr.includes(searchQuery)) ||
           property.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          property.locationAr.includes(searchQuery)
+          (property.locationAr && property.locationAr.includes(searchQuery))
       );
     }
 
-    // Location filter
     if (selectedLocation) {
       filtered = filtered.filter((property) =>
-        property.location.toLowerCase().includes(selectedLocation.toLowerCase())
+        property.location
+          .toLowerCase()
+          .includes(selectedLocation.toLowerCase())
       );
     }
 
-    // Type filter
     if (selectedType) {
       filtered = filtered.filter((property) => property.type === selectedType);
     }
 
-    // Price range filter
     filtered = filtered.filter(
       (property) =>
         property.price >= priceRange[0] && property.price <= priceRange[1]
     );
 
-    // Sort
     switch (sortBy) {
       case "priceLow":
         filtered.sort((a, b) => a.price - b.price);
@@ -158,7 +128,6 @@ const Properties = () => {
         filtered.sort((a, b) => b.price - a.price);
         break;
       case "newest":
-        // Mock newest first (by id)
         filtered.sort((a, b) => b.id - a.id);
         break;
       case "oldest":
@@ -167,7 +136,14 @@ const Properties = () => {
     }
 
     setFilteredProperties(filtered);
-  };
+  }, [
+    properties,
+    searchQuery,
+    selectedLocation,
+    selectedType,
+    priceRange,
+    sortBy,
+  ]);
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -345,97 +321,110 @@ const Properties = () => {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredProperties.map((property) => (
-                <Card
-                  key={property.id}
-                  className="overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-fade-in"
-                >
-                  <div className="relative">
-                    <img
-                      src={property.image}
-                      alt={
-                        language === "ar" ? property.titleAr : property.title
-                      }
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4">
-                      <Badge
-                        variant={property.forSale ? "default" : "secondary"}
-                      >
-                        {property.forSale ? t("common.sale") : t("common.rent")}
-                      </Badge>
+            {isLoading && (
+              <div className="text-center py-20 text-lg">{t("common.loading") || "Loading..."}</div>
+            )}
+            {error && (
+              <div className="text-center py-20 text-destructive">
+                {t("common.error") || "Error loading properties"}
+              </div>
+            )}
+
+            {!isLoading && !error && (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredProperties.map((property: any) => (
+                  <Card
+                    key={property.id}
+                    className="overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-fade-in"
+                  >
+                    <div className="relative">
+                      <img
+                        src={property.image}
+                        alt={
+                          language === "ar" ? property.titleAr : property.title
+                        }
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4">
+                        <Badge
+                          variant={property.forSale ? "default" : "secondary"}
+                        >
+                          {property.forSale
+                            ? t("common.sale")
+                            : t("common.rent")}
+                        </Badge>
+                      </div>
+                      <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4 bg-white rounded-full p-2">
+                        <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-sm font-medium">
+                            {property.rating}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4 bg-white rounded-full p-2">
-                      <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">
-                          {property.rating}
+
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-semibold mb-2">
+                        {language === "ar" ? property.titleAr : property.title}
+                      </h3>
+
+                      <div className="flex items-center text-muted-foreground mb-3">
+                        <MapPin className="h-4 w-4 mr-1 rtl:mr-0 rtl:ml-1" />
+                        <span>
+                          {language === "ar"
+                            ? property.locationAr
+                            : property.location}
                         </span>
                       </div>
-                    </div>
-                  </div>
 
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold mb-2">
-                      {language === "ar" ? property.titleAr : property.title}
-                    </h3>
-
-                    <div className="flex items-center text-muted-foreground mb-3">
-                      <MapPin className="h-4 w-4 mr-1 rtl:mr-0 rtl:ml-1" />
-                      <span>
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                         {language === "ar"
-                          ? property.locationAr
-                          : property.location}
-                      </span>
-                    </div>
+                          ? property.descriptionAr
+                          : property.description}
+                      </p>
 
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {language === "ar"
-                        ? property.descriptionAr
-                        : property.description}
-                    </p>
-
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
-                        {property.bedrooms > 0 && (
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
+                          {property.bedrooms > 0 && (
+                            <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                              <Bed className="h-4 w-4" />
+                              <span>{property.bedrooms}</span>
+                            </div>
+                          )}
                           <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                            <Bed className="h-4 w-4" />
-                            <span>{property.bedrooms}</span>
+                            <Bath className="h-4 w-4" />
+                            <span>{property.bathrooms}</span>
                           </div>
-                        )}
-                        <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                          <Bath className="h-4 w-4" />
-                          <span>{property.bathrooms}</span>
-                        </div>
-                        <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                          <Square className="h-4 w-4" />
-                          <span>{property.area} m²</span>
+                          <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                            <Square className="h-4 w-4" />
+                            <span>{property.area} m²</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-primary">
-                        {formatPrice(
-                          property.price,
-                          property.currency,
-                          property.forSale
-                        )}
+                      <div className="flex items-center justify-between">
+                        <div className="text-2xl font-bold text-primary">
+                          {formatPrice(
+                            property.price,
+                            property.currency,
+                            property.forSale
+                          )}
+                        </div>
+                        <div className="flex space-x-2 rtl:space-x-reverse">
+                          <Button variant="outline" size="sm">
+                            {t("common.view")}
+                          </Button>
+                          <Button size="sm">{t("common.contact")}</Button>
+                        </div>
                       </div>
-                      <div className="flex space-x-2 rtl:space-x-reverse">
-                        <Button variant="outline" size="sm">
-                          {t("common.view")}
-                        </Button>
-                        <Button size="sm">{t("common.contact")}</Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
 
-            {filteredProperties.length === 0 && (
+            {filteredProperties.length === 0 && !isLoading && !error && (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🏠</div>
                 <h3 className="text-xl font-semibold mb-2">
