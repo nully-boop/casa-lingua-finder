@@ -1,16 +1,12 @@
-import { useState } from "react";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, MapPin, Edit3, Save, Star, Loader2 } from "lucide-react";
+import { MapPin, User, Star, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { toast } from "@/hooks/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { profileAPI } from "@/services/api";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -26,6 +22,7 @@ interface UserProfile {
   joinDate: string;
   bio?: string;
   user_type: string;
+  image?: { url: string };
 }
 
 // Interface for seller profile data extending user profile
@@ -40,8 +37,7 @@ interface SellerProfile extends UserProfile {
 }
 
 const Profile = () => {
-  const { t, language, user, isAuthenticated } = useLanguage();
-  const [isEditing, setIsEditing] = useState(false);
+  const { t, language, isAuthenticated } = useLanguage();
   const queryClient = useQueryClient();
 
   // Check if user has token
@@ -66,12 +62,10 @@ const Profile = () => {
   } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      console.log("Fetching profile data...");
       if (!hasToken()) {
         throw new Error("No authentication token found");
       }
       const response = await profileAPI.getProfile();
-      console.log("Profile data received:", response.data, response.seller);
       return { user: response.data, seller: response.seller };
     },
     enabled: isAuthenticated && hasToken(),
@@ -83,10 +77,6 @@ const Profile = () => {
       return failureCount < 3;
     },
   });
-
-  const [editData, setEditData] = useState<
-    Partial<UserProfile | SellerProfile>
-  >({});
 
   if (!isAuthenticated || !hasToken()) {
     return (
@@ -141,28 +131,19 @@ const Profile = () => {
   }
 
   const isSeller = profileData?.user.user_type === "seller";
+  const date = format(
+    new Date(profileData?.user.created_at),
+    "dd-MM-yyyy",
+    { locale: language === "ar" ? ar : undefined }
+  );
 
-  // Type guard to check if profileData is SellerProfile
-  const isSellerProfile = (
-    profile: UserProfile | SellerProfile
-  ): profile is SellerProfile => {
-    return isSeller && profile.user_type === "seller";
-  };
-
-  const startEditing = () => {
-    setEditData(profileData.user);
-    setIsEditing(true);
-  };
-
-  const currentData = isEditing ? { ...profileData, ...editData } : profileData;
-  const date = format(new Date(currentData?.user.created_at), "dd-MM-yyyy", {
-    locale: language === "ar" ? ar : undefined,
-  });
+  const profileImage =
+    profileData?.user?.image?.url ||
+    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=facearea&w=128&q=80";
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Profile Header */}
@@ -171,13 +152,13 @@ const Profile = () => {
               <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse">
                 <Avatar className="w-24 h-24">
                   <AvatarImage
-                    src={currentData?.user.image.url}
-                    alt={currentData?.user.name}
+                    src={profileImage}
+                    alt={profileData?.user?.name}
                   />
                   <AvatarFallback>
-                    {currentData?.user.name
+                    {profileData?.user?.name
                       ?.split(" ")
-                      .map((n) => n[0])
+                      .map((n: string) => n[0])
                       .join("") || "U"}
                   </AvatarFallback>
                 </Avatar>
@@ -186,19 +167,18 @@ const Profile = () => {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                     <div>
                       <h1 className="text-3xl font-bold mb-2">
-                        {currentData?.user.name}
+                        {profileData?.user.name}
                       </h1>
-                      {isSellerProfile(currentData.user) &&
-                        currentData.seller.company_name && (
-                          <p className="text-lg text-muted-foreground mb-2">
-                            {currentData.seller.company_name}
-                          </p>
-                        )}
+                      {isSeller && profileData?.seller?.company_name && (
+                        <p className="text-lg text-muted-foreground mb-2">
+                          {profileData.seller.company_name}
+                        </p>
+                      )}
                       <div className="flex items-center justify-center md:justify-start space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
-                        {currentData?.user.location && (
+                        {profileData?.user.location && (
                           <div className="flex items-center space-x-1 rtl:space-x-reverse">
                             <MapPin className="h-4 w-4" />
-                            <span>{currentData.user.location}</span>
+                            <span>{profileData.user.location}</span>
                           </div>
                         )}
                         <div className="flex items-center space-x-1 rtl:space-x-reverse">
@@ -210,26 +190,12 @@ const Profile = () => {
                         </div>
                       </div>
                     </div>
-
-                    <Button
-                      onClick={() =>
-                        isEditing ? setIsEditing(false) : startEditing()
-                      }
-                      variant="outline"
-                      className="flex items-center space-x-2 rtl:space-x-reverse"
-                    >
-                      <Edit3 className="h-4 w-4" />
-                      <span>
-                        {isEditing ? t("common.cancel") : t("common.edit")}
-                      </span>
-                    </Button>
                   </div>
-
-                  {isSellerProfile(currentData.user) && (
+                  {isSeller && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-primary">
-                          {currentData.seller.rating || 0}
+                          {profileData.seller.rating || 0}
                         </div>
                         <div className="text-sm text-muted-foreground flex items-center justify-center">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
@@ -238,7 +204,7 @@ const Profile = () => {
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-primary">
-                          {currentData.seller.totalSales || 0}
+                          {profileData.seller.totalSales || 0}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar"
@@ -248,7 +214,7 @@ const Profile = () => {
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-primary">
-                          {currentData.seller.activeListings || 0}
+                          {profileData.seller.activeListings || 0}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar"
@@ -258,7 +224,7 @@ const Profile = () => {
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-primary">
-                          {currentData.seller.yearsExperience || 0}
+                          {profileData.seller.yearsExperience || 0}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar"
@@ -268,9 +234,8 @@ const Profile = () => {
                       </div>
                     </div>
                   )}
-
                   <p className="text-muted-foreground">
-                    {currentData?.user.bio || "No bio available."}
+                    {profileData?.user.bio || "No bio available."}
                   </p>
                 </div>
               </div>
@@ -283,3 +248,4 @@ const Profile = () => {
 };
 
 export default Profile;
+

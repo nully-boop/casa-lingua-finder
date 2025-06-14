@@ -85,11 +85,12 @@ const Settings = () => {
     }
   }, [profileData]);
 
-  // --- Use the correct image URL for profile image ---
+  // --- Use *only* the correct image URL for profile image ---
   const profileImage =
     photoPreview ||
-    (profileData && profileData.image && profileData.image.url) ||
-    placeholderImg;
+    (profileData && profileData.image && profileData.image.url)
+      ? profileData.image.url
+      : placeholderImg;
 
   if (!isAuthenticated) {
     navigate("/login");
