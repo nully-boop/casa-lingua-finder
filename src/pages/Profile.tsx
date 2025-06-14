@@ -1,4 +1,3 @@
-
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -66,6 +65,7 @@ const Profile = () => {
         throw new Error("No authentication token found");
       }
       const response = await profileAPI.getProfile();
+      console.log(response.data);
       return { user: response.data, seller: response.seller };
     },
     enabled: isAuthenticated && hasToken(),
@@ -131,16 +131,12 @@ const Profile = () => {
   }
 
   const isSeller = profileData?.user.user_type === "seller";
-  const date = format(
-    new Date(profileData?.user.created_at),
-    "dd-MM-yyyy",
-    { locale: language === "ar" ? ar : undefined }
-  );
+  const date = format(new Date(profileData?.user.created_at), "dd-MM-yyyy", {
+    locale: language === "ar" ? ar : undefined,
+  });
 
-  const profileImage =
-    profileData?.user?.image?.url ||
-    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=facearea&w=128&q=80";
-
+  const profileImage = profileData?.user.image?.url;
+  console.log(profileImage);
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -248,4 +244,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
