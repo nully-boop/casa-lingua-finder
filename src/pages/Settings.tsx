@@ -73,7 +73,7 @@ const Settings = () => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Sync formData once profileData is loaded
+  // Sync formData & photo once profileData is loaded
   useEffect(() => {
     if (profileData) {
       setFormData({
@@ -85,10 +85,10 @@ const Settings = () => {
     }
   }, [profileData]);
 
-  // Determine current profile image
+  // --- Use the correct image URL for profile image ---
   const profileImage =
     photoPreview ||
-    (profileData && (profileData.photo || profileData.avatar)) ||
+    (profileData && profileData.image && profileData.image.url) ||
     placeholderImg;
 
   if (!isAuthenticated) {
@@ -130,7 +130,8 @@ const Settings = () => {
         payload = new FormData();
         payload.append("name", formData.name);
         payload.append("phone", formData.phone);
-        payload.append("photo", avatarFile);
+        // --- use "url" key for photo file ---
+        payload.append("url", avatarFile);
       } else {
         payload = {
           name: formData.name,
