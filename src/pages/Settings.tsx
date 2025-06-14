@@ -31,6 +31,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar";
+import { profileAPI } from "@/services/api";
 
 const placeholderImg =
   "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=facearea&w=128&q=80";
@@ -64,14 +65,46 @@ const Settings = () => {
     return null;
   }
 
-  const handleSaveProfile = () => {
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been updated successfully.",
-    });
-    setIsEditing(false);
-    setIsPhotoEditing(false);
-    // In a real app, send photo/avatarFile and formData to the backend!
+  const handleSaveProfile = async () => {
+    try {
+      let payload: any;
+      let isAvatarChanged = !!avatarFile;
+
+      if (isAvatarChanged) {
+        // If changing avatar (photo), create FormData for file upload
+        payload = new FormData();
+        payload.append("name", formData.name);
+        payload.append("phone", formData.phone);
+        payload.append("photo", avatarFile);
+      } else {
+        // If only editing text fields
+        payload = {
+          name: formData.name,
+          phone: formData.phone,
+        };
+      }
+
+      // Update via API (handles both FormData and JSON)
+      const res = await profileAPI.updateProfile(payload);
+
+      // Optionally update local user context/state here if needed
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+      });
+      setIsEditing(false);
+      setIsPhotoEditing(false);
+      setPhotoPreview(null);
+      setAvatarFile(null);
+    } catch (error: any) {
+      toast({
+        title: "Profile Update Failed",
+        description: error?.response?.data?.message || "Could not update profile.",
+        variant: "destructive",
+      });
+      // Optional: log error or set error state
+    }
   };
 
   const handleDeleteAccount = () => {
