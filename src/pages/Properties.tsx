@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -18,6 +17,10 @@ import { Search, Filter, MapPin, Bed, Bath, Square, Star } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/services/api";
+import PropertyCard, { Property } from "@/components/properties/PropertyCard";
+import PropertyFilters from "@/components/properties/PropertyFilters";
+import PropertySearchBar from "@/components/properties/PropertySearchBar";
+import PropertyList from "@/components/properties/PropertyList";
 
 const API_URL = "/user/properties";
 
@@ -164,154 +167,30 @@ const Properties = () => {
       <Header />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Search Bar */}
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative flex-1">
-              <Search
-                className={`absolute top-3 ${
-                  isRTL ? "right-3" : "left-3"
-                } h-5 w-5 text-gray-400`}
-              />
-              <Input
-                placeholder={t("hero.search")}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`${isRTL ? "pr-10" : "pl-10"} h-12`}
-              />
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 rtl:space-x-reverse h-12"
-            >
-              <Filter className="h-4 w-4" />
-              <span>{t("search.filters")}</span>
-            </Button>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-48 h-12">
-                <SelectValue placeholder={t("search.sortBy")} />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="newest">{t("search.newest")}</SelectItem>
-                <SelectItem value="oldest">{t("search.oldest")}</SelectItem>
-                <SelectItem value="priceLow">{t("search.priceLow")}</SelectItem>
-                <SelectItem value="priceHigh">
-                  {t("search.priceHigh")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
+        <PropertySearchBar
+          t={t}
+          isRTL={isRTL}
+          language={language}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+        />
         <div className="flex gap-8">
-          {/* Filters Sidebar */}
-          {showFilters && (
-            <div className="w-80 space-y-6 animate-fade-in">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold">{t("search.filters")}</h3>
-                    <Button variant="ghost" size="sm" onClick={clearFilters}>
-                      {t("search.clearFilters")}
-                    </Button>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Location Filter */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        {t("hero.location")}
-                      </label>
-                      <Select
-                        value={selectedLocation}
-                        onValueChange={setSelectedLocation}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("hero.location")} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="">
-                            {language === "ar"
-                              ? "جميع المواقع"
-                              : "All Locations"}
-                          </SelectItem>
-                          <SelectItem value="dubai-marina">
-                            {language === "ar" ? "مرسى دبي" : "Dubai Marina"}
-                          </SelectItem>
-                          <SelectItem value="palm-jumeirah">
-                            {language === "ar" ? "نخلة جميرا" : "Palm Jumeirah"}
-                          </SelectItem>
-                          <SelectItem value="business-bay">
-                            {language === "ar"
-                              ? "خليج الأعمال"
-                              : "Business Bay"}
-                          </SelectItem>
-                          <SelectItem value="jlt">
-                            {language === "ar" ? "أبراج بحيرة الجميرا" : "JLT"}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Type Filter */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        {t("hero.type")}
-                      </label>
-                      <Select
-                        value={selectedType}
-                        onValueChange={setSelectedType}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("hero.type")} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="">
-                            {language === "ar" ? "جميع الأنواع" : "All Types"}
-                          </SelectItem>
-                          <SelectItem value="apartment">
-                            {t("type.apartment")}
-                          </SelectItem>
-                          <SelectItem value="villa">
-                            {t("type.villa")}
-                          </SelectItem>
-                          <SelectItem value="land">{t("type.land")}</SelectItem>
-                          <SelectItem value="office">
-                            {t("type.office")}
-                          </SelectItem>
-                          <SelectItem value="shop">{t("type.shop")}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Price Range */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        {t("search.priceRange")}
-                      </label>
-                      <div className="px-2">
-                        <Slider
-                          value={priceRange}
-                          onValueChange={setPriceRange}
-                          max={5000000}
-                          min={0}
-                          step={50000}
-                          className="w-full"
-                        />
-                        <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                          <span>{priceRange[0].toLocaleString()} AED</span>
-                          <span>{priceRange[1].toLocaleString()} AED</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+          <PropertyFilters
+            show={showFilters}
+            language={language}
+            t={t}
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+            selectedType={selectedType}
+            setSelectedType={setSelectedType}
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+            clearFilters={clearFilters}
+          />
 
           {/* Properties Grid */}
           <div className="flex-1">
@@ -320,7 +199,6 @@ const Properties = () => {
                 {t("search.results")} ({filteredProperties.length})
               </h2>
             </div>
-
             {isLoading && (
               <div className="text-center py-20 text-lg">{t("common.loading") || "Loading..."}</div>
             )}
@@ -329,101 +207,9 @@ const Properties = () => {
                 {t("common.error") || "Error loading properties"}
               </div>
             )}
-
             {!isLoading && !error && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredProperties.map((property: any) => (
-                  <Card
-                    key={property.id}
-                    className="overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-fade-in"
-                  >
-                    <div className="relative">
-                      <img
-                        src={property.image}
-                        alt={
-                          language === "ar" ? property.titleAr : property.title
-                        }
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4">
-                        <Badge
-                          variant={property.forSale ? "default" : "secondary"}
-                        >
-                          {property.forSale
-                            ? t("common.sale")
-                            : t("common.rent")}
-                        </Badge>
-                      </div>
-                      <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4 bg-white rounded-full p-2">
-                        <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">
-                            {property.rating}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <CardContent className="p-6">
-                      <h3 className="text-xl font-semibold mb-2">
-                        {language === "ar" ? property.titleAr : property.title}
-                      </h3>
-
-                      <div className="flex items-center text-muted-foreground mb-3">
-                        <MapPin className="h-4 w-4 mr-1 rtl:mr-0 rtl:ml-1" />
-                        <span>
-                          {language === "ar"
-                            ? property.locationAr
-                            : property.location}
-                        </span>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                        {language === "ar"
-                          ? property.descriptionAr
-                          : property.description}
-                      </p>
-
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
-                          {property.bedrooms > 0 && (
-                            <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                              <Bed className="h-4 w-4" />
-                              <span>{property.bedrooms}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                            <Bath className="h-4 w-4" />
-                            <span>{property.bathrooms}</span>
-                          </div>
-                          <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                            <Square className="h-4 w-4" />
-                            <span>{property.area} m²</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="text-2xl font-bold text-primary">
-                          {formatPrice(
-                            property.price,
-                            property.currency,
-                            property.forSale
-                          )}
-                        </div>
-                        <div className="flex space-x-2 rtl:space-x-reverse">
-                          <Button variant="outline" size="sm">
-                            {t("common.view")}
-                          </Button>
-                          <Button size="sm">{t("common.contact")}</Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <PropertyList properties={filteredProperties as Property[]} formatPrice={formatPrice} />
             )}
-
             {filteredProperties.length === 0 && !isLoading && !error && (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🏠</div>
