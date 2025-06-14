@@ -22,15 +22,21 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Moon, Sun, Monitor, Trash, Save, Edit, Image, Loader2 } from "lucide-react";
+import {
+  User,
+  Moon,
+  Sun,
+  Monitor,
+  Trash,
+  Save,
+  Edit,
+  Image,
+  Loader2,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { profileAPI } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 
@@ -44,13 +50,18 @@ const Settings = () => {
   const navigate = useNavigate();
 
   // -- Fetch profile data from backend --
-  const { data: profileData, isLoading, isError, refetch } = useQuery({
+  const {
+    data: profileData,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["settings-profile"],
     queryFn: async () => {
       const response = await profileAPI.getProfile();
       return response.data; // Assuming { id, name, phone, user_type, photo/avatar... }
     },
-    enabled: isAuthenticated
+    enabled: isAuthenticated,
   });
 
   // Form state
@@ -75,9 +86,10 @@ const Settings = () => {
   }, [profileData]);
 
   // Determine current profile image
-  const profileImage = photoPreview
-    || (profileData && (profileData.photo || profileData.avatar))
-    || placeholderImg;
+  const profileImage =
+    photoPreview ||
+    (profileData && (profileData.photo || profileData.avatar)) ||
+    placeholderImg;
 
   if (!isAuthenticated) {
     navigate("/login");
@@ -100,7 +112,9 @@ const Settings = () => {
         <Header />
         <div className="max-w-sm bg-card p-6 mt-32 rounded shadow">
           <div className="text-lg font-bold mb-2 text-destructive">Error</div>
-          <div className="text-muted-foreground mb-4">Could not load profile. Please try again.</div>
+          <div className="text-muted-foreground mb-4">
+            Could not load profile. Please try again.
+          </div>
           <Button onClick={() => refetch()}>Retry</Button>
         </div>
       </div>
@@ -110,7 +124,7 @@ const Settings = () => {
   const handleSaveProfile = async () => {
     try {
       let payload: any;
-      let isAvatarChanged = !!avatarFile;
+      const isAvatarChanged = !!avatarFile;
 
       if (isAvatarChanged) {
         payload = new FormData();
@@ -137,7 +151,8 @@ const Settings = () => {
     } catch (error: any) {
       toast({
         title: "Profile Update Failed",
-        description: error?.response?.data?.message || "Could not update profile.",
+        description:
+          error?.response?.data?.message || "Could not update profile.",
         variant: "destructive",
       });
     }
@@ -248,9 +263,7 @@ const Settings = () => {
                               size="sm"
                               variant="secondary"
                               className="flex items-center gap-2"
-                              onClick={() =>
-                                fileInputRef.current?.click()
-                              }
+                              onClick={() => fileInputRef.current?.click()}
                               disabled={!isEditing}
                             >
                               <Image className="h-4 w-4" />
