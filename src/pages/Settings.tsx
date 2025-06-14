@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import Header from "@/components/Header";
@@ -22,10 +22,18 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Moon, Sun, Monitor, Trash, Save, Edit } from "lucide-react";
+import { User, Moon, Sun, Monitor, Trash, Save, Edit, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/components/ui/avatar";
+
+const placeholderImg =
+  "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=facearea&w=128&q=80";
 
 const Settings = () => {
   const { user, isAuthenticated } = useLanguage();
@@ -33,11 +41,23 @@ const Settings = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Track profile editing
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
   });
+
+  // Avatar edit state
+  const [isPhotoEditing, setIsPhotoEditing] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Assume user profile photo is not implemented; can be stored in user.photo if backend supported
+  const profileImage = photoPreview
+    || (user && (user as any).photo)
+    || placeholderImg;
 
   if (!isAuthenticated) {
     navigate("/login");
@@ -45,16 +65,16 @@ const Settings = () => {
   }
 
   const handleSaveProfile = () => {
-    // Mock save functionality - replace with actual API call
     toast({
       title: "Profile Updated",
       description: "Your profile has been updated successfully.",
     });
     setIsEditing(false);
+    setIsPhotoEditing(false);
+    // In a real app, send photo/avatarFile and formData to the backend!
   };
 
   const handleDeleteAccount = () => {
-    // Mock delete functionality - replace with actual API call
     toast({
       title: "Account Deleted",
       description: "Your account has been permanently deleted.",
@@ -76,6 +96,30 @@ const Settings = () => {
     if (theme === "light") return <Sun className="h-4 w-4" />;
     if (theme === "dark") return <Moon className="h-4 w-4" />;
     return <Monitor className="h-4 w-4" />;
+  };
+
+  // --- Avatar logic ---
+  const handleStartPhotoEdit = () => {
+    setIsPhotoEditing(true);
+  };
+
+  const handleCancelPhotoEdit = () => {
+    setIsPhotoEditing(false);
+    setPhotoPreview(null);
+    setAvatarFile(null);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setAvatarFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -110,6 +154,75 @@ const Settings = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Avatar edit section */}
+                  <div className="flex items-center gap-5">
+                    <Avatar className="h-20 w-20 border-2 border-muted">
+                      <AvatarImage src={profileImage} alt={formData.name} />
+                      <AvatarFallback>
+                        <User className="w-8 h-8 text-muted-foreground" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-2">
+                      <div>
+                        {isPhotoEditing ? (
+                          <>
+                            <Input
+                              ref={fileInputRef}
+                              id="avatar"
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleAvatarChange}
+                              disabled={!isEditing}
+                            />
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="flex items-center gap-2"
+                              onClick={() =>
+                                fileInputRef.current?.click()
+                              }
+                              disabled={!isEditing}
+                            >
+                              <Image className="h-4 w-4" />
+                              {photoPreview ? "Change Photo" : "Choose Photo"}
+                            </Button>
+                            {photoPreview && (
+                              <div className="mt-2 text-xs text-muted-foreground">
+                                Preview is shown above.
+                              </div>
+                            )}
+                            <div className="flex gap-2 mt-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={handleCancelPhotoEdit}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex items-center gap-2"
+                              onClick={handleStartPhotoEdit}
+                              disabled={!isEditing}
+                            >
+                              <Edit className="h-4 w-4" />
+                              Edit Photo
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                      <p className="text-muted-foreground text-xs">
+                        Recommended: Square image, max 2MB
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="name">Name</Label>
                     <Input
@@ -165,7 +278,12 @@ const Settings = () => {
                         </Button>
                         <Button
                           variant="outline"
-                          onClick={() => setIsEditing(false)}
+                          onClick={() => {
+                            setIsEditing(false);
+                            setIsPhotoEditing(false);
+                            setPhotoPreview(null);
+                            setAvatarFile(null);
+                          }}
                         >
                           Cancel
                         </Button>
