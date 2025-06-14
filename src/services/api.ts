@@ -114,7 +114,7 @@ export const profileAPI = {
   },
   updateProfile: (data: any) => {
     console.log("Updating profile data with token...");
-    return api.put("/user/updateProfile", data).then((response) => {
+    return api.post("/user/updateProfile", data).then((response) => {
       // Extract user data from nested response if needed
       return response.data.user
         ? { ...response, data: response.data.user }
