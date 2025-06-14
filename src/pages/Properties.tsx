@@ -190,7 +190,7 @@ const Properties = () => {
             priceRange={priceRange}
             setPriceRange={(val) =>
               Array.isArray(val) && val.length === 2
-                ? setPriceRange(val as [number, number])
+                ? setPriceRange([val[0], val[1]])
                 : setPriceRange([0, 5000000])
             }
             clearFilters={clearFilters}
