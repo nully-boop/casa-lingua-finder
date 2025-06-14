@@ -1,20 +1,31 @@
-
-import React, { useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import Header from '@/components/Header';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Moon, Sun, Monitor, Trash, Save, Edit } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { authService } from '@/services/authService';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import Header from "@/components/Header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Moon, Sun, Monitor, Trash, Save, Edit } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
+import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
   const { user, isAuthenticated } = useLanguage();
@@ -24,20 +35,20 @@ const Settings = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    phone: user?.phone || '',
+    name: user?.name || "",
+    phone: user?.phone || "",
   });
 
   if (!isAuthenticated) {
-    navigate('/login');
+    navigate("/login");
     return null;
   }
 
   const handleSaveProfile = () => {
     // Mock save functionality - replace with actual API call
     toast({
-      title: 'Profile Updated',
-      description: 'Your profile has been updated successfully.',
+      title: "Profile Updated",
+      description: "Your profile has been updated successfully.",
     });
     setIsEditing(false);
   };
@@ -45,37 +56,39 @@ const Settings = () => {
   const handleDeleteAccount = () => {
     // Mock delete functionality - replace with actual API call
     toast({
-      title: 'Account Deleted',
-      description: 'Your account has been permanently deleted.',
-      variant: 'destructive',
+      title: "Account Deleted",
+      description: "Your account has been permanently deleted.",
+      variant: "destructive",
     });
     authService.logout();
-    navigate('/');
+    navigate("/");
   };
 
   const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme as 'light' | 'dark' | 'system');
+    setTheme(newTheme as "light" | "dark" | "system");
     toast({
-      title: 'Theme Updated',
+      title: "Theme Updated",
       description: `Theme changed to ${newTheme}`,
     });
   };
 
   const getThemeIcon = () => {
-    if (theme === 'light') return <Sun className="h-4 w-4" />;
-    if (theme === 'dark') return <Moon className="h-4 w-4" />;
+    if (theme === "light") return <Sun className="h-4 w-4" />;
+    if (theme === "dark") return <Moon className="h-4 w-4" />;
     return <Monitor className="h-4 w-4" />;
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-            <p className="text-muted-foreground">Manage your account and preferences</p>
+            <p className="text-muted-foreground">
+              Manage your account and preferences
+            </p>
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
@@ -102,7 +115,12 @@ const Settings = () => {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
                       disabled={!isEditing}
                     />
                   </div>
@@ -112,29 +130,43 @@ const Settings = () => {
                     <Input
                       id="phone"
                       value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          phone: e.target.value,
+                        }))
+                      }
                       disabled={!isEditing}
                     />
                   </div>
 
-                  {/* <div className="space-y-2">
+                  <div className="space-y-2">
                     <Label>User Type</Label>
-                    <Input value={user?.user_type || ''} disabled />
-                  </div> */}
+                    <Input value={user?.user_type || ""} disabled />
+                  </div>
 
                   <div className="flex gap-2 pt-4">
                     {!isEditing ? (
-                      <Button onClick={() => setIsEditing(true)} className="flex items-center gap-2">
+                      <Button
+                        onClick={() => setIsEditing(true)}
+                        className="flex items-center gap-2"
+                      >
                         <Edit className="h-4 w-4" />
                         Edit Profile
                       </Button>
                     ) : (
                       <>
-                        <Button onClick={handleSaveProfile} className="flex items-center gap-2">
+                        <Button
+                          onClick={handleSaveProfile}
+                          className="flex items-center gap-2"
+                        >
                           <Save className="h-4 w-4" />
                           Save Changes
                         </Button>
-                        <Button variant="outline" onClick={() => setIsEditing(false)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsEditing(false)}
+                        >
                           Cancel
                         </Button>
                       </>
@@ -194,11 +226,15 @@ const Settings = () => {
                     <div className="space-y-1">
                       <Label>Current Theme Status</Label>
                       <p className="text-sm text-muted-foreground">
-                        Currently using {isDark ? 'dark' : 'light'} mode
+                        Currently using {isDark ? "dark" : "light"} mode
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                      {isDark ? (
+                        <Moon className="h-5 w-5" />
+                      ) : (
+                        <Sun className="h-5 w-5" />
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -208,19 +244,24 @@ const Settings = () => {
             <TabsContent value="account">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-destructive">Danger Zone</CardTitle>
+                  <CardTitle className="text-destructive">
+                    Danger Zone
+                  </CardTitle>
                   <CardDescription>
                     Irreversible actions for your account
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="border border-destructive/20 rounded-lg p-4 space-y-3">
-                    <h3 className="font-medium text-destructive">Delete Account</h3>
+                    <h3 className="font-medium text-destructive">
+                      Delete Account
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                      Once you delete your account, there is no going back. Please be certain.
+                      Once you delete your account, there is no going back.
+                      Please be certain.
                     </p>
-                    <Button 
-                      variant="destructive" 
+                    <Button
+                      variant="destructive"
                       onClick={handleDeleteAccount}
                       className="flex items-center gap-2"
                     >

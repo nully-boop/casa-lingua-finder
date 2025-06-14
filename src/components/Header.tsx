@@ -30,10 +30,8 @@ const Header = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
-  // const isSeller: () => boolean = () =>
-  //   isAuthenticated && user.user_type === "seller";
-
-  const isSeller: () => boolean = () => isAuthenticated;
+  const isSeller: () => boolean = () =>
+    isAuthenticated && user.user_type === "seller";
 
   const handleLogout = async () => {
     try {

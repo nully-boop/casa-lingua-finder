@@ -50,7 +50,7 @@ const Register = () => {
         phone: phone,
         password: password,
         password_confirmation: confirmPassword,
-        // user_type: "",
+        user_type: "",
       });
 
       login(user);

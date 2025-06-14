@@ -17,7 +17,7 @@ export const authService = {
       id: userData["id"],
       name: userData["name"],
       phone: userData["phone"],
-      // user_type: "",
+      user_type: "",
       token: accessToken,
     };
 
@@ -36,7 +36,7 @@ export const authService = {
       id: userData["id"],
       name: userData["name"],
       phone: userData["phone"],
-      // user_type: "",
+      user_type: "",
       token: accessToken,
     };
 

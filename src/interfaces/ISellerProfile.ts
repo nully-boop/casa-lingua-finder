@@ -1,9 +1,7 @@
-
 import IUser from "./IUser";
 
 // Interface for seller profile data extending user profile
 interface ISellerProfile extends IUser {
-  phone?: string;
   location?: string;
   workplace?: string;
   companyName?: string;

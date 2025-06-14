@@ -73,10 +73,9 @@ export const authAPI = {
 
 // استدعاءات العقارات
 export const propertiesAPI = {
-  getProperties: (params?: { name: string }) =>
-    api.get("/properties", { params }),
+  getProperties: () => api.get("/user/properties"),
 
-  getProperty: (id: string) => api.get(`/properties/${id}`),
+  getProperty: (id: string) => api.get(`/user/properties/show/${id}`),
 
   createProperty: (data: FormData) =>
     api.post("/properties", data, {
