@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import Header from "@/components/Header";
@@ -22,7 +22,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Moon, Sun, Monitor, Trash, Save, Edit, Image } from "lucide-react";
+import { User, Moon, Sun, Monitor, Trash, Save, Edit, Image, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
@@ -32,37 +32,79 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar";
 import { profileAPI } from "@/services/api";
+import { useQuery } from "@tanstack/react-query";
 
 const placeholderImg =
   "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=facearea&w=128&q=80";
 
 const Settings = () => {
-  const { user, isAuthenticated } = useLanguage();
+  const { isAuthenticated } = useLanguage();
   const { theme, setTheme, isDark } = useTheme();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Track profile editing
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    phone: user?.phone || "",
+  // -- Fetch profile data from backend --
+  const { data: profileData, isLoading, isError, refetch } = useQuery({
+    queryKey: ["settings-profile"],
+    queryFn: async () => {
+      const response = await profileAPI.getProfile();
+      return response.data; // Assuming { id, name, phone, user_type, photo/avatar... }
+    },
+    enabled: isAuthenticated
   });
 
+  // Form state
+  const [formData, setFormData] = useState({ name: "", phone: "" });
   // Avatar edit state
+  const [isEditing, setIsEditing] = useState(false);
   const [isPhotoEditing, setIsPhotoEditing] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Assume user profile photo is not implemented; can be stored in user.photo if backend supported
+  // Sync formData once profileData is loaded
+  useEffect(() => {
+    if (profileData) {
+      setFormData({
+        name: profileData.name || "",
+        phone: profileData.phone || "",
+      });
+      setPhotoPreview(null);
+      setAvatarFile(null);
+    }
+  }, [profileData]);
+
+  // Determine current profile image
   const profileImage = photoPreview
-    || (user && (user as any).photo)
+    || (profileData && (profileData.photo || profileData.avatar))
     || placeholderImg;
 
   if (!isAuthenticated) {
     navigate("/login");
     return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <Header />
+        <Loader2 className="w-10 h-10 animate-spin mb-4" />
+        <span className="text-muted-foreground">Loading profile...</span>
+      </div>
+    );
+  }
+
+  if (isError || !profileData) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <Header />
+        <div className="max-w-sm bg-card p-6 mt-32 rounded shadow">
+          <div className="text-lg font-bold mb-2 text-destructive">Error</div>
+          <div className="text-muted-foreground mb-4">Could not load profile. Please try again.</div>
+          <Button onClick={() => refetch()}>Retry</Button>
+        </div>
+      </div>
+    );
   }
 
   const handleSaveProfile = async () => {
@@ -71,24 +113,18 @@ const Settings = () => {
       let isAvatarChanged = !!avatarFile;
 
       if (isAvatarChanged) {
-        // If changing avatar (photo), create FormData for file upload
         payload = new FormData();
         payload.append("name", formData.name);
         payload.append("phone", formData.phone);
         payload.append("photo", avatarFile);
       } else {
-        // If only editing text fields
         payload = {
           name: formData.name,
           phone: formData.phone,
         };
       }
 
-      // Update via API (handles both FormData and JSON)
-      const res = await profileAPI.updateProfile(payload);
-
-      // Optionally update local user context/state here if needed
-
+      await profileAPI.updateProfile(payload);
       toast({
         title: "Profile Updated",
         description: "Your profile has been updated successfully.",
@@ -97,13 +133,13 @@ const Settings = () => {
       setIsPhotoEditing(false);
       setPhotoPreview(null);
       setAvatarFile(null);
+      refetch(); // fetch the new api data again
     } catch (error: any) {
       toast({
         title: "Profile Update Failed",
         description: error?.response?.data?.message || "Could not update profile.",
         variant: "destructive",
       });
-      // Optional: log error or set error state
     }
   };
 
@@ -288,7 +324,7 @@ const Settings = () => {
 
                   <div className="space-y-2">
                     <Label>User Type</Label>
-                    <Input value={user?.user_type || ""} disabled />
+                    <Input value={profileData.user_type || ""} disabled />
                   </div>
 
                   <div className="flex gap-2 pt-4">
@@ -316,6 +352,11 @@ const Settings = () => {
                             setIsPhotoEditing(false);
                             setPhotoPreview(null);
                             setAvatarFile(null);
+                            // Reset fields to latest profile
+                            setFormData({
+                              name: profileData.name || "",
+                              phone: profileData.phone || "",
+                            });
                           }}
                         >
                           Cancel
