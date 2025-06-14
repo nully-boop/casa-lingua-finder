@@ -125,7 +125,7 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
               <div className="px-2">
                 <Slider
                   value={priceRange}
-                  onValueChange={setPriceRange}
+                  onValueChange={(val) => setPriceRange(val as [number, number])}
                   max={5000000}
                   min={0}
                   step={50000}
@@ -145,3 +145,4 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
 };
 
 export default PropertyFilters;
+
