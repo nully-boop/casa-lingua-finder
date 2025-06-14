@@ -22,7 +22,7 @@ interface UserProfile {
   email: string;
   phone?: string;
   location?: string;
-  avatar?: string;
+  url?: string;
   joinDate: string;
   bio?: string;
   user_type: string;
@@ -81,41 +81,6 @@ const Profile = () => {
         return false;
       }
       return failureCount < 3;
-    },
-  });
-
-  // Update profile mutation
-  const updateProfileMutation = useMutation({
-    mutationFn: (data: Partial<UserProfile | SellerProfile>) => {
-      console.log("Updating profile with data:", data);
-      if (!hasToken()) {
-        throw new Error("No authentication token found");
-      }
-      return profileAPI.updateProfile(data);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
-      });
-      setIsEditing(false);
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-    },
-    onError: (error: any) => {
-      console.error("Profile update error:", error);
-      if (error?.response?.status === 401) {
-        toast({
-          title: "Authentication Error",
-          description: "Please login again to update your profile.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to update profile. Please try again.",
-          variant: "destructive",
-        });
-      }
     },
   });
 
@@ -184,17 +149,6 @@ const Profile = () => {
     return isSeller && profile.user_type === "seller";
   };
 
-  const handleSave = () => {
-    updateProfileMutation.mutate(editData);
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setEditData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
   const startEditing = () => {
     setEditData(profileData.user);
     setIsEditing(true);
@@ -217,7 +171,7 @@ const Profile = () => {
               <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse">
                 <Avatar className="w-24 h-24">
                   <AvatarImage
-                    src={currentData?.user.avatar}
+                    src={currentData?.user.image.url}
                     alt={currentData?.user.name}
                   />
                   <AvatarFallback>
