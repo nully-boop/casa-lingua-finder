@@ -5,28 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
 import IProperty from "@/interfaces/IProperty";
 import Header from "@/components/Header";
-import PropertyMap from "@/components/PropertyMap";
-import PropertyList from "@/components/properties/PropertyList";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  MapPin,
-  Bed,
-  Bath,
-  Square,
-  Star,
-  Phone,
-  Mail,
-  ArrowLeft,
-  Heart,
-  Share2,
-  Calendar,
-  Building,
-  CheckCircle,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Footer from "@/components/Footer";
 import PropertyImageGallery from "@/components/properties/PropertyImageGallery";
 import PropertyInfoCard from "@/components/properties/PropertyInfoCard";
@@ -79,11 +59,13 @@ const PropertyDetails = () => {
   // Handle the API response format
   const propertyArray = propertyResponse?.data?.property || [];
   const relatedPropertiesRaw = propertyResponse?.data?.relaitedproperties || [];
-  
+
   // Find the specific property by ID from the array
-  const rawProperty = propertyArray.find((prop: any) => prop.id === parseInt(id!));
+  const rawProperty = propertyArray.find(
+    (prop: any) => prop.id === parseInt(id!)
+  );
   const property = rawProperty ? normalizeProperty(rawProperty) : null;
-  
+
   // Normalize related properties and filter out the current property
   const relatedProperties = relatedPropertiesRaw
     .map((prop: any) => normalizeProperty(prop))
@@ -93,7 +75,9 @@ const PropertyDetails = () => {
   console.log("Related properties:", relatedProperties);
 
   // Enhance property object with price string for InfoCard
-  const priceString = property ? formatPrice(property.price, property.currency) : "";
+  const priceString = property
+    ? formatPrice(property.price, property.currency)
+    : "";
 
   // Mock amenities for now since API doesn't provide them
   const amenities = [
@@ -129,7 +113,11 @@ const PropertyDetails = () => {
 
   // Placeholder for agent contact
   const handleContactAgent = () => {
-    alert(language === "ar" ? "سيتم التواصل مع الوكيل قريبا." : "The agent will be contacted soon.");
+    alert(
+      language === "ar"
+        ? "سيتم التواصل مع الوكيل قريبا."
+        : "The agent will be contacted soon."
+    );
   };
 
   if (isLoading) {
