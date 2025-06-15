@@ -3,10 +3,10 @@ import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
-import { Building, Sun, Moon, Globe } from "lucide-react"; // Add Sun, Moon, Globe
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "@/hooks/use-toast";
-import { authAPI } from "@/services/api";
+import { Building, Sun, Moon, Globe } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Header = () => {
   const { t, user, isAuthenticated, language, setLanguage } = useLanguage();
@@ -19,6 +19,14 @@ const Header = () => {
 
   const handleToggleLanguage = () => {
     setLanguage(language === "en" ? "ar" : "en");
+  };
+
+  // Fallback avatar initials (same logic as sidebar)
+  const getAvatarInitials = () => {
+    if (user?.name) {
+      return user.name.split(" ").map((n) => n[0]).join("").toUpperCase();
+    }
+    return "U";
   };
 
   return (
@@ -58,27 +66,55 @@ const Header = () => {
             )}
           </nav>
 
-          {/* Actions for NOT authenticated users: Translate and Dark Mode */}
-          {!isAuthenticated && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleToggleTheme}
-                aria-label={isDark ? t("nav.light") || "Switch to Light" : t("nav.dark") || "Switch to Dark"}
-              >
-                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleToggleLanguage}
-                aria-label={t("nav.language")}
-              >
-                <Globe className="h-5 w-5" />
-              </Button>
-            </div>
-          )}
+          {/* Right side actions */}
+          <div className="flex items-center gap-2">
+            {!isAuthenticated && (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="px-4"
+                >
+                  <Link to="/login">{t("nav.login") || "Login"}</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="default"
+                  size="sm"
+                  className="px-4"
+                >
+                  <Link to="/register">{t("nav.register") || "Register"}</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleToggleTheme}
+                  aria-label={isDark ? t("nav.light") || "Switch to Light" : t("nav.dark") || "Switch to Dark"}
+                >
+                  {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleToggleLanguage}
+                  aria-label={t("nav.language")}
+                >
+                  <Globe className="h-5 w-5" />
+                </Button>
+              </>
+            )}
+            {isAuthenticated && (
+              // Show profile avatar that triggers sidebar
+              <SidebarTrigger>
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback>
+                    {getAvatarInitials()}
+                  </AvatarFallback>
+                </Avatar>
+              </SidebarTrigger>
+            )}
+          </div>
         </div>
       </div>
     </header>
@@ -86,3 +122,4 @@ const Header = () => {
 };
 
 export default Header;
+
