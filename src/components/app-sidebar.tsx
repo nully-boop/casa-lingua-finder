@@ -82,7 +82,7 @@ export function AppSidebar() {
   };
 
   // Determine sidebar side based on language
-  const sidebarSide = language === "ar" ? "right" : "left";
+  const sidebarSide = language === "ar" ? "left" : "right";
 
   return (
     <Sidebar side={sidebarSide}>
