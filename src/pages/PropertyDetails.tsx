@@ -158,7 +158,7 @@ const PropertyDetails = () => {
     );
   }
 
-  const images = property.images || [];
+  const images = property?.images || [];
   const propertyImages =
     images.length > 0
       ? images.map((img) => img.url)
@@ -184,8 +184,8 @@ const PropertyDetails = () => {
           <div className="lg:col-span-2 space-y-6">
             <PropertyImageGallery
               images={propertyImages}
-              title={property.title}
-              adType={property.ad_type}
+              title={property?.title}
+              adType={property?.ad_type}
               isFavorited={isFavorited}
               isRTL={isRTL}
               selectedImage={selectedImage}
@@ -202,6 +202,8 @@ const PropertyDetails = () => {
               t={t}
               amenities={amenities}
               amenitiesAr={amenitiesAr}
+              latitude={property?.latitude}
+              longitude={property?.longitude}
             />
           </div>
 
