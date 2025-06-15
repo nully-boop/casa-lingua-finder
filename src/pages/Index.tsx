@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Bed, Bath, Square, Star } from "lucide-react";
+import { Search, MapPin, Bed, Bath, Square, Star, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import HeroSection from "@/components/home/HeroSection";
 import FeaturedProperties from "@/components/home/FeaturedProperties";
@@ -112,16 +113,32 @@ const Index = () => {
       />
 
       {/* Featured Properties Section */}
-      <FeaturedProperties
-        properties={featuredProperties}
-        isLoading={isLoading}
-        error={error}
-        formatPrice={formatPrice}
-        t={t}
-        language={language}
-        onPropertyClick={handlePropertyClick}
-        onViewAll={() => navigate("/properties")}
-      />
+      {isLoading ? (
+        <div className="container mx-auto px-4 py-16 text-center">
+          <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
+        </div>
+      ) : error ? (
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h2 className="text-2xl font-bold text-destructive mb-4">
+            {t('error.loadFailed', 'Failed to load properties')}
+          </h2>
+          <p className="text-muted-foreground">
+            {t('error.tryAgain', 'There was a problem fetching the properties. Please try again later.')}
+          </p>
+        </div>
+      ) : (
+        <FeaturedProperties
+          properties={featuredProperties}
+          isLoading={false}
+          error={null}
+          formatPrice={formatPrice}
+          t={t}
+          language={language}
+          onPropertyClick={handlePropertyClick}
+          onViewAll={() => navigate("/properties")}
+        />
+      )}
+
 
       {/* WhyUs Section */}
       <WhyUs />

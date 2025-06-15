@@ -1,3 +1,4 @@
+
 import IUser from '@/interfaces/IUser';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
@@ -36,6 +37,10 @@ const translations = {
     'toast.seeYouAgain': 'See you again!',
     'toast.logoutFailed': 'Logout failed',
     'toast.error': 'An error occurred',
+
+    // Error messages
+    'error.loadFailed': 'Failed to load properties',
+    'error.tryAgain': 'There was a problem fetching the properties. Please try again later.',
     
     // Hero Section
     'hero.title': 'Find Your Perfect Property',
@@ -148,6 +153,10 @@ const translations = {
     'toast.seeYouAgain': 'نراك قريباً!',
     'toast.logoutFailed': 'فشل في تسجيل الخروج',
     'toast.error': 'حدث خطأ',
+
+    // Error messages
+    'error.loadFailed': 'فشل تحميل العقارات',
+    'error.tryAgain': 'حدثت مشكلة في جلب العقارات. يرجى المحاولة مرة أخرى في وقت لاحق.',
     
     // Hero Section
     'hero.title': 'اعثر على العقار المثالي',
