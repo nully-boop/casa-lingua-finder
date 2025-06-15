@@ -40,15 +40,25 @@ export function AppSidebar() {
   const handleLogout = async () => {
     try {
       const userData = localStorage.getItem("user");
-      if (!userData) return;
-      const userObj = JSON.parse(userData);
-      const token = userObj.token;
-      await authAPI.logout(token);
+      if (userData) {
+        const userObj = JSON.parse(userData);
+        const token = userObj.token;
+        if (token) {
+          await authAPI.logout(token);
+        }
+      }
 
       toast({
         title: t("toast.logoutSuccess") || "Logout successful",
         description: t("toast.seeYouAgain") || "See you again!",
       });
+      
+      // Clear localStorage and call logout from context
+      localStorage.removeItem("user");
+      if (logout) {
+        logout();
+      }
+      
       navigate("/");
     } catch (error) {
       toast({
@@ -56,8 +66,13 @@ export function AppSidebar() {
         description: t("toast.error") || "Error happened",
         variant: "destructive",
       });
-    } finally {
+      
+      // Still clear localStorage even if API call fails
       localStorage.removeItem("user");
+      if (logout) {
+        logout();
+      }
+      navigate("/");
     }
   };
 
@@ -138,11 +153,18 @@ export function AppSidebar() {
               </div>
             )
           ) : (
-            <Link to="/login">
-              <Button variant="default" size="sm">
-                {t("nav.login")}
-              </Button>
-            </Link>
+            <div className="flex flex-col gap-2">
+              <Link to="/login">
+                <Button variant="default" size="sm">
+                  {t("nav.login")}
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button variant="outline" size="sm">
+                  {t("nav.register")}
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </SidebarHeader>
