@@ -105,7 +105,7 @@ const Header = () => {
               </>
             ) : (
               // Show profile avatar that triggers sidebar when authenticated
-              <SidebarTrigger>
+              <SidebarTrigger asChild>
                 <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity">
                   <AvatarFallback>
                     {getAvatarInitials()}
