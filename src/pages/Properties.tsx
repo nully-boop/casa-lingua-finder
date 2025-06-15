@@ -127,10 +127,9 @@ const Properties = () => {
     setSortBy("newest");
   };
 
-  const formatPrice = (price: number, currency: string, forSale: boolean) => {
+  const formatPrice = (price: number, currency: string) => {
     const formattedPrice = price.toLocaleString();
-    const period = forSale ? "" : language === "ar" ? "/شهر" : "/month";
-    return `${formattedPrice} ${currency}${period}`;
+    return `${formattedPrice} ${currency}`;
   };
 
   return (

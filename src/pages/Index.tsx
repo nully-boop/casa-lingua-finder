@@ -16,61 +16,29 @@ import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Bed, Bath, Square, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import WhyUs from "@/components/WhyUs";
+import { useQuery } from "@tanstack/react-query";
+import { propertiesAPI } from "@/services/api";
+import IProperty from "@/interfaces/IProperty";
 
-// Mock data for featured properties
-const featuredProperties = [
-  {
-    id: 1,
-    title: "Modern Downtown Apartment",
-    titleAr: "شقة عصرية في وسط المدينة",
-    type: "apartment",
-    price: 850000,
-    currency: "AED",
-    location: "Dubai Marina",
-    locationAr: "مرسى دبي",
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 1200,
-    image:
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop",
-    forSale: true,
-    rating: 4.8,
-  },
-  {
-    id: 2,
-    title: "Luxury Villa with Pool",
-    titleAr: "فيلا فاخرة مع مسبح",
-    type: "villa",
-    price: 12000,
-    currency: "AED",
-    location: "Palm Jumeirah",
-    locationAr: "نخلة جميرا",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 3500,
-    image:
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop",
-    forSale: false,
-    rating: 4.9,
-  },
-  {
-    id: 3,
-    title: "Commercial Office Space",
-    titleAr: "مساحة مكتبية تجارية",
-    type: "office",
-    price: 2500000,
-    currency: "AED",
-    location: "Business Bay",
-    locationAr: "خليج الأعمال",
-    bedrooms: 0,
-    bathrooms: 2,
-    area: 800,
-    image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop",
-    forSale: true,
-    rating: 4.7,
-  },
-];
+// Normalizes a property object from API to UI
+function normalizeProperty(apiProp: any): IProperty {
+  return {
+    ...apiProp,
+    price:
+      typeof apiProp.price === "string"
+        ? parseFloat(apiProp.price) || 0
+        : apiProp.price,
+    area:
+      typeof apiProp.area === "string"
+        ? parseFloat(apiProp.area) || 0
+        : apiProp.area,
+  };
+}
+
+const fetchProperties = async () => {
+  const res = await propertiesAPI.getProperties();
+  return res.data.data;
+};
 
 const Index = () => {
   const { t, language, isRTL } = useLanguage();
@@ -79,6 +47,21 @@ const Index = () => {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [priceRange, setPriceRange] = useState("");
+
+  // Fetch properties from API
+  const {
+    data: apiProperties,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["featured-properties"],
+    queryFn: fetchProperties,
+  });
+
+  // Get first 4 properties for featured section
+  const featuredProperties = apiProperties 
+    ? apiProperties.slice(0, 4).map(normalizeProperty)
+    : [];
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -90,10 +73,9 @@ const Index = () => {
     navigate(`/properties?${params.toString()}`);
   };
 
-  const formatPrice = (price: number, currency: string, forSale: boolean) => {
+  const formatPrice = (price: number, currency: string) => {
     const formattedPrice = price.toLocaleString();
-    const period = forSale ? "" : language === "ar" ? "/شهر" : "/month";
-    return `${formattedPrice} ${currency}${period}`;
+    return `${formattedPrice} ${currency}`;
   };
 
   const handlePropertyClick = (propertyId: number) => {
@@ -211,101 +193,107 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProperties.map((property) => (
-              <Card
-                key={property.id}
-                className="overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-fade-in cursor-pointer"
-                onClick={() => handlePropertyClick(property.id)}
-              >
-                <div className="relative">
-                  <img
-                    src={property.image}
-                    alt={language === "ar" ? property.titleAr : property.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4">
-                    <Badge variant={property.forSale ? "default" : "secondary"}>
-                      {property.forSale ? t("common.sale") : t("common.rent")}
-                    </Badge>
-                  </div>
-                  <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4 bg-white rounded-full p-2">
-                    <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">
-                        {property.rating}
-                      </span>
+          {isLoading && (
+            <div className="text-center py-20 text-lg">
+              {t("common.loading") || "Loading..."}
+            </div>
+          )}
+
+          {error && (
+            <div className="text-center py-20 text-destructive">
+              {t("common.error") || "Error loading properties"}
+            </div>
+          )}
+
+          {!isLoading && !error && featuredProperties.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {featuredProperties.map((property) => (
+                <Card
+                  key={property.id}
+                  className="overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-fade-in cursor-pointer"
+                  onClick={() => handlePropertyClick(property.id)}
+                >
+                  <div className="relative">
+                    <img
+                      src={property.images && property.images.length > 0 ? property.images[0].url : "https://placehold.co/400x300?text=No+Image"}
+                      alt={property.title}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4">
+                      <Badge variant={property.ad_type === "sale" ? "default" : "secondary"}>
+                        {property.ad_type === "sale" ? t("common.sale") : t("common.rent")}
+                      </Badge>
                     </div>
                   </div>
-                </div>
 
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold mb-2">
-                    {language === "ar" ? property.titleAr : property.title}
-                  </h3>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold mb-2">
+                      {property.title}
+                    </h3>
 
-                  <div className="flex items-center text-muted-foreground mb-3">
-                    <MapPin className="h-4 w-4 mr-1 rtl:mr-0 rtl:ml-1" />
-                    <span>
-                      {language === "ar"
-                        ? property.locationAr
-                        : property.location}
-                    </span>
-                  </div>
+                    <div className="flex items-center text-muted-foreground mb-3">
+                      <MapPin className="h-4 w-4 mr-1 rtl:mr-0 rtl:ml-1" />
+                      <span>{property.location}</span>
+                    </div>
 
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
-                      {property.bedrooms > 0 && (
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex space-x-4 rtl:space-x-reverse text-sm text-muted-foreground">
+                        {property.rooms && property.rooms > 0 && (
+                          <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                            <Bed className="h-4 w-4" />
+                            <span>{property.rooms}</span>
+                          </div>
+                        )}
                         <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                          <Bed className="h-4 w-4" />
-                          <span>{property.bedrooms}</span>
+                          <Bath className="h-4 w-4" />
+                          <span>{property.bathrooms}</span>
                         </div>
-                      )}
-                      <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                        <Bath className="h-4 w-4" />
-                        <span>{property.bathrooms}</span>
-                      </div>
-                      <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                        <Square className="h-4 w-4" />
-                        <span>{property.area} m²</span>
+                        <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                          <Square className="h-4 w-4" />
+                          <span>{property.area} m²</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="text-2xl font-bold text-primary">
-                      {formatPrice(
-                        property.price,
-                        property.currency,
-                        property.forSale
-                      )}
+                    <div className="flex items-center justify-between">
+                      <div className="text-2xl font-bold text-primary">
+                        {formatPrice(property.price, property.currency)}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePropertyClick(property.id);
+                        }}
+                      >
+                        {t("common.view")}
+                      </Button>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePropertyClick(property.id);
-                      }}
-                    >
-                      {t("common.view")}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {!isLoading && !error && featuredProperties.length === 0 && (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">🏠</div>
+              <h3 className="text-xl font-semibold mb-2">
+                {language === "ar"
+                  ? "لا توجد عقارات متاحة"
+                  : "No properties available"}
+              </h3>
+            </div>
+          )}
         </div>
         <div className="container mx-auto px-4 mt-8 flex justify-center">
           <Button
             variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate("/properties");
-            }}
+            size="lg"
+            onClick={() => navigate("/properties")}
           >
-            {t("common.view")}
+            {language === "ar" ? "عرض جميع العقارات" : "View All Properties"}
           </Button>
         </div>
       </section>

@@ -5,7 +5,7 @@ import IProperty from "@/interfaces/IProperty";
 
 interface PropertyListProps {
   properties: IProperty[];
-  formatPrice: (price: number, currency: string, forSale: boolean) => string;
+  formatPrice: (price: number, currency: string) => string;
 }
 
 const PropertyList: React.FC<PropertyListProps> = ({ properties, formatPrice }) => {
