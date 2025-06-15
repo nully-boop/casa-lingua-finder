@@ -63,9 +63,17 @@ const PropertyDetails = () => {
     enabled: !!id,
   });
 
-  const rawProperty = propertyResponse?.data?.property;
+  console.log("Property response:", propertyResponse);
+
+  // Handle the new API response format where property is an array
+  const propertyArray = propertyResponse?.data?.property || [];
   const relatedProperties = propertyResponse?.data?.relaitedproperties || [];
+  
+  // Find the specific property by ID from the array
+  const rawProperty = propertyArray.find((prop: any) => prop.id === parseInt(id!));
   const property = rawProperty ? normalizeProperty(rawProperty) : null;
+
+  console.log("Found property:", property);
 
   const formatPrice = (price: number, currency: string) => {
     const formattedPrice = price.toLocaleString();
