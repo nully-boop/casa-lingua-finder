@@ -1,11 +1,10 @@
-
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
 import { IPropertyDetailsResponse } from "@/interfaces/IPropertyDetailsResponse";
-import IProperty from "@/interfaces/IProperty";
+import IProperty, { IPropertyAPI } from "@/interfaces/IProperty";
 import Header from "@/components/Header";
 import PropertyMap from "@/components/PropertyMap";
 import { Button } from "@/components/ui/button";
@@ -31,15 +30,15 @@ import {
 import Footer from "@/components/Footer";
 
 // Helper function to normalize property data for UI consistency
-const normalizeProperty = (property: IProperty): IProperty => {
+const normalizeProperty = (property: IPropertyAPI): IProperty => {
   return {
     ...property,
     titleAr: property.titleAr || property.title,
     locationAr: property.locationAr || property.location,
     descriptionAr: property.descriptionAr || property.description,
     bedrooms: property.rooms || property.bedrooms || 0,
-    price: typeof property.price === 'string' ? parseFloat(property.price) : property.price,
-    area: typeof property.area === 'string' ? parseFloat(property.area) : property.area,
+    price: typeof property.price === 'string' ? parseFloat(property.price) || 0 : property.price,
+    area: typeof property.area === 'string' ? parseFloat(property.area) || 0 : property.area,
     forSale: property.ad_type === "sale" || property.forSale || false,
     rating: property.rating || 4.5,
     image: property.images && property.images.length > 0 

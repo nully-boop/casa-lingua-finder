@@ -1,24 +1,25 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
-import IProperty from "@/interfaces/IProperty";
+import IProperty, { IPropertyAPI } from "@/interfaces/IProperty";
 import PropertyFilters from "@/components/properties/PropertyFilters";
 import PropertySearchBar from "@/components/properties/PropertySearchBar";
 import PropertyList from "@/components/properties/PropertyList";
 
 // Normalizes a property object from API to UI
-function normalizeProperty(apiProp: IProperty): IProperty {
+function normalizeProperty(apiProp: IPropertyAPI): IProperty {
   return {
     ...apiProp,
     titleAr: apiProp.titleAr || apiProp.title,
     locationAr: apiProp.locationAr || apiProp.location,
     descriptionAr: apiProp.descriptionAr || apiProp.description,
     bedrooms: apiProp.rooms || apiProp.bedrooms || 0,
-    price: typeof apiProp.price === 'string' ? parseFloat(apiProp.price) : apiProp.price,
-    area: typeof apiProp.area === 'string' ? parseFloat(apiProp.area) : apiProp.area,
+    price: typeof apiProp.price === 'string' ? parseFloat(apiProp.price) || 0 : apiProp.price,
+    area: typeof apiProp.area === 'string' ? parseFloat(apiProp.area) || 0 : apiProp.area,
     image: (apiProp.images && apiProp.images[0] && apiProp.images[0].url) ||
       apiProp.image ||
       "https://placehold.co/400x300?text=No+Image",

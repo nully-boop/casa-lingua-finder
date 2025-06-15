@@ -1,7 +1,7 @@
 
-import IProperty from "./IProperty";
+import IProperty, { IPropertyAPI } from "./IProperty";
 
 export interface IPropertyDetailsResponse {
-  property: IProperty;
-  relaitedproperties: IProperty[];
+  property: IPropertyAPI; // Raw API response
+  relaitedproperties: IPropertyAPI[]; // Raw API response
 }
