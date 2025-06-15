@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -120,10 +119,10 @@ const Index = () => {
       ) : error ? (
         <div className="container mx-auto px-4 py-16 text-center">
           <h2 className="text-2xl font-bold text-destructive mb-4">
-            {t('error.loadFailed', 'Failed to load properties')}
+            {t('error.loadFailed')}
           </h2>
           <p className="text-muted-foreground">
-            {t('error.tryAgain', 'There was a problem fetching the properties. Please try again later.')}
+            {t('error.tryAgain')}
           </p>
         </div>
       ) : (
