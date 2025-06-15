@@ -11,19 +11,22 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Sun, Moon, User, LogOut, Settings, Globe } from "lucide-react";
+import { Sun, Moon, User, LogOut, Settings, Globe, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { authAPI } from "@/services/api";
+import { Button } from "@/components/ui/button";
 
 export function AppSidebar() {
   const { language, setLanguage, t, user, logout } = useLanguage();
   const { theme, setTheme, isDark } = useTheme();
   const navigate = useNavigate();
+  const { toggleSidebar } = useSidebar();
 
   const handleToggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
@@ -87,6 +90,16 @@ export function AppSidebar() {
   return (
     <Sidebar side={sidebarSide}>
       <SidebarHeader>
+        <div className="flex w-full justify-end">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="h-7 w-7"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
         <div className="flex flex-col items-center space-y-2">
           <Avatar className="mb-2">
             <AvatarFallback>
