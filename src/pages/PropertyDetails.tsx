@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
-import { IPropertyDetailsResponse, IPropertyAPI } from "@/interfaces/IPropertyDetailsResponse";
+import { IPropertyDetailsResponse } from "@/interfaces/IPropertyDetailsResponse";
 import IProperty from "@/interfaces/IProperty";
 import Header from "@/components/Header";
 import PropertyMap from "@/components/PropertyMap";
@@ -30,27 +30,21 @@ import {
 } from "lucide-react";
 import Footer from "@/components/Footer";
 
-// Function to normalize API property to IProperty interface
-const normalizePropertyFromAPI = (apiProperty: IPropertyAPI): IProperty => {
+// Helper function to normalize property data for UI consistency
+const normalizeProperty = (property: IProperty): IProperty => {
   return {
-    id: apiProperty.id,
-    title: apiProperty.title,
-    titleAr: apiProperty.title, // API doesn't provide Arabic title, fallback to English
-    type: apiProperty.type,
-    price: parseFloat(apiProperty.price),
-    currency: apiProperty.currency,
-    location: apiProperty.location,
-    locationAr: apiProperty.location, // API doesn't provide Arabic location, fallback to English
-    bedrooms: apiProperty.rooms,
-    bathrooms: apiProperty.bathrooms,
-    area: parseFloat(apiProperty.area),
-    image: apiProperty.images && apiProperty.images.length > 0 
-      ? apiProperty.images[0].url 
-      : "https://placehold.co/400x300?text=No+Image",
-    forSale: apiProperty.ad_type === "sale",
-    rating: 4.5, // Default rating as API doesn't provide this
-    description: apiProperty.description,
-    descriptionAr: apiProperty.description, // API doesn't provide Arabic description, fallback to English
+    ...property,
+    titleAr: property.titleAr || property.title,
+    locationAr: property.locationAr || property.location,
+    descriptionAr: property.descriptionAr || property.description,
+    bedrooms: property.rooms || property.bedrooms || 0,
+    price: typeof property.price === 'string' ? parseFloat(property.price) : property.price,
+    area: typeof property.area === 'string' ? parseFloat(property.area) : property.area,
+    forSale: property.ad_type === "sale" || property.forSale || false,
+    rating: property.rating || 4.5,
+    image: property.images && property.images.length > 0 
+      ? property.images[0].url 
+      : property.image || "https://placehold.co/400x300?text=No+Image",
   };
 };
 
@@ -73,8 +67,9 @@ const PropertyDetails = () => {
     enabled: !!id,
   });
 
-  const property = propertyResponse?.data?.property;
+  const rawProperty = propertyResponse?.data?.property;
   const relatedProperties = propertyResponse?.data?.relaitedproperties || [];
+  const property = rawProperty ? normalizeProperty(rawProperty) : null;
 
   const formatPrice = (price: number, currency: string, forSale: boolean) => {
     const formattedPrice = price.toLocaleString();
@@ -115,7 +110,7 @@ const PropertyDetails = () => {
   const images = property.images || [];
   const propertyImages = images.length > 0 
     ? images.map(img => img.url)
-    : ["https://placehold.co/400x300?text=No+Image"];
+    : [property.image || "https://placehold.co/400x300?text=No+Image"];
 
   // Mock amenities for now since API doesn't provide them
   const amenities = [
@@ -171,17 +166,17 @@ const PropertyDetails = () => {
             <div className="relative">
               <img
                 src={propertyImages[selectedImage]}
-                alt={property.title}
+                alt={language === "ar" ? property.titleAr : property.title}
                 className="w-full h-96 object-cover rounded-lg"
               />
               <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 flex gap-2">
-                <Badge variant={property.ad_type === "sale" ? "default" : "secondary"}>
-                  {property.ad_type === "sale" ? t("common.sale") : t("common.rent")}
+                <Badge variant={property.forSale ? "default" : "secondary"}>
+                  {property.forSale ? t("common.sale") : t("common.rent")}
                 </Badge>
                 <div className="bg-white rounded-full p-2">
                   <div className="flex items-center space-x-1 rtl:space-x-reverse">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">4.5</span>
+                    <span className="text-sm font-medium">{property.rating}</span>
                   </div>
                 </div>
               </div>
@@ -233,17 +228,17 @@ const PropertyDetails = () => {
                 <div className="space-y-4">
                   <div>
                     <h1 className="text-3xl font-bold mb-2">
-                      {property.title}
+                      {language === "ar" ? property.titleAr : property.title}
                     </h1>
                     <div className="flex items-center text-muted-foreground mb-4">
                       <MapPin className="h-5 w-5 mr-2 rtl:mr-0 rtl:ml-2" />
-                      <span>{property.location}</span>
+                      <span>{language === "ar" ? property.locationAr : property.location}</span>
                     </div>
                     <div className="text-3xl font-bold text-primary">
                       {formatPrice(
-                        parseFloat(property.price),
+                        property.price as number,
                         property.currency,
-                        property.ad_type === "sale"
+                        property.forSale
                       )}
                     </div>
                   </div>
@@ -255,7 +250,7 @@ const PropertyDetails = () => {
                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
                       <Bed className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <div className="font-semibold">{property.rooms}</div>
+                        <div className="font-semibold">{property.bedrooms}</div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar" ? "غرف النوم" : "Bedrooms"}
                         </div>
@@ -273,7 +268,7 @@ const PropertyDetails = () => {
                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
                       <Square className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <div className="font-semibold">{parseFloat(property.area)} m²</div>
+                        <div className="font-semibold">{property.area} m²</div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar" ? "المساحة" : "Area"}
                         </div>
@@ -308,7 +303,7 @@ const PropertyDetails = () => {
 
                     <TabsContent value="description" className="space-y-4">
                       <p className="text-muted-foreground leading-relaxed">
-                        {property.description}
+                        {language === "ar" ? property.descriptionAr : property.description}
                       </p>
                     </TabsContent>
 
@@ -328,7 +323,7 @@ const PropertyDetails = () => {
 
                     <TabsContent value="location" className="space-y-4">
                       <PropertyMap
-                        address={property.location}
+                        address={language === "ar" ? property.locationAr! : property.location}
                         className="w-full"
                       />
                     </TabsContent>

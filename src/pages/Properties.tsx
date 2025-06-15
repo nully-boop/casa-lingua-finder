@@ -10,26 +10,20 @@ import PropertySearchBar from "@/components/properties/PropertySearchBar";
 import PropertyList from "@/components/properties/PropertyList";
 
 // Normalizes a property object from API to UI
-function normalizeProperty(apiProp: any): IProperty {
+function normalizeProperty(apiProp: IProperty): IProperty {
   return {
-    id: apiProp.id,
-    title: apiProp.title,
-    titleAr: apiProp.title_ar || apiProp.title, // fallback to English if not exists
-    type: apiProp.type,
-    price: parseFloat(apiProp.price),
-    currency: apiProp.currency || "AED",
-    location: apiProp.location,
-    locationAr: apiProp.location_ar || apiProp.location, // fallback
-    bedrooms: apiProp.rooms ?? 0,
-    bathrooms: apiProp.bathrooms ?? 0,
-    area: apiProp.area ? parseFloat(apiProp.area) : 0,
-    image:
-      (apiProp.images && apiProp.images[0] && apiProp.images[0].url) ||
+    ...apiProp,
+    titleAr: apiProp.titleAr || apiProp.title,
+    locationAr: apiProp.locationAr || apiProp.location,
+    descriptionAr: apiProp.descriptionAr || apiProp.description,
+    bedrooms: apiProp.rooms || apiProp.bedrooms || 0,
+    price: typeof apiProp.price === 'string' ? parseFloat(apiProp.price) : apiProp.price,
+    area: typeof apiProp.area === 'string' ? parseFloat(apiProp.area) : apiProp.area,
+    image: (apiProp.images && apiProp.images[0] && apiProp.images[0].url) ||
+      apiProp.image ||
       "https://placehold.co/400x300?text=No+Image",
     forSale: apiProp.ad_type === "sale" || apiProp.forSale || false,
-    rating: 4.5, // Placeholder until API supports ratings
-    description: apiProp.description || "",
-    descriptionAr: apiProp.description_ar || apiProp.description || "",
+    rating: apiProp.rating || 4.5,
   };
 }
 
