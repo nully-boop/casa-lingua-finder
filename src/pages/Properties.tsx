@@ -4,13 +4,13 @@ import Header from "@/components/Header";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
-import { Property } from "@/interfaces/IProperty";
+import IProperty from "@/interfaces/IProperty";
 import PropertyFilters from "@/components/properties/PropertyFilters";
 import PropertySearchBar from "@/components/properties/PropertySearchBar";
 import PropertyList from "@/components/properties/PropertyList";
 
 // Normalizes a property object from API to UI
-function normalizeProperty(apiProp: any): Property {
+function normalizeProperty(apiProp: any): IProperty {
   return {
     id: apiProp.id,
     title: apiProp.title,
@@ -44,7 +44,7 @@ const Properties = () => {
   const [searchParams] = useSearchParams();
 
   // Local state for filters/controls
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<IProperty[]>([]);
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || ""
   );
@@ -78,14 +78,13 @@ const Properties = () => {
   useEffect(() => {
     if (!properties) return;
 
-    let filtered: Property[] = [...properties];
+    let filtered: IProperty[] = [...properties];
 
     if (searchQuery) {
       filtered = filtered.filter(
         (property) =>
           property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (property.titleAr &&
-            property.titleAr.includes(searchQuery)) ||
+          (property.titleAr && property.titleAr.includes(searchQuery)) ||
           property.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
           (property.locationAr && property.locationAr.includes(searchQuery))
       );
@@ -93,9 +92,7 @@ const Properties = () => {
 
     if (selectedLocation) {
       filtered = filtered.filter((property) =>
-        property.location
-          .toLowerCase()
-          .includes(selectedLocation.toLowerCase())
+        property.location.toLowerCase().includes(selectedLocation.toLowerCase())
       );
     }
 
@@ -185,7 +182,9 @@ const Properties = () => {
               </h2>
             </div>
             {isLoading && (
-              <div className="text-center py-20 text-lg">{t("common.loading") || "Loading..."}</div>
+              <div className="text-center py-20 text-lg">
+                {t("common.loading") || "Loading..."}
+              </div>
             )}
             {error && (
               <div className="text-center py-20 text-destructive">
@@ -193,7 +192,10 @@ const Properties = () => {
               </div>
             )}
             {!isLoading && !error && (
-              <PropertyList properties={filteredProperties} formatPrice={formatPrice} />
+              <PropertyList
+                properties={filteredProperties}
+                formatPrice={formatPrice}
+              />
             )}
             {filteredProperties.length === 0 && !isLoading && !error && (
               <div className="text-center py-16">
