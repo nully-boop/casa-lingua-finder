@@ -12,6 +12,7 @@ import PropertyImageGallery from "@/components/properties/PropertyImageGallery";
 import PropertyInfoCard from "@/components/properties/PropertyInfoCard";
 import AgentSidebar from "@/components/properties/AgentSidebar";
 import RelatedProperties from "@/components/properties/RelatedProperties";
+import { AIChatDrawer } from "@/components/properties/AIChatDrawer";
 
 // Helper function to normalize property data for UI consistency
 const normalizeProperty = (property: any): IProperty => {
@@ -42,6 +43,7 @@ const PropertyDetails = () => {
 
   const [selectedImage, setSelectedImage] = React.useState(0);
   const [isFavorited, setIsFavorited] = React.useState(false);
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
 
   // Fetch property details from API
   const {
@@ -201,6 +203,7 @@ const PropertyDetails = () => {
               agent={agent}
               language={language}
               onContact={handleContactAgent}
+              onChat={() => setIsChatOpen(true)}
             />
           </div>
         </div>
@@ -212,6 +215,15 @@ const PropertyDetails = () => {
           formatPrice={formatPrice}
         />
       </div>
+
+      {property && (
+        <AIChatDrawer
+          open={isChatOpen}
+          onOpenChange={setIsChatOpen}
+          property={property}
+        />
+      )}
+      
       <Footer />
     </div>
   );
