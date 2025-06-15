@@ -1,10 +1,10 @@
 
 import React from "react";
 import PropertyCard from "./PropertyCard";
-import { Property } from "@/interfaces/IProperty";
+import IProperty from "@/interfaces/IProperty";
 
 interface PropertyListProps {
-  properties: Property[];
+  properties: IProperty[];
   formatPrice: (price: number, currency: string, forSale: boolean) => string;
 }
 

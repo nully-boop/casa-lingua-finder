@@ -1,13 +1,14 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Bed, Bath, Square, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Property } from "@/interfaces/IProperty";
+import IProperty from "@/interfaces/IProperty";
 
 interface PropertyCardProps {
-  property: Property;
+  property: IProperty;
   formatPrice: (price: number, currency: string, forSale: boolean) => string;
 }
 
