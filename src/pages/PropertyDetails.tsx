@@ -7,6 +7,7 @@ import { propertiesAPI } from "@/services/api";
 import IProperty from "@/interfaces/IProperty";
 import Header from "@/components/Header";
 import PropertyMap from "@/components/PropertyMap";
+import PropertyList from "@/components/properties/PropertyList";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,15 +66,21 @@ const PropertyDetails = () => {
 
   console.log("Property response:", propertyResponse);
 
-  // Handle the new API response format where property is an array
+  // Handle the API response format
   const propertyArray = propertyResponse?.data?.property || [];
-  const relatedProperties = propertyResponse?.data?.relaitedproperties || [];
+  const relatedPropertiesRaw = propertyResponse?.data?.relaitedproperties || [];
   
   // Find the specific property by ID from the array
   const rawProperty = propertyArray.find((prop: any) => prop.id === parseInt(id!));
   const property = rawProperty ? normalizeProperty(rawProperty) : null;
+  
+  // Normalize related properties and filter out the current property
+  const relatedProperties = relatedPropertiesRaw
+    .map((prop: any) => normalizeProperty(prop))
+    .filter((prop: IProperty) => prop.id !== parseInt(id!));
 
   console.log("Found property:", property);
+  console.log("Related properties:", relatedProperties);
 
   const formatPrice = (price: number, currency: string) => {
     const formattedPrice = price.toLocaleString();
@@ -389,6 +396,26 @@ const PropertyDetails = () => {
             </Card>
           </div>
         </div>
+
+        {/* Related Properties Section */}
+        {relatedProperties.length > 0 && (
+          <div className="mt-12">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-2">
+                {language === "ar" ? "عقارات مشابهة" : "Related Properties"}
+              </h2>
+              <p className="text-muted-foreground">
+                {language === "ar" 
+                  ? "عقارات أخرى قد تعجبك" 
+                  : "Other properties you might be interested in"}
+              </p>
+            </div>
+            <PropertyList 
+              properties={relatedProperties} 
+              formatPrice={formatPrice}
+            />
+          </div>
+        )}
       </div>
       <Footer />
     </div>
