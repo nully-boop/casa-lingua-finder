@@ -1,5 +1,4 @@
-
-export interface Property {
+interface IProperty {
   id: number;
   title: string;
   titleAr: string;
@@ -17,3 +16,4 @@ export interface Property {
   description: string;
   descriptionAr: string;
 }
+export default IProperty;
