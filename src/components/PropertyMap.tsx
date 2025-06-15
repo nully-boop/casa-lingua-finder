@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React from "react";
 
 interface PropertyMapProps {
   address: string;
@@ -55,4 +54,3 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 };
 
 export default PropertyMap;
-
