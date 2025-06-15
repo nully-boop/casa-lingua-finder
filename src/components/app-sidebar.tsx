@@ -57,6 +57,7 @@ export function AppSidebar() {
       
       navigate("/");
     } catch (error) {
+      console.log("Logout error:", error);
       toast({
         title: t("toast.logoutFailed") || "Logout failed",
         description: t("toast.error") || "Error happened",
@@ -73,24 +74,27 @@ export function AppSidebar() {
   };
 
   // Fallback avatar initials
-  const getAvatar = () => {
-    const initials = user?.name
-      ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase()
-      : "U";
-    return { initials };
+  const getAvatarInitials = () => {
+    if (user?.name) {
+      return user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase();
+    }
+    return "U";
   };
 
+  // Determine sidebar side based on language
+  const sidebarSide = language === "ar" ? "right" : "left";
+
   return (
-    <Sidebar side={language === "ar" ? "right" : "left"}>
+    <Sidebar side={sidebarSide}>
       <SidebarHeader>
         <div className="flex flex-col items-center space-y-2">
           <Avatar className="mb-2">
             <AvatarFallback>
-              {getAvatar().initials}
+              {getAvatarInitials()}
             </AvatarFallback>
           </Avatar>
-          <div className="text-sm font-semibold text-center">{user?.name}</div>
-          <div className="text-xs text-muted-foreground text-center">{user?.phone}</div>
+          <div className="text-sm font-semibold text-center">{user?.name || "User"}</div>
+          <div className="text-xs text-muted-foreground text-center">{user?.phone || user?.email}</div>
         </div>
       </SidebarHeader>
       
@@ -103,7 +107,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link to="/profile">
                     <User className="w-4 h-4" />
-                    <span>{t("nav.profile")}</span>
+                    <span>{t("nav.profile") || "Profile"}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -111,14 +115,14 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link to="/settings">
                     <Settings className="w-4 h-4" />
-                    <span>{t("nav.settings")}</span>
+                    <span>{t("nav.settings") || "Settings"}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleToggleLanguage}>
                   <Globe className="h-4 w-4" />
-                  <span>{t("nav.language")}</span>
+                  <span>{t("nav.language") || "Language"}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -130,7 +134,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleLogout} className="text-destructive">
                   <LogOut className="h-4 w-4" />
-                  <span>{t("nav.logout")}</span>
+                  <span>{t("nav.logout") || "Logout"}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

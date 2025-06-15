@@ -1,17 +1,8 @@
-
 import IUser from '@/interfaces/IUser';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type Language = 'en' | 'ar';
 export type UserType = 'buyer' | 'seller';
-
-// interface User {
-//   id: string;
-//   name: string;
-//   email: string;
-//   type: UserType;
-//   token: string;
-// }
 
 interface LanguageContextType {
   language: Language;
@@ -34,6 +25,17 @@ const translations = {
     'nav.register': 'Register',
     'nav.logout': 'Logout',
     'nav.language': 'العربية',
+    'nav.profile': 'Profile',
+    'nav.settings': 'Settings',
+    'nav.profileActions': 'Profile Actions',
+    'nav.light': 'Light Mode',
+    'nav.dark': 'Dark Mode',
+    
+    // Toast messages
+    'toast.logoutSuccess': 'Logout successful',
+    'toast.seeYouAgain': 'See you again!',
+    'toast.logoutFailed': 'Logout failed',
+    'toast.error': 'An error occurred',
     
     // Hero Section
     'hero.title': 'Find Your Perfect Property',
@@ -135,6 +137,17 @@ const translations = {
     'nav.register': 'إنشاء حساب',
     'nav.logout': 'تسجيل الخروج',
     'nav.language': 'English',
+    'nav.profile': 'الملف الشخصي',
+    'nav.settings': 'الإعدادات',
+    'nav.profileActions': 'إجراءات الملف الشخصي',
+    'nav.light': 'الوضع الفاتح',
+    'nav.dark': 'الوضع الداكن',
+    
+    // Toast messages
+    'toast.logoutSuccess': 'تم تسجيل الخروج بنجاح',
+    'toast.seeYouAgain': 'نراك قريباً!',
+    'toast.logoutFailed': 'فشل في تسجيل الخروج',
+    'toast.error': 'حدث خطأ',
     
     // Hero Section
     'hero.title': 'اعثر على العقار المثالي',
@@ -244,7 +257,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.log("Error parsing saved user:", error);
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 

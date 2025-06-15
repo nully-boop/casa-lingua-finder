@@ -56,7 +56,7 @@ const Header = () => {
             >
               <span>{t("nav.properties")}</span>
             </Link>
-            {isAuthenticated && user.user_type === "seller" && (
+            {isAuthenticated && user?.user_type === "seller" && (
               <Link
                 to="/dashboard"
                 className="flex items-center space-x-2 rtl:space-x-reverse text-foreground hover:text-primary transition-colors"
@@ -106,11 +106,13 @@ const Header = () => {
             ) : (
               // Show profile avatar that triggers sidebar when authenticated
               <SidebarTrigger asChild>
-                <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity">
-                  <AvatarFallback>
-                    {getAvatarInitials()}
-                  </AvatarFallback>
-                </Avatar>
+                <button className="p-0 border-0 bg-transparent">
+                  <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity">
+                    <AvatarFallback>
+                      {getAvatarInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
               </SidebarTrigger>
             )}
           </div>
