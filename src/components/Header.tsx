@@ -12,7 +12,7 @@ const Header = () => {
   const { t, user, isAuthenticated, language, setLanguage } = useLanguage();
   const { theme, setTheme, isDark } = useTheme();
 
-  // Handlers for language and theme toggle
+  // Handlers for language and theme toggle (for unauthenticated users)
   const handleToggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
@@ -21,7 +21,7 @@ const Header = () => {
     setLanguage(language === "en" ? "ar" : "en");
   };
 
-  // Fallback avatar initials (same logic as sidebar)
+  // Fallback avatar initials
   const getAvatarInitials = () => {
     if (user?.name) {
       return user.name.split(" ").map((n) => n[0]).join("").toUpperCase();
@@ -68,7 +68,7 @@ const Header = () => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2">
-            {!isAuthenticated && (
+            {!isAuthenticated ? (
               <>
                 <Button
                   asChild
@@ -103,11 +103,10 @@ const Header = () => {
                   <Globe className="h-5 w-5" />
                 </Button>
               </>
-            )}
-            {isAuthenticated && (
-              // Show profile avatar that triggers sidebar
+            ) : (
+              // Show profile avatar that triggers sidebar when authenticated
               <SidebarTrigger>
-                <Avatar className="h-9 w-9">
+                <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity">
                   <AvatarFallback>
                     {getAvatarInitials()}
                   </AvatarFallback>
@@ -122,4 +121,3 @@ const Header = () => {
 };
 
 export default Header;
-
