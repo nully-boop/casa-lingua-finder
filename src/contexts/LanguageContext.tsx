@@ -1,4 +1,3 @@
-
 import IUser from '@/interfaces/IUser';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
@@ -9,7 +8,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   isRTL: boolean;
-  t: (key: string) => string;
+  t: (key: string, options?: { [key: string]: string | number }) => string;
   user: IUser | null;
   login: (user: IUser) => void;
   logout: () => void;
@@ -25,7 +24,7 @@ const translations = {
     'nav.login': 'Login',
     'nav.register': 'Register',
     'nav.logout': 'Logout',
-    'nav.language': 'العربية',
+    'nav.language': 'English',
     'nav.profile': 'Profile',
     'nav.settings': 'Settings',
     'nav.profileActions': 'Profile Actions',
@@ -74,6 +73,8 @@ const translations = {
     'common.delete': 'Delete',
     'common.view': 'View Details',
     'common.contact': 'Contact Seller',
+    'common.close': 'Close',
+    'common.loading': 'Loading...',
     
     // Authentication
     'auth.email': 'Email',
@@ -132,6 +133,13 @@ const translations = {
     'search.oldest': 'Oldest First',
     'search.priceLow': 'Price: Low to High',
     'search.priceHigh': 'Price: High to Low',
+    
+    // AI Chat
+    'aiChat.title': 'AI Property Assistant',
+    'aiChat.description': 'Ask anything about "{title}".',
+    'aiChat.apiKeyPlaceholder': 'Enter your Gemini API Key here (for testing)',
+    'aiChat.startConversation': 'Ask a question to get started!',
+    'aiChat.inputPlaceholder': 'Ask about amenities, neighborhood, etc.',
   },
   ar: {
     // Navigation
@@ -141,7 +149,7 @@ const translations = {
     'nav.login': 'تسجيل الدخول',
     'nav.register': 'إنشاء حساب',
     'nav.logout': 'تسجيل الخروج',
-    'nav.language': 'English',
+    'nav.language': 'العربية',
     'nav.profile': 'الملف الشخصي',
     'nav.settings': 'الإعدادات',
     'nav.profileActions': 'إجراءات الملف الشخصي',
@@ -190,6 +198,8 @@ const translations = {
     'common.delete': 'حذف',
     'common.view': 'عرض التفاصيل',
     'common.contact': 'اتصل بالبائع',
+    'common.close': 'إغلاق',
+    'common.loading': 'جار التحميل...',
     
     // Authentication
     'auth.email': 'البريد الإلكتروني',
@@ -248,6 +258,13 @@ const translations = {
     'search.oldest': 'الأقدم أولاً',
     'search.priceLow': 'السعر: من الأقل للأعلى',
     'search.priceHigh': 'السعر: من الأعلى للأقل',
+    
+    // AI Chat
+    'aiChat.title': 'مساعد العقارات الذكي',
+    'aiChat.description': 'اسأل أي شيء عن "{title}".',
+    'aiChat.apiKeyPlaceholder': 'أدخل مفتاح Gemini API الخاص بك هنا (للاختبار)',
+    'aiChat.startConversation': 'اطرح سؤالاً للبدء!',
+    'aiChat.inputPlaceholder': 'اسأل عن وسائل الراحة، الحي، إلخ.',
   }
 };
 
@@ -288,8 +305,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [language]);
 
-  const t = (key: string): string => {
-    return translations[language][key] || key;
+  const t = (key: string, options?: { [key: string]: string | number }): string => {
+    let text = translations[language][key] || key;
+    if (options && text) {
+      Object.keys(options).forEach((v) => {
+        const regex = new RegExp(`{${v}}`, 'g');
+        text = text.replace(regex, String(options[v]));
+      });
+    }
+    return text;
   };
 
   const login = (newUser: IUser) => {
