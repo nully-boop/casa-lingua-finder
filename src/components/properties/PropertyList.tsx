@@ -1,6 +1,7 @@
 
 import React from "react";
-import PropertyCard, { Property } from "./PropertyCard";
+import PropertyCard from "./PropertyCard";
+import { Property } from "@/interfaces/IProperty";
 
 interface PropertyListProps {
   properties: Property[];

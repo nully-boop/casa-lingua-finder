@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -124,7 +125,11 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
               <div className="px-2">
                 <Slider
                   value={priceRange}
-                  onValueChange={(val) => setPriceRange(val as [number, number])}
+                  onValueChange={(val) => {
+                    if (Array.isArray(val) && val.length === 2) {
+                      setPriceRange(val as [number, number]);
+                    }
+                  }}
                   max={5000000}
                   min={0}
                   step={50000}

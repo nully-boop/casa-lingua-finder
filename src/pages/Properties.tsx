@@ -1,31 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
-import { Search, Filter, MapPin, Bed, Bath, Square, Star } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import api from "@/services/api";
-import PropertyCard, { Property } from "@/components/properties/PropertyCard";
+import { propertiesAPI } from "@/services/api";
+import { Property } from "@/interfaces/IProperty";
 import PropertyFilters from "@/components/properties/PropertyFilters";
 import PropertySearchBar from "@/components/properties/PropertySearchBar";
 import PropertyList from "@/components/properties/PropertyList";
 
-const API_URL = "/user/properties";
-
 // Normalizes a property object from API to UI
-function normalizeProperty(apiProp: any) {
+function normalizeProperty(apiProp: any): Property {
   return {
     id: apiProp.id,
     title: apiProp.title,
@@ -49,7 +34,7 @@ function normalizeProperty(apiProp: any) {
 }
 
 const fetchProperties = async () => {
-  const res = await api.get(API_URL);
+  const res = await propertiesAPI.getProperties();
   // API gives response as { current_page, data, ... }
   return res.data.data;
 };
@@ -59,7 +44,7 @@ const Properties = () => {
   const [searchParams] = useSearchParams();
 
   // Local state for filters/controls
-  const [filteredProperties, setFilteredProperties] = useState([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || ""
   );
@@ -69,7 +54,7 @@ const Properties = () => {
   const [selectedType, setSelectedType] = useState(
     searchParams.get("type") || ""
   );
-  const [priceRange, setPriceRange] = useState([0, 5000000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
 
@@ -93,7 +78,7 @@ const Properties = () => {
   useEffect(() => {
     if (!properties) return;
 
-    let filtered = [...properties];
+    let filtered: Property[] = [...properties];
 
     if (searchQuery) {
       filtered = filtered.filter(
@@ -188,11 +173,7 @@ const Properties = () => {
             selectedType={selectedType}
             setSelectedType={setSelectedType}
             priceRange={priceRange}
-            setPriceRange={(val) =>
-              Array.isArray(val) && val.length === 2
-                ? setPriceRange([val[0], val[1]])
-                : setPriceRange([0, 5000000])
-            }
+            setPriceRange={setPriceRange}
             clearFilters={clearFilters}
           />
 
@@ -212,7 +193,7 @@ const Properties = () => {
               </div>
             )}
             {!isLoading && !error && (
-              <PropertyList properties={filteredProperties as Property[]} formatPrice={formatPrice} />
+              <PropertyList properties={filteredProperties} formatPrice={formatPrice} />
             )}
             {filteredProperties.length === 0 && !isLoading && !error && (
               <div className="text-center py-16">
