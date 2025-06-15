@@ -1,3 +1,4 @@
+
 interface IProperty {
   id: number;
   title: string;
@@ -5,7 +6,11 @@ interface IProperty {
   price: number; // Always number after normalization
   currency: string;
   location: string;
+  address?: string;
+  area_name?: string;
+  city_name?: string;
   rooms?: number;
+  bedrooms?: number;
   bathrooms: number;
   area: number;
   description: string;

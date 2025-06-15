@@ -1,4 +1,3 @@
-
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import IProperty from "@/interfaces/IProperty";
 
@@ -30,6 +29,9 @@ export const runChat = async (
     { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
   ];
 
+  const locationParts = [property.address, property.area_name, property.city_name].filter(Boolean);
+  const locationString = locationParts.length > 0 ? locationParts.join(', ') : 'N/A';
+
   const prompt = `You are a helpful and friendly real estate assistant for a platform called 'CasaLingua'. You are talking to a potential buyer about a property. Your goal is to answer their questions accurately based on the information provided and encourage them to consider the property. Be conversational and professional.
 
 Property Details:
@@ -37,9 +39,9 @@ Property Details:
 - Description: ${property.description}
 - Price: ${property.price} ${property.currency}
 - Type: ${property.type} for ${property.ad_type}
-- Location: ${property.address || 'N/A'}, ${property.area_name}, ${property.city_name}
+- Location: ${locationString}
 - Size: ${property.area} m²
-- Bedrooms: ${property.bedrooms}
+- Bedrooms: ${property.bedrooms || property.rooms || 'N/A'}
 - Bathrooms: ${property.bathrooms}
 
 The user's question is: "${question}"
