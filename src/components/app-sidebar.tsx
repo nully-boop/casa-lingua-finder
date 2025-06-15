@@ -94,7 +94,7 @@ export function AppSidebar() {
             </AvatarFallback>
           </Avatar>
           <div className="text-sm font-semibold text-center">{user?.name || "User"}</div>
-          <div className="text-xs text-muted-foreground text-center">{user?.phone || user?.email}</div>
+          <div className="text-xs text-muted-foreground text-center">{user?.phone}</div>
         </div>
       </SidebarHeader>
       
