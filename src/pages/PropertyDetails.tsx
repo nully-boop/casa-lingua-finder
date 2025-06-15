@@ -3,8 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
-import { IPropertyDetailsResponse } from "@/interfaces/IPropertyDetailsResponse";
-import IProperty, { IPropertyAPI } from "@/interfaces/IProperty";
+import IProperty from "@/interfaces/IProperty";
 import Header from "@/components/Header";
 import PropertyMap from "@/components/PropertyMap";
 import { Button } from "@/components/ui/button";
@@ -30,20 +29,17 @@ import {
 import Footer from "@/components/Footer";
 
 // Helper function to normalize property data for UI consistency
-const normalizeProperty = (property: IPropertyAPI): IProperty => {
+const normalizeProperty = (property: IProperty): IProperty => {
   return {
     ...property,
-    titleAr: property.titleAr || property.title,
-    locationAr: property.locationAr || property.location,
-    descriptionAr: property.descriptionAr || property.description,
-    bedrooms: property.rooms || property.bedrooms || 0,
-    price: typeof property.price === 'string' ? parseFloat(property.price) || 0 : property.price,
-    area: typeof property.area === 'string' ? parseFloat(property.area) || 0 : property.area,
-    forSale: property.ad_type === "sale" || property.forSale || false,
-    rating: property.rating || 4.5,
-    image: property.images && property.images.length > 0 
-      ? property.images[0].url 
-      : property.image || "https://placehold.co/400x300?text=No+Image",
+    price:
+      typeof property.price === "string"
+        ? parseFloat(property.price) || 0
+        : property.price,
+    area:
+      typeof property.area === "string"
+        ? parseFloat(property.area) || 0
+        : property.area,
   };
 };
 
@@ -70,10 +66,11 @@ const PropertyDetails = () => {
   const relatedProperties = propertyResponse?.data?.relaitedproperties || [];
   const property = rawProperty ? normalizeProperty(rawProperty) : null;
 
-  const formatPrice = (price: number, currency: string, forSale: boolean) => {
+  const formatPrice = (price: number, currency: string) => {
     const formattedPrice = price.toLocaleString();
-    const period = forSale ? "" : language === "ar" ? "/شهر" : "/month";
-    return `${formattedPrice} ${currency}${period}`;
+    // const period = forSale ? "" : language === "ar" ? "/شهر" : "/month";
+    // return `${formattedPrice} ${currency}${period}`;
+    return formattedPrice
   };
 
   const handleContactAgent = () => {
@@ -107,14 +104,15 @@ const PropertyDetails = () => {
   }
 
   const images = property.images || [];
-  const propertyImages = images.length > 0 
-    ? images.map(img => img.url)
-    : [property.image || "https://placehold.co/400x300?text=No+Image"];
+  const propertyImages =
+    images.length > 0
+      ? images.map((img) => img.url)
+      :  "https://placehold.co/400x300?text=No+Image";
 
   // Mock amenities for now since API doesn't provide them
   const amenities = [
     "Swimming Pool",
-    "Gym & Fitness Center", 
+    "Gym & Fitness Center",
     "Covered Parking",
     "24/7 Security",
     "Balcony with View",
@@ -140,7 +138,8 @@ const PropertyDetails = () => {
     nameAr: "أحمد الراشد",
     phone: "+971 50 123 4567",
     email: "ahmed@casalingua.com",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    image:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
   };
 
   return (
@@ -165,19 +164,21 @@ const PropertyDetails = () => {
             <div className="relative">
               <img
                 src={propertyImages[selectedImage]}
-                alt={language === "ar" ? property.titleAr : property.title}
+                alt={language === "ar" ? property.title : property.title}
                 className="w-full h-96 object-cover rounded-lg"
               />
               <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 flex gap-2">
-                <Badge variant={property.forSale ? "default" : "secondary"}>
-                  {property.forSale ? t("common.sale") : t("common.rent")}
+                <Badge variant={property.status ? "default" : "secondary"}>
+                  {property.status ? t("common.sale") : t("common.rent")}
                 </Badge>
-                <div className="bg-white rounded-full p-2">
+                {/* <div className="bg-white rounded-full p-2">
                   <div className="flex items-center space-x-1 rtl:space-x-reverse">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{property.rating}</span>
+                    <span className="text-sm font-medium">
+                      {property.rating}
+                    </span>
                   </div>
-                </div>
+                </div> */}
               </div>
               <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4 flex gap-2">
                 <Button
@@ -227,17 +228,20 @@ const PropertyDetails = () => {
                 <div className="space-y-4">
                   <div>
                     <h1 className="text-3xl font-bold mb-2">
-                      {language === "ar" ? property.titleAr : property.title}
+                      {language === "ar" ? property.title : property.title}
                     </h1>
                     <div className="flex items-center text-muted-foreground mb-4">
                       <MapPin className="h-5 w-5 mr-2 rtl:mr-0 rtl:ml-2" />
-                      <span>{language === "ar" ? property.locationAr : property.location}</span>
+                      <span>
+                        {language === "ar"
+                          ? property.location
+                          : property.location}
+                      </span>
                     </div>
                     <div className="text-3xl font-bold text-primary">
                       {formatPrice(
                         property.price as number,
                         property.currency,
-                        property.forSale
                       )}
                     </div>
                   </div>
@@ -249,7 +253,7 @@ const PropertyDetails = () => {
                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
                       <Bed className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <div className="font-semibold">{property.bedrooms}</div>
+                        <div className="font-semibold">{property.rooms}</div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar" ? "غرف النوم" : "Bedrooms"}
                         </div>
@@ -258,7 +262,9 @@ const PropertyDetails = () => {
                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
                       <Bath className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <div className="font-semibold">{property.bathrooms}</div>
+                        <div className="font-semibold">
+                          {property.bathrooms}
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar" ? "الحمامات" : "Bathrooms"}
                         </div>
@@ -276,7 +282,9 @@ const PropertyDetails = () => {
                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
                       <Building className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <div className="font-semibold">Floor {property.floor_number}</div>
+                        <div className="font-semibold">
+                          Floor {property.floor_number}
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           {language === "ar" ? "الطابق" : "Floor"}
                         </div>
@@ -302,27 +310,35 @@ const PropertyDetails = () => {
 
                     <TabsContent value="description" className="space-y-4">
                       <p className="text-muted-foreground leading-relaxed">
-                        {language === "ar" ? property.descriptionAr : property.description}
+                        {language === "ar"
+                          ? property.description
+                          : property.description}
                       </p>
                     </TabsContent>
 
                     <TabsContent value="amenities" className="space-y-4">
                       <div className="grid grid-cols-2 gap-3">
-                        {(language === "ar" ? amenitiesAr : amenities).map((amenity, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center space-x-2 rtl:space-x-reverse"
-                          >
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                            <span className="text-sm">{amenity}</span>
-                          </div>
-                        ))}
+                        {(language === "ar" ? amenitiesAr : amenities).map(
+                          (amenity, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center space-x-2 rtl:space-x-reverse"
+                            >
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                              <span className="text-sm">{amenity}</span>
+                            </div>
+                          )
+                        )}
                       </div>
                     </TabsContent>
 
                     <TabsContent value="location" className="space-y-4">
                       <PropertyMap
-                        address={language === "ar" ? property.locationAr! : property.location}
+                        address={
+                          language === "ar"
+                            ? property.location
+                            : property.location
+                        }
                         className="w-full"
                       />
                     </TabsContent>
