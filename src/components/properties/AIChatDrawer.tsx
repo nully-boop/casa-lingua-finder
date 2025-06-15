@@ -13,8 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User, Loader2 } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import IProperty from "@/interfaces/IProperty";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { runChat } from "@/services/geminiAPI";
 
 interface AIChatDrawerProps {
   open: boolean;
@@ -32,7 +35,7 @@ export const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
   onOpenChange,
   property,
 }) => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [apiKey, setApiKey] = useState("");
@@ -46,26 +49,42 @@ export const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
         behavior: 'smooth',
       });
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const handleSendMessage = async () => {
-    if (!input.trim() || !apiKey.trim()) return;
+    if (!input.trim() || !apiKey.trim() || isLoading) return;
 
     const userMessage: Message = { sender: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage, { sender: "ai", text: "" }]);
     setInput("");
     setIsLoading(true);
 
-    // This is a placeholder for the Gemini API call.
-    // We are simulating a response for now.
-    setTimeout(() => {
-      const aiResponse: Message = {
-        sender: "ai",
-        text: `This is a simulated AI response about: ${property.title}. You asked: "${userMessage.text}"`,
-      };
-      setMessages((prev) => [...prev, aiResponse]);
+    try {
+      await runChat(
+        apiKey,
+        property,
+        userMessage.text,
+        (chunk) => {
+          setMessages((prev) => {
+            const lastMessageIndex = prev.length - 1;
+            const updatedMessages = [...prev];
+            updatedMessages[lastMessageIndex].text += chunk;
+            return updatedMessages;
+          });
+        }
+      );
+    } catch (error) {
+      console.error("Gemini API error:", error);
+      const errorMessage = "Sorry, I encountered an error. Please check your API key and try again.";
+      setMessages((prev) => {
+        const lastMessageIndex = prev.length - 1;
+        const updatedMessages = [...prev];
+        updatedMessages[lastMessageIndex].text = errorMessage;
+        return updatedMessages;
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -73,15 +92,15 @@ export const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
       <DrawerContent>
         <div className="mx-auto w-full max-w-2xl">
           <DrawerHeader className="text-center">
-            <DrawerTitle>{t("aiChat.title") || "AI Property Assistant"}</DrawerTitle>
+            <DrawerTitle>{t("aiChat.title")}</DrawerTitle>
             <DrawerDescription>
-              {t("aiChat.description", { title: property.title }) || `Ask anything about "${property.title}".`}
+              {t("aiChat.description", { title: property.title })}
             </DrawerDescription>
           </DrawerHeader>
           <div className="p-4 space-y-4">
             <Input
               type="password"
-              placeholder={t("aiChat.apiKeyPlaceholder") || "Enter your Gemini API Key here (for testing)"}
+              placeholder={t("aiChat.apiKeyPlaceholder")}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               className="border-primary/50"
@@ -90,7 +109,7 @@ export const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
               <div className="space-y-4">
                 {messages.length === 0 && (
                   <div className="flex justify-center items-center h-full text-muted-foreground">
-                    <p>{t("aiChat.startConversation") || "Ask a question to get started!"}</p>
+                    <p>{t("aiChat.startConversation")}</p>
                   </div>
                 )}
                 {messages.map((msg, index) => (
@@ -102,18 +121,31 @@ export const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
                   >
                     {msg.sender === "ai" && <Bot className="h-6 w-6 flex-shrink-0" />}
                     <div
-                      className={`rounded-lg p-3 text-sm max-w-lg ${
+                      className={`rounded-lg p-3 text-sm max-w-lg break-words ${
                         msg.sender === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
                       }`}
                     >
-                      {msg.text}
+                      {msg.sender === 'ai' ? (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                            ul: ({node, ...props}) => <ul className="list-disc list-inside" {...props} />,
+                            ol: ({node, ...props}) => <ol className="list-decimal list-inside" {...props} />,
+                          }}
+                        >
+                          {msg.text}
+                        </ReactMarkdown>
+                      ) : (
+                        msg.text
+                      )}
                     </div>
                     {msg.sender === "user" && <User className="h-6 w-6 flex-shrink-0" />}
                   </div>
                 ))}
-                {isLoading && (
+                {isLoading && messages[messages.length - 1]?.text === "" && (
                   <div className="flex items-start gap-3">
                     <Bot className="h-6 w-6 flex-shrink-0" />
                     <div className="rounded-lg p-3 text-sm bg-muted flex items-center">
@@ -125,7 +157,7 @@ export const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
             </ScrollArea>
             <div className="flex items-center gap-2">
               <Input
-                placeholder={t("aiChat.inputPlaceholder") || "Ask about amenities, neighborhood, etc."}
+                placeholder={t("aiChat.inputPlaceholder")}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
@@ -138,7 +170,7 @@ export const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
           </div>
           <DrawerFooter>
             <DrawerClose asChild>
-              <Button variant="outline">{t("common.close") || "Close"}</Button>
+              <Button variant="outline">{t("common.close")}</Button>
             </DrawerClose>
           </DrawerFooter>
         </div>
@@ -146,4 +178,3 @@ export const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
     </Drawer>
   );
 };
-
