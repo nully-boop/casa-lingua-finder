@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -19,6 +18,8 @@ interface PropertyInfoCardProps {
   t: (key: string) => string;
   amenities: string[];
   amenitiesAr: string[];
+  latitude?: string | null;
+  longitude?: string | null;
 }
 
 const PropertyInfoCard: React.FC<PropertyInfoCardProps> = ({
@@ -27,6 +28,8 @@ const PropertyInfoCard: React.FC<PropertyInfoCardProps> = ({
   t,
   amenities,
   amenitiesAr,
+  latitude,
+  longitude,
 }) => {
   return (
     <Card>
@@ -136,6 +139,8 @@ const PropertyInfoCard: React.FC<PropertyInfoCardProps> = ({
             <TabsContent value="location" className="space-y-4">
               <PropertyMap
                 address={property.location}
+                latitude={latitude}
+                longitude={longitude}
                 className="w-full"
               />
             </TabsContent>

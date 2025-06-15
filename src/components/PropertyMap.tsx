@@ -3,21 +3,41 @@ import React from 'react';
 
 interface PropertyMapProps {
   address: string;
+  latitude?: string | null;
+  longitude?: string | null;
   className?: string;
 }
 
-const PropertyMap: React.FC<PropertyMapProps> = ({ address, className = "" }) => {
-  // Create a Google Maps embed URL with the address
-  const encodedAddress = encodeURIComponent(address);
-  const mapUrl = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodedAddress}&zoom=15`;
-  
-  // For demo purposes, we'll use a placeholder map with the general Dubai area
-  const demoMapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3608.8!2d55.1562!3d25.0657!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f43496ad9c645%3A0xbde66e5084295162!2sDubai%20-%20United%20Arab%20Emirates!5e0!3m2!1sen!2s!4v1699000000000!5m2!1sen!2s";
+const PropertyMap: React.FC<PropertyMapProps> = ({
+  address,
+  latitude,
+  longitude,
+  className = "",
+}) => {
+  let mapUrl: string;
+
+  // Determine if we have valid lat/lng values
+  if (
+    latitude &&
+    longitude &&
+    !isNaN(Number(latitude)) &&
+    !isNaN(Number(longitude))
+  ) {
+    // Center the map on the given latitude and longitude using Google Maps embed
+    mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}&hl=es;z=14&output=embed`;
+  } else {
+    // Fall back to location search if latitude/longitude is unavailable
+    const encodedAddress = encodeURIComponent(address);
+    mapUrl = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodedAddress}&zoom=15`;
+  }
+
+  // For demo purposes, you may want to fallback to a default map for development only
+  // const demoMapUrl = "https://www.google.com/maps/embed?...";
 
   return (
     <div className={`rounded-lg overflow-hidden ${className}`}>
       <iframe
-        src={demoMapUrl}
+        src={mapUrl}
         width="100%"
         height="300"
         style={{ border: 0 }}
@@ -35,3 +55,4 @@ const PropertyMap: React.FC<PropertyMapProps> = ({ address, className = "" }) =>
 };
 
 export default PropertyMap;
+
