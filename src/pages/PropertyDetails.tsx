@@ -48,6 +48,13 @@ const normalizeProperty = (property: any): IProperty => {
   };
 };
 
+// Simple formatPrice function for consistent display
+const formatPrice = (price: number, currency: string) => {
+  if (currency === "USD") return `$${price.toLocaleString()}`;
+  if (currency === "AED") return `${price.toLocaleString()} د.إ`;
+  return `${price.toLocaleString()} ${currency}`;
+};
+
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -86,7 +93,7 @@ const PropertyDetails = () => {
   console.log("Related properties:", relatedProperties);
 
   // Enhance property object with price string for InfoCard
-  const priceString = formatPrice(property.price, property.currency);
+  const priceString = property ? formatPrice(property.price, property.currency) : "";
 
   // Mock amenities for now since API doesn't provide them
   const amenities = [
@@ -118,6 +125,11 @@ const PropertyDetails = () => {
     email: "ahmed@casalingua.com",
     image:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+  };
+
+  // Placeholder for agent contact
+  const handleContactAgent = () => {
+    alert(language === "ar" ? "سيتم التواصل مع الوكيل قريبا." : "The agent will be contacted soon.");
   };
 
   if (isLoading) {
