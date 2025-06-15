@@ -13,7 +13,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Sun, Moon, User, LogOut, Translate, Settings } from "lucide-react";
+import { Sun, Moon, User, LogOut, Settings, Globe } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useNavigate, Link } from "react-router-dom";
@@ -61,13 +61,12 @@ export function AppSidebar() {
     }
   };
 
-  // Fallback avatar image/initials
+  // Fallback avatar initials
   const getAvatar = () => {
     const initials = user?.name
       ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase()
       : "U";
-    const img = user?.profile_photo || undefined;
-    return { img, initials };
+    return { initials };
   };
 
   // Desktop/Tablet: Sidebar with actions, Mobile: Avatar with dropdown menu for actions
@@ -81,30 +80,22 @@ export function AppSidebar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Avatar>
-                      {getAvatar().img ? (
-                        <AvatarImage src={getAvatar().img} alt={user.name} />
-                      ) : (
-                        <AvatarFallback>
-                          {getAvatar().initials}
-                        </AvatarFallback>
-                      )}
+                      <AvatarFallback>
+                        {getAvatar().initials}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56 z-[99]">
                   <div className="flex items-center p-2">
                     <Avatar className="mr-2">
-                      {getAvatar().img ? (
-                        <AvatarImage src={getAvatar().img} alt={user.name} />
-                      ) : (
-                        <AvatarFallback>
-                          {getAvatar().initials}
-                        </AvatarFallback>
-                      )}
+                      <AvatarFallback>
+                        {getAvatar().initials}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="font-medium">{user.name}</div>
-                      <div className="text-xs text-muted-foreground">{user.email}</div>
+                      <div className="text-xs text-muted-foreground">{user.phone}</div>
                     </div>
                   </div>
                   <DropdownMenuSeparator />
@@ -125,7 +116,7 @@ export function AppSidebar() {
                     {isDark ? t("nav.light") || "Light" : t("nav.dark") || "Dark"}
                   </DropMenuItem>
                   <DropMenuItem onClick={handleToggleLanguage} className="flex items-center gap-2">
-                    <Translate className="h-4 w-4" />
+                    <Globe className="h-4 w-4" />
                     {t("nav.language")}
                   </DropMenuItem>
                   <DropdownMenuSeparator />
@@ -138,16 +129,12 @@ export function AppSidebar() {
             ) : (
               <div className="flex flex-col items-center space-y-2">
                 <Avatar className="mb-2">
-                  {getAvatar().img ? (
-                    <AvatarImage src={getAvatar().img} alt={user.name} />
-                  ) : (
-                    <AvatarFallback>
-                      {getAvatar().initials}
-                    </AvatarFallback>
-                  )}
+                  <AvatarFallback>
+                    {getAvatar().initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="text-xs font-semibold">{user.name}</div>
-                <div className="text-[10px] text-muted-foreground">{user.email}</div>
+                <div className="text-[10px] text-muted-foreground">{user.phone}</div>
               </div>
             )
           ) : (
@@ -213,7 +200,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton onClick={handleToggleLanguage}>
-                    <Translate className="h-4 w-4 mr-2" />
+                    <Globe className="h-4 w-4 mr-2" />
                     {t("nav.language")}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -229,7 +216,6 @@ export function AppSidebar() {
         )}
       </SidebarContent>
       <SidebarFooter>
-        {/* Optional: add copyright or branding */}
         <div className="text-xs text-muted-foreground text-center py-2">Casa Lingua © {new Date().getFullYear()}</div>
       </SidebarFooter>
     </Sidebar>
