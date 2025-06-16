@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -99,15 +100,25 @@ const Settings = () => {
       const isAvatarChanged = !!avatarFile;
 
       if (isAvatarChanged) {
+        // Create FormData and append the file with the correct field name "url"
         payload = new FormData();
         payload.append("name", formData.name);
         payload.append("phone", formData.phone);
-        payload.append("url", avatarFile);
+        payload.append("url", avatarFile); // The file should be sent with field name "url"
+        
+        console.log("Sending profile update with image file:", {
+          name: formData.name,
+          phone: formData.phone,
+          hasFile: !!avatarFile,
+          fileName: avatarFile?.name
+        });
       } else {
         payload = {
           name: formData.name,
           phone: formData.phone,
         };
+        
+        console.log("Sending profile update without image:", payload);
       }
 
       await profileAPI.updateProfile(payload);
@@ -121,6 +132,7 @@ const Settings = () => {
       setAvatarFile(null);
       refetch();
     } catch (error: any) {
+      console.error("Profile update error:", error);
       toast({
         title: "Profile Update Failed",
         description:

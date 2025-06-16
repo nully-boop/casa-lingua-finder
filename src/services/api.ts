@@ -114,7 +114,17 @@ export const profileAPI = {
   },
   updateProfile: (data: any) => {
     console.log("Updating profile data with token...");
-    return api.post("/user/updateProfile", data).then((response) => {
+    
+    // Check if data is FormData (contains file)
+    const isFormData = data instanceof FormData;
+    const config = isFormData 
+      ? { headers: { "Content-Type": "multipart/form-data" } }
+      : {};
+    
+    console.log("Update profile request:", { isFormData, data });
+    
+    return api.post("/user/updateProfile", data, config).then((response) => {
+      console.log("Profile update response:", response.data);
       // Extract user data from nested response if needed
       return response.data.user
         ? { ...response, data: response.data.user }
