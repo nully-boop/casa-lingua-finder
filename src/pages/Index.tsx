@@ -2,18 +2,7 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Bed, Bath, Square, Star, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import HeroSection from "@/components/home/HeroSection";
 import FeaturedProperties from "@/components/home/FeaturedProperties";
@@ -23,8 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
 import IProperty from "@/interfaces/IProperty";
 
-// Normalizes a property object from API to UI
-function normalizeProperty(apiProp: any): IProperty {
+function normalizeProperty(apiProp: IProperty): IProperty {
   return {
     ...apiProp,
     price:
@@ -51,7 +39,6 @@ const Index = () => {
   const [selectedType, setSelectedType] = useState("");
   const [priceRange, setPriceRange] = useState("");
 
-  // Fetch properties from API
   const {
     data: apiProperties,
     isLoading,
@@ -61,8 +48,7 @@ const Index = () => {
     queryFn: fetchProperties,
   });
 
-  // Get first 4 properties for featured section
-  const featuredProperties = apiProperties 
+  const featuredProperties = apiProperties
     ? apiProperties.slice(0, 4).map(normalizeProperty)
     : [];
 
@@ -119,11 +105,9 @@ const Index = () => {
       ) : error ? (
         <div className="container mx-auto px-4 py-16 text-center">
           <h2 className="text-2xl font-bold text-destructive mb-4">
-            {t('error.loadFailed')}
+            {t("error.loadFailed")}
           </h2>
-          <p className="text-muted-foreground">
-            {t('error.tryAgain')}
-          </p>
+          <p className="text-muted-foreground">{t("error.tryAgain")}</p>
         </div>
       ) : (
         <FeaturedProperties
@@ -138,9 +122,9 @@ const Index = () => {
         />
       )}
 
-
       {/* WhyUs Section */}
       <WhyUs />
+
       {/* Footer Section */}
       <Footer />
     </div>
