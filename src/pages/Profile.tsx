@@ -8,36 +8,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { profileAPI } from "@/services/api";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 
-// Interface for user profile data
-interface UserProfile {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string;
-  location?: string;
-  url?: string;
-  joinDate: string;
-  bio?: string;
-  user_type: string;
-  image?: { url: string };
-}
-
-// Interface for seller profile data extending user profile
-interface SellerProfile extends UserProfile {
-  companyName?: string;
-  license?: string;
-  rating?: number;
-  totalSales?: number;
-  activeListings?: number;
-  totalReviews?: number;
-  yearsExperience?: number;
-}
-
 const Profile = () => {
-  const { t, language, isAuthenticated } = useLanguage();
+  const { language, isAuthenticated } = useLanguage();
   const queryClient = useQueryClient();
 
-  // Check if user has token
   const hasToken = () => {
     try {
       const userData = localStorage.getItem("user");
@@ -51,7 +25,6 @@ const Profile = () => {
     }
   };
 
-  // Fetch profile data from API
   const {
     data: profileData,
     isLoading,
@@ -124,7 +97,6 @@ const Profile = () => {
     );
   }
 
-  // Remove all editing, only display info now
   return (
     <div className="min-h-screen bg-background">
       <Header />
