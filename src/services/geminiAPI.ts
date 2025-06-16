@@ -1,3 +1,4 @@
+
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import IProperty from "@/interfaces/IProperty";
 
@@ -34,6 +35,8 @@ export const runChat = async (
 
   const prompt = `You are a helpful and friendly real estate assistant for a platform called 'CasaLingua'. You are talking to a potential buyer about a property. Your goal is to answer their questions accurately based on the information provided and encourage them to consider the property. Be conversational and professional.
 
+IMPORTANT: Always respond in the same language as the user's question. If the user asks in Arabic, respond in Arabic. If the user asks in English, respond in English. Match the user's language exactly.
+
 Property Details:
 - Title: ${property.title}
 - Description: ${property.description}
@@ -46,7 +49,7 @@ Property Details:
 
 The user's question is: "${question}"
 
-Please answer the user's question. If the information is not available in the details provided, politely state that you don't have that specific information but you can answer other questions.`;
+Please answer the user's question in the same language they used. If the information is not available in the details provided, politely state that you don't have that specific information but you can answer other questions.`;
   
   const result = await model.generateContentStream({
     contents: [{ role: "user", parts: [{ text: prompt }] }],
