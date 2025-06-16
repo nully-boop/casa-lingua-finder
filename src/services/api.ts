@@ -1,5 +1,7 @@
 import ILogin from "@/interfaces/ILogin";
 import IRegister from "@/interfaces/IRegister";
+import ISellerProfile from "@/interfaces/ISellerProfile";
+import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
 // إنشاء نسخة من axios بإعدادات أساسية
@@ -112,17 +114,17 @@ export const profileAPI = {
       };
     });
   },
-  updateProfile: (data: any) => {
+  updateProfile: (data: IUpdateProfile) => {
     console.log("Updating profile data with token...");
-    
+
     // Check if data is FormData (contains file)
     const isFormData = data instanceof FormData;
-    const config = isFormData 
+    const config = isFormData
       ? { headers: { "Content-Type": "multipart/form-data" } }
       : {};
-    
+
     console.log("Update profile request:", { isFormData, data });
-    
+
     return api.post("/user/updateProfile", data, config).then((response) => {
       console.log("Profile update response:", response.data);
       // Extract user data from nested response if needed
@@ -132,7 +134,7 @@ export const profileAPI = {
     });
   },
 
-  createSeller: (data: any) => {
+  createSeller: (data: ISellerProfile) => {
     console.log("Updating profile data with token...");
     return api.post("/auth/create-seller", data).then((response) => {
       // Extract user data from nested response if needed
