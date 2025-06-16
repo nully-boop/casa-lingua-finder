@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -15,16 +14,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { Sun, Moon, Monitor } from "lucide-react";
 
-const placeholderImg =
-  "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=facearea&w=128&q=80";
-
 const Settings = () => {
   const { isAuthenticated } = useLanguage();
   const { theme, setTheme, isDark } = useTheme();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Fetch profile data from backend
   const {
     data: profileData,
     isLoading,
@@ -34,7 +29,7 @@ const Settings = () => {
     queryKey: ["settings-profile"],
     queryFn: async () => {
       const response = await profileAPI.getProfile();
-      return response.data; // user data comes here
+      return response.data;
     },
     enabled: isAuthenticated,
   });
@@ -59,7 +54,6 @@ const Settings = () => {
     }
   }, [profileData]);
 
-  // Fallback avatar initials
   const getAvatarInitials = () => {
     if (profileData?.name) {
       return profileData.name
@@ -113,11 +107,10 @@ const Settings = () => {
       const isAvatarChanged = !!avatarFile;
 
       if (isAvatarChanged) {
-        // Create FormData and append the file with the correct field name "url"
         payload = new FormData();
         payload.append("name", formData.name);
         payload.append("phone", formData.phone);
-        payload.append("url", avatarFile); // The file should be sent with field name "url"
+        payload.append("url", avatarFile);
 
         console.log("Sending profile update with image file:", {
           name: formData.name,
@@ -135,8 +128,7 @@ const Settings = () => {
       }
 
       const response = await profileAPI.updateProfile(payload);
-      
-      // Update localStorage with the new profile data
+
       const currentUser = authService.getCurrentUser();
       if (currentUser && response.data) {
         const updatedUser = {
@@ -192,7 +184,6 @@ const Settings = () => {
     return <Monitor className="h-4 w-4" />;
   };
 
-  // --- Avatar logic ---
   const handleStartPhotoEdit = () => setIsPhotoEditing(true);
   const handleCancelPhotoEdit = () => {
     setIsPhotoEditing(false);
