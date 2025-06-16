@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Sun, Moon, User, LogOut, Settings, Globe, X } from "lucide-react";
+import { Sun, Moon, User, LogOut, Settings, Globe, X, Building2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useNavigate, Link } from "react-router-dom";
@@ -112,6 +112,21 @@ export function AppSidebar() {
       </SidebarHeader>
       
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>{t("nav.navigation") || "Navigation"}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/owner">
+                    <Building2 className="w-4 h-4" />
+                    <span>{t("nav.owner") || "Owner Dashboard"}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>{t("nav.profileActions") || "Profile Actions"}</SidebarGroupLabel>
           <SidebarGroupContent>

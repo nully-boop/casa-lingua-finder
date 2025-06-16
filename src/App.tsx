@@ -19,6 +19,7 @@ import PropertyDetails from "./pages/PropertyDetails";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import SellerProfileSetup from "./pages/SellerProfileSetup";
+import Owner from "./pages/Owner";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const AppContent = () => {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/seller-setup" element={<SellerProfileSetup />} />
+                <Route path="/owner" element={<Owner />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
@@ -63,6 +65,7 @@ const AppContent = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/seller-setup" element={<SellerProfileSetup />} />
+            <Route path="/owner" element={<Owner />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

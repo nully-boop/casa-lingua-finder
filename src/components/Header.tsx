@@ -56,6 +56,14 @@ const Header = () => {
             >
               <span>{t("nav.properties")}</span>
             </Link>
+            {isAuthenticated && (
+              <Link
+                to="/owner"
+                className="flex items-center space-x-2 rtl:space-x-reverse text-foreground hover:text-primary transition-colors"
+              >
+                <span>{t("nav.owner") || "Owner"}</span>
+              </Link>
+            )}
             {isAuthenticated && user?.user_type === "seller" && (
               <Link
                 to="/dashboard"
