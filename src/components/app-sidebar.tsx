@@ -1,5 +1,3 @@
-
-import React from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,16 +11,29 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Sun, Moon, User, LogOut, Settings, Globe, X, Building2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Sun,
+  Moon,
+  User,
+  LogOut,
+  Settings,
+  Globe,
+  X,
+  Building2,
+} from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { authAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
+import IUser from "@/interfaces/IUser";
 
-export function AppSidebar() {
+interface AppSideBarProps {
+  user: IUser;
+}
+export const AppSidebar: React.FC<AppSideBarProps> = () => {
   const { language, setLanguage, t, user, logout } = useLanguage();
   const { theme, setTheme, isDark } = useTheme();
   const navigate = useNavigate();
@@ -51,13 +62,12 @@ export function AppSidebar() {
         title: t("toast.logoutSuccess") || "Logout successful",
         description: t("toast.seeYouAgain") || "See you again!",
       });
-      
-      // Clear localStorage and call logout from context
+
       localStorage.removeItem("user");
       if (logout) {
         logout();
       }
-      
+
       navigate("/");
     } catch (error) {
       console.log("Logout error:", error);
@@ -66,8 +76,7 @@ export function AppSidebar() {
         description: t("toast.error") || "Error happened",
         variant: "destructive",
       });
-      
-      // Still clear localStorage even if API call fails
+
       localStorage.removeItem("user");
       if (logout) {
         logout();
@@ -76,17 +85,19 @@ export function AppSidebar() {
     }
   };
 
-  // Fallback avatar initials
   const getAvatarInitials = () => {
     if (user?.name) {
-      return user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase();
+      return user.name
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase();
     }
     return "U";
   };
 
-  // Determine sidebar side based on language
   const sidebarSide = language === "ar" ? "left" : "right";
-
+  const profileImage = user.image?.url;
   return (
     <Sidebar side={sidebarSide}>
       <SidebarHeader>
@@ -102,18 +113,24 @@ export function AppSidebar() {
         </div>
         <div className="flex flex-col items-center space-y-2">
           <Avatar className="mb-2">
-            <AvatarFallback>
-              {getAvatarInitials()}
-            </AvatarFallback>
+            <AvatarImage src={profileImage} alt={user?.name} />
+            <AvatarFallback>{getAvatarInitials()}</AvatarFallback>
           </Avatar>
-          <div className="text-sm font-semibold text-center">{user?.name || "User"}</div>
-          <div className="text-xs text-muted-foreground text-center">{user?.phone}</div>
+
+          <div className="text-sm font-semibold text-center">
+            {user?.name || "User"}
+          </div>
+          <div className="text-xs text-muted-foreground text-center">
+            {user?.phone}
+          </div>
         </div>
       </SidebarHeader>
-      
+
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{t("nav.navigation") || "Navigation"}</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            {t("nav.navigation") || "Navigation"}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -128,7 +145,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>{t("nav.profileActions") || "Profile Actions"}</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            {t("nav.profileActions") || "Profile Actions"}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -155,12 +174,23 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleToggleTheme}>
-                  {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                  <span>{isDark ? t("nav.light") || "Light" : t("nav.dark") || "Dark"}</span>
+                  {isDark ? (
+                    <Sun className="h-4 w-4" />
+                  ) : (
+                    <Moon className="h-4 w-4" />
+                  )}
+                  <span>
+                    {isDark
+                      ? t("nav.light") || "Light"
+                      : t("nav.dark") || "Dark"}
+                  </span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleLogout} className="text-destructive">
+                <SidebarMenuButton
+                  onClick={handleLogout}
+                  className="text-destructive"
+                >
                   <LogOut className="h-4 w-4" />
                   <span>{t("nav.logout") || "Logout"}</span>
                 </SidebarMenuButton>
@@ -169,10 +199,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      
+
       <SidebarFooter>
-        <div className="text-xs text-muted-foreground text-center py-2">Casa Lingua © {new Date().getFullYear()}</div>
+        <div className="text-xs text-muted-foreground text-center py-2">
+          Casa Lingua © {new Date().getFullYear()}
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
-}
+};
