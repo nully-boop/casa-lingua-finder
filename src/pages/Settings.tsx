@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -11,9 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import ProfileInfo from "@/components/settings/ProfileInfo";
 import AppearanceSettings from "@/components/settings/AppearanceSettings";
 import DangerZone from "@/components/settings/DangerZone";
-import {
-  Tabs, TabsContent, TabsList, TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { Sun, Moon, Monitor } from "lucide-react";
 
@@ -61,8 +58,21 @@ const Settings = () => {
     }
   }, [profileData]);
 
+  // Fallback avatar initials
+  const getAvatarInitials = () => {
+    if (profileData?.name) {
+      return profileData.name
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase();
+    }
+    return "U";
+  };
+
   const profileImage =
-    photoPreview || (profileData?.image?.url ? profileData.image.url : placeholderImg);
+    photoPreview ||
+    (profileData?.image?.url ? profileData.image.url : getAvatarInitials);
 
   if (!isAuthenticated) {
     navigate("/login");
@@ -88,7 +98,9 @@ const Settings = () => {
           <div className="text-muted-foreground mb-4">
             Could not load profile. Please try again.
           </div>
-          <button className="btn" onClick={() => refetch()}>Retry</button>
+          <button className="btn" onClick={() => refetch()}>
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -105,19 +117,19 @@ const Settings = () => {
         payload.append("name", formData.name);
         payload.append("phone", formData.phone);
         payload.append("url", avatarFile); // The file should be sent with field name "url"
-        
+
         console.log("Sending profile update with image file:", {
           name: formData.name,
           phone: formData.phone,
           hasFile: !!avatarFile,
-          fileName: avatarFile?.name
+          fileName: avatarFile?.name,
         });
       } else {
         payload = {
           name: formData.name,
           phone: formData.phone,
         };
-        
+
         console.log("Sending profile update without image:", payload);
       }
 
