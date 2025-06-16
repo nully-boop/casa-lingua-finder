@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -133,7 +134,20 @@ const Settings = () => {
         console.log("Sending profile update without image:", payload);
       }
 
-      await profileAPI.updateProfile(payload);
+      const response = await profileAPI.updateProfile(payload);
+      
+      // Update localStorage with the new profile data
+      const currentUser = authService.getCurrentUser();
+      if (currentUser && response.data) {
+        const updatedUser = {
+          ...currentUser,
+          name: response.data.name || formData.name,
+          phone: response.data.phone || formData.phone,
+        };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        console.log("Updated localStorage with new profile data:", updatedUser);
+      }
+
       toast({
         title: "Profile Updated",
         description: "Your profile has been updated successfully.",
