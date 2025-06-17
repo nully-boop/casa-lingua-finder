@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,33 +10,34 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSearchParams } from "react-router-dom";
 
-interface PropertyFiltersProps {
-  show: boolean;
-  language: string;
-  t: (key: string) => string;
-  selectedLocation: string;
-  setSelectedLocation: (val: string) => void;
-  selectedType: string;
-  setSelectedType: (val: string) => void;
-  priceRange: [number, number];
-  setPriceRange: (val: [number, number]) => void;
-  clearFilters: () => void;
-}
+const PropertyFilters = () => {
+  const { t, language } = useLanguage();
+  const [searchParams] = useSearchParams();
+ 
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || ""
+  );
+  const [selectedLocation, setSelectedLocation] = useState(
+    searchParams.get("location") || ""
+  );
+  const [selectedType, setSelectedType] = useState(
+    searchParams.get("type") || ""
+  );
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
+  const [sortBy, setSortBy] = useState("newest");
+  const [showFilters, setShowFilters] = useState(false);
 
-const PropertyFilters: React.FC<PropertyFiltersProps> = ({
-  show,
-  language,
-  t,
-  selectedLocation,
-  setSelectedLocation,
-  selectedType,
-  setSelectedType,
-  priceRange,
-  setPriceRange,
-  clearFilters,
-}) => {
-  if (!show) return null;
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedLocation("");
+    setSelectedType("");
+    setPriceRange([0, 5000000]);
+    setSortBy("newest");
+  };
+
+  if (!showFilters) return null;
   return (
     <div className="w-80 space-y-6 animate-fade-in">
       <Card>
@@ -64,9 +64,7 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   <SelectItem value="">
-                    {language === "ar"
-                      ? "جميع المواقع"
-                      : "All Locations"}
+                    {language === "ar" ? "جميع المواقع" : "All Locations"}
                   </SelectItem>
                   <SelectItem value="dubai-marina">
                     {language === "ar" ? "مرسى دبي" : "Dubai Marina"}
@@ -75,9 +73,7 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                     {language === "ar" ? "نخلة جميرا" : "Palm Jumeirah"}
                   </SelectItem>
                   <SelectItem value="business-bay">
-                    {language === "ar"
-                      ? "خليج الأعمال"
-                      : "Business Bay"}
+                    {language === "ar" ? "خليج الأعمال" : "Business Bay"}
                   </SelectItem>
                   <SelectItem value="jlt">
                     {language === "ar" ? "أبراج بحيرة الجميرا" : "JLT"}
@@ -91,10 +87,7 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
               <label className="text-sm font-medium mb-2 block">
                 {t("hero.type")}
               </label>
-              <Select
-                value={selectedType}
-                onValueChange={setSelectedType}
-              >
+              <Select value={selectedType} onValueChange={setSelectedType}>
                 <SelectTrigger>
                   <SelectValue placeholder={t("hero.type")} />
                 </SelectTrigger>
@@ -105,13 +98,9 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                   <SelectItem value="apartment">
                     {t("type.apartment")}
                   </SelectItem>
-                  <SelectItem value="villa">
-                    {t("type.villa")}
-                  </SelectItem>
+                  <SelectItem value="villa">{t("type.villa")}</SelectItem>
                   <SelectItem value="land">{t("type.land")}</SelectItem>
-                  <SelectItem value="office">
-                    {t("type.office")}
-                  </SelectItem>
+                  <SelectItem value="office">{t("type.office")}</SelectItem>
                   <SelectItem value="shop">{t("type.shop")}</SelectItem>
                 </SelectContent>
               </Select>
