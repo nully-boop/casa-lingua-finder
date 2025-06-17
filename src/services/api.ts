@@ -92,6 +92,8 @@ export const propertiesAPI = {
   deleteProperty: (id: string) => api.delete(`/properties/${id}`),
 
   getMyProperties: () => api.get("/my-properties"),
+
+  addToFavorite: (propertyId: number) => api.post("/user/addToFavorite", { property_id: propertyId }),
 };
 
 // استدعاءات لوحة التحكم

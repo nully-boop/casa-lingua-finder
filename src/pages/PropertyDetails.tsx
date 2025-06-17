@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
 import IProperty from "@/interfaces/IProperty";
 import Header from "@/components/Header";
@@ -13,6 +13,7 @@ import PropertyInfoCard from "@/components/properties/PropertyInfoCard";
 import AgentSidebar from "@/components/properties/AgentSidebar";
 import RelatedProperties from "@/components/properties/RelatedProperties";
 import { AIChatDrawer } from "@/components/properties/AIChatDrawer";
+import { useToast } from "@/hooks/use-toast";
 
 const normalizeProperty = (property: IProperty): IProperty => {
   return {
@@ -38,9 +39,10 @@ const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t, language, isRTL } = useLanguage();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [selectedImage, setSelectedImage] = React.useState(0);
-  const [isFavorited, setIsFavorited] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
 
   const {
@@ -57,6 +59,7 @@ const PropertyDetails = () => {
 
   const propertyArray = propertyResponse?.data?.property || [];
   const relatedPropertiesRaw = propertyResponse?.data?.relaitedproperties || [];
+  const isFavorited = propertyResponse?.data?.is_favorite === true;
 
   const rawProperty = propertyArray.find(
     (prop: any) => prop.id === parseInt(id!)
@@ -69,6 +72,37 @@ const PropertyDetails = () => {
 
   console.log("Found property:", property);
   console.log("Related properties:", relatedProperties);
+  console.log("Is favorited:", isFavorited);
+
+  const favoriteMutation = useMutation({
+    mutationFn: (propertyId: number) => propertiesAPI.addToFavorite(propertyId),
+    onSuccess: () => {
+      // Refetch the property details to get updated favorite status
+      queryClient.invalidateQueries({ queryKey: ["property-details", id] });
+      toast({
+        title: language === "ar" ? "تم التحديث" : "Updated",
+        description: language === "ar" 
+          ? "تم تحديث قائمة المفضلة" 
+          : "Favorites list updated",
+      });
+    },
+    onError: (error) => {
+      console.error("Error updating favorite:", error);
+      toast({
+        title: language === "ar" ? "خطأ" : "Error",
+        description: language === "ar" 
+          ? "حدث خطأ في تحديث المفضلة" 
+          : "Error updating favorites",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleFavorite = () => {
+    if (property) {
+      favoriteMutation.mutate(property.id);
+    }
+  };
 
   const priceString = property
     ? formatPrice(property.price, property.currency)
@@ -169,7 +203,7 @@ const PropertyDetails = () => {
               isFavorited={isFavorited}
               selectedImage={selectedImage}
               setSelectedImage={setSelectedImage}
-              onFavorite={() => setIsFavorited(!isFavorited)}
+              onFavorite={handleFavorite}
               onShare={() => {}}
               t={t}
             />
