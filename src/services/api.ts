@@ -94,7 +94,7 @@ export const propertiesAPI = {
     api.post("/user/removeFromFavorites", { property_id: propertyId }),
 
   isFavorited: (propertyId: number) =>
-    api.post("/user/is-favorited", { property_id: propertyId }),
+    api.get(`/user/is-favorited?property_id=${propertyId}`),
 };
 
 export const dashboardAPI = {

@@ -14,6 +14,7 @@ import AgentSidebar from "@/components/properties/AgentSidebar";
 import RelatedProperties from "@/components/properties/RelatedProperties";
 import { AIChatDrawer } from "@/components/properties/AIChatDrawer";
 import { useToast } from "@/hooks/use-toast";
+import AuthModal from "@/components/auth/AuthModal";
 
 const normalizeProperty = (property: IProperty): IProperty => {
   return {
@@ -38,12 +39,13 @@ const formatPrice = (price: number, currency: string) => {
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t, language, isRTL } = useLanguage();
+  const { t, language, isRTL, isAuthenticated } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const [selectedImage, setSelectedImage] = React.useState(0);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
+  const [showAuthModal, setShowAuthModal] = React.useState(false);
 
   const {
     data: propertyResponse,
@@ -55,14 +57,14 @@ const PropertyDetails = () => {
     enabled: !!id,
   });
 
-  // Check if property is favorited
+  // Check if property is favorited - only if user is authenticated
   const {
     data: favoritedResponse,
     isLoading: isFavoritedLoading,
   } = useQuery({
     queryKey: ["property-favorited", id],
     queryFn: () => propertiesAPI.isFavorited(parseInt(id!)),
-    enabled: !!id,
+    enabled: !!id && isAuthenticated,
   });
 
   console.log("Property response:", propertyResponse);
@@ -118,6 +120,12 @@ const PropertyDetails = () => {
   });
 
   const handleFavorite = () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+
     if (property) {
       favoriteMutation.mutate(property.id);
     }
@@ -165,7 +173,7 @@ const PropertyDetails = () => {
     );
   };
 
-  if (isLoading || isFavoritedLoading) {
+  if (isLoading || (isAuthenticated && isFavoritedLoading)) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -264,6 +272,11 @@ const PropertyDetails = () => {
           property={property}
         />
       )}
+
+      <AuthModal 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal} 
+      />
 
       <Footer />
     </div>
