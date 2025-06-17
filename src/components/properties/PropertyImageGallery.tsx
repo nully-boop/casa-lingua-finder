@@ -9,12 +9,10 @@ interface PropertyImageGalleryProps {
   title: string;
   adType: string;
   isFavorited: boolean;
-  isRTL: boolean;
   selectedImage: number;
   setSelectedImage: (index: number) => void;
   onFavorite: () => void;
   onShare: () => void;
-  language: string;
   t: (key: string) => string;
 }
 
@@ -23,12 +21,10 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   title,
   adType,
   isFavorited,
-  isRTL,
   selectedImage,
   setSelectedImage,
   onFavorite,
   onShare,
-  language,
   t,
 }) => (
   <div>
