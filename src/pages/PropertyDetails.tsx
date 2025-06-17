@@ -55,11 +55,22 @@ const PropertyDetails = () => {
     enabled: !!id,
   });
 
+  // Check if property is favorited
+  const {
+    data: favoritedResponse,
+    isLoading: isFavoritedLoading,
+  } = useQuery({
+    queryKey: ["property-favorited", id],
+    queryFn: () => propertiesAPI.isFavorited(parseInt(id!)),
+    enabled: !!id,
+  });
+
   console.log("Property response:", propertyResponse);
+  console.log("Favorited response:", favoritedResponse);
 
   const propertyArray = propertyResponse?.data?.property || [];
   const relatedPropertiesRaw = propertyResponse?.data?.relaitedproperties || [];
-  const isFavorited = propertyResponse?.data?.is_favorite === true;
+  const isFavorited = favoritedResponse?.data?.is_favorited === true;
 
   const rawProperty = propertyArray.find(
     (prop: any) => prop.id === parseInt(id!)
@@ -85,8 +96,8 @@ const PropertyDetails = () => {
       }
     },
     onSuccess: () => {
-      // Refetch the property details to get updated favorite status
-      queryClient.invalidateQueries({ queryKey: ["property-details", id] });
+      // Refetch the favorite status to get updated state
+      queryClient.invalidateQueries({ queryKey: ["property-favorited", id] });
       toast({
         title: language === "ar" ? "تم التحديث" : "Updated",
         description: isFavorited 
@@ -154,7 +165,7 @@ const PropertyDetails = () => {
     );
   };
 
-  if (isLoading) {
+  if (isLoading || isFavoritedLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />

@@ -92,6 +92,9 @@ export const propertiesAPI = {
 
   removeFromFavorite: (propertyId: number) =>
     api.post("/user/removeFromFavorites", { property_id: propertyId }),
+
+  isFavorited: (propertyId: number) =>
+    api.post("/user/is-favorited", { property_id: propertyId }),
 };
 
 export const dashboardAPI = {
