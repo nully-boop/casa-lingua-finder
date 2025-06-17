@@ -9,7 +9,6 @@ import PropertyFilters from "@/components/properties/PropertyFilters";
 import PropertySearchBar from "@/components/properties/PropertySearchBar";
 import PropertyList from "@/components/properties/PropertyList";
 
-// Normalizes a property object from API to UI
 function normalizeProperty(apiProp: IProperty): IProperty {
   return {
     ...apiProp,
@@ -26,15 +25,13 @@ function normalizeProperty(apiProp: IProperty): IProperty {
 
 const fetchProperties = async () => {
   const res = await propertiesAPI.getProperties();
-  // API gives response as { current_page, data, ... }
   return res.data.data;
 };
 
 const Properties = () => {
-  const { t, language, isRTL } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
 
-  // Local state for filters/controls
   const [filteredProperties, setFilteredProperties] = useState<IProperty[]>([]);
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || ""
@@ -47,9 +44,7 @@ const Properties = () => {
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
   const [sortBy, setSortBy] = useState("newest");
-  const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch properties data from API
   const {
     data: apiProperties,
     isLoading,
@@ -59,13 +54,11 @@ const Properties = () => {
     queryFn: fetchProperties,
   });
 
-  // Memoize the normalized properties for performance
   const properties = useMemo(() => {
     if (!apiProperties) return [];
     return apiProperties.map(normalizeProperty);
   }, [apiProperties]);
 
-  // Filtering logic (reuses existing code, now with API data)
   useEffect(() => {
     if (!properties) return;
 
@@ -119,48 +112,15 @@ const Properties = () => {
     sortBy,
   ]);
 
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedLocation("");
-    setSelectedType("");
-    setPriceRange([0, 5000000]);
-    setSortBy("newest");
-  };
-
-  const formatPrice = (price: number, currency: string) => {
-    const formattedPrice = price.toLocaleString();
-    return `${formattedPrice} ${currency}`;
-  };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       <div className="container mx-auto px-4 py-8">
-        <PropertySearchBar
-          t={t}
-          isRTL={isRTL}
-          language={language}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-        />
+        <PropertySearchBar />
         <div className="flex gap-8">
-          <PropertyFilters
-            show={showFilters}
-            language={language}
-            t={t}
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
-            selectedType={selectedType}
-            setSelectedType={setSelectedType}
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
-            clearFilters={clearFilters}
-          />
+          <PropertyFilters />
 
           {/* Properties Grid */}
           <div className="flex-1">
@@ -180,10 +140,7 @@ const Properties = () => {
               </div>
             )}
             {!isLoading && !error && (
-              <PropertyList
-                properties={filteredProperties}
-                formatPrice={formatPrice}
-              />
+              <PropertyList properties={filteredProperties} />
             )}
             {filteredProperties.length === 0 && !isLoading && !error && (
               <div className="text-center py-16">
