@@ -14,8 +14,7 @@ import AgentSidebar from "@/components/properties/AgentSidebar";
 import RelatedProperties from "@/components/properties/RelatedProperties";
 import { AIChatDrawer } from "@/components/properties/AIChatDrawer";
 
-// Helper function to normalize property data for UI consistency
-const normalizeProperty = (property: any): IProperty => {
+const normalizeProperty = (property: IProperty): IProperty => {
   return {
     ...property,
     price:
@@ -29,7 +28,6 @@ const normalizeProperty = (property: any): IProperty => {
   };
 };
 
-// Simple formatPrice function for consistent display
 const formatPrice = (price: number, currency: string) => {
   if (currency === "USD") return `$${price.toLocaleString()}`;
   if (currency === "AED") return `${price.toLocaleString()} د.إ`;
@@ -45,7 +43,6 @@ const PropertyDetails = () => {
   const [isFavorited, setIsFavorited] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
 
-  // Fetch property details from API
   const {
     data: propertyResponse,
     isLoading,
@@ -58,17 +55,14 @@ const PropertyDetails = () => {
 
   console.log("Property response:", propertyResponse);
 
-  // Handle the API response format
   const propertyArray = propertyResponse?.data?.property || [];
   const relatedPropertiesRaw = propertyResponse?.data?.relaitedproperties || [];
 
-  // Find the specific property by ID from the array
   const rawProperty = propertyArray.find(
     (prop: any) => prop.id === parseInt(id!)
   );
   const property = rawProperty ? normalizeProperty(rawProperty) : null;
 
-  // Normalize related properties and filter out the current property
   const relatedProperties = relatedPropertiesRaw
     .map((prop: any) => normalizeProperty(prop))
     .filter((prop: IProperty) => prop.id !== parseInt(id!));
@@ -76,12 +70,10 @@ const PropertyDetails = () => {
   console.log("Found property:", property);
   console.log("Related properties:", relatedProperties);
 
-  // Enhance property object with price string for InfoCard
   const priceString = property
     ? formatPrice(property.price, property.currency)
     : "";
 
-  // Mock amenities for now since API doesn't provide them
   const amenities = [
     "Swimming Pool",
     "Gym & Fitness Center",
@@ -103,7 +95,6 @@ const PropertyDetails = () => {
     "خدمة الكونسيرج",
   ];
 
-  // Mock agent data
   const agent = {
     name: "Ahmed Al-Rashid",
     nameAr: "أحمد الراشد",
@@ -113,7 +104,6 @@ const PropertyDetails = () => {
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
   };
 
-  // Placeholder for agent contact
   const handleContactAgent = () => {
     alert(
       language === "ar"
@@ -177,12 +167,10 @@ const PropertyDetails = () => {
               title={property?.title}
               adType={property?.ad_type}
               isFavorited={isFavorited}
-              isRTL={isRTL}
               selectedImage={selectedImage}
               setSelectedImage={setSelectedImage}
               onFavorite={() => setIsFavorited(!isFavorited)}
               onShare={() => {}}
-              language={language}
               t={t}
             />
 
@@ -223,7 +211,7 @@ const PropertyDetails = () => {
           property={property}
         />
       )}
-      
+
       <Footer />
     </div>
   );
