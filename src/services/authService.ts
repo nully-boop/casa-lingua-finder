@@ -1,7 +1,9 @@
+
 import { authAPI, profileAPI } from "./api";
 import IUser from "@/interfaces/IUser";
 import IRegister from "@/interfaces/IRegister";
 import ILogin from "@/interfaces/ILogin";
+import ISellerProfile from "@/interfaces/ISellerProfile";
 
 export const authService = {
   // Registration service
@@ -19,6 +21,7 @@ export const authService = {
       phone: userData["phone"],
       user_type: "",
       token: accessToken,
+      created_at: userData["created_at"] || new Date().toISOString(),
     };
 
     localStorage.setItem("user", JSON.stringify(user));
@@ -38,6 +41,7 @@ export const authService = {
       phone: userData["phone"],
       user_type: "",
       token: accessToken,
+      created_at: userData["created_at"] || new Date().toISOString(),
     };
 
     localStorage.setItem("user", JSON.stringify(user));

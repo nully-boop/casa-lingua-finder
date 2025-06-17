@@ -1,6 +1,5 @@
 import ILogin from "@/interfaces/ILogin";
 import IRegister from "@/interfaces/IRegister";
-import ISellerProfile from "@/interfaces/ISellerProfile";
 import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
@@ -136,7 +135,13 @@ export const profileAPI = {
     });
   },
 
-  createSeller: (data: ISellerProfile) => {
+  createSeller: (data: {
+    phone?: string;
+    location?: string;
+    company_name?: string;
+    license_number?: string;
+    user_id: number;
+  }) => {
     console.log("Updating profile data with token...");
     return api.post("/auth/create-seller", data).then((response) => {
       // Extract user data from nested response if needed

@@ -5,9 +5,10 @@ import IProperty from "@/interfaces/IProperty";
 
 interface PropertyListProps {
   properties: IProperty[];
+  formatPrice?: (price: number, currency: string) => string;
 }
 
-const PropertyList: React.FC<PropertyListProps> = ({ properties }) => {
+const PropertyList: React.FC<PropertyListProps> = ({ properties, formatPrice }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {properties.map((property) => (

@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -28,12 +29,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { authAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
-import IUser from "@/interfaces/IUser";
 
-interface AppSideBarProps {
-  user: IUser;
-}
-export const AppSidebar: React.FC<AppSideBarProps> = () => {
+export const AppSidebar: React.FC = () => {
   const { language, setLanguage, t, user, logout } = useLanguage();
   const { theme, setTheme, isDark } = useTheme();
   const navigate = useNavigate();
@@ -97,7 +94,8 @@ export const AppSidebar: React.FC<AppSideBarProps> = () => {
   };
 
   const sidebarSide = language === "ar" ? "left" : "right";
-  const profileImage = user.image?.url;
+  const profileImage = user?.image?.url;
+  
   return (
     <Sidebar side={sidebarSide}>
       <SidebarHeader>
