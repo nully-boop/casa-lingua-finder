@@ -1,7 +1,7 @@
-
-import React from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 import {
   Select,
   SelectContent,
@@ -10,29 +10,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useSearchParams } from "react-router-dom";
 
-interface PropertySearchBarProps {
-  t: (key: string) => string;
-  isRTL: boolean;
-  language: string;
-  searchQuery: string;
-  setSearchQuery: (val: string) => void;
-  showFilters: boolean;
-  setShowFilters: (val: boolean) => void;
-  sortBy: string;
-  setSortBy: (val: string) => void;
-}
+const PropertySearchBar = () => {
+  const { t, language, isRTL } = useLanguage();
+  const [searchParams] = useSearchParams();
 
-const PropertySearchBar: React.FC<PropertySearchBarProps> = ({
-  t,
-  isRTL,
-  searchQuery,
-  setSearchQuery,
-  showFilters,
-  setShowFilters,
-  sortBy,
-  setSortBy,
-}) => {
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || ""
+  );
+  const [sortBy, setSortBy] = useState("newest");
+  const [showFilters, setShowFilters] = useState(false);
+
   return (
     <div className="mb-8">
       <div className="flex flex-col md:flex-row gap-4 items-center">
@@ -65,9 +55,7 @@ const PropertySearchBar: React.FC<PropertySearchBarProps> = ({
             <SelectItem value="newest">{t("search.newest")}</SelectItem>
             <SelectItem value="oldest">{t("search.oldest")}</SelectItem>
             <SelectItem value="priceLow">{t("search.priceLow")}</SelectItem>
-            <SelectItem value="priceHigh">
-              {t("search.priceHigh")}
-            </SelectItem>
+            <SelectItem value="priceHigh">{t("search.priceHigh")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
