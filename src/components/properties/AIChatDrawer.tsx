@@ -131,9 +131,9 @@ export const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                            ul: ({node, ...props}) => <ul className="list-disc list-inside" {...props} />,
-                            ol: ({node, ...props}) => <ol className="list-decimal list-inside" {...props} />,
+                            p: ({node: _node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                            ul: ({node: _node, ...props}) => <ul className="list-disc list-inside" {...props} />,
+                            ol: ({node: _node, ...props}) => <ol className="list-decimal list-inside" {...props} />,
                           }}
                         >
                           {msg.text}

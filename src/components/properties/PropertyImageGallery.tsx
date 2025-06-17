@@ -13,7 +13,8 @@ interface PropertyImageGalleryProps {
   setSelectedImage: (index: number) => void;
   onFavorite: () => void;
   onShare: () => void;
-  t: (key: string) => string;
+  t: (key: string) => string; // This was reported as unused
+  favoriteQueryFailed?: boolean; // Added based on previous subtask's intention
 }
 
 const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
@@ -25,7 +26,8 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   setSelectedImage,
   onFavorite,
   onShare,
-  t,
+  t: _t, // Prefixed t
+  // favoriteQueryFailed, // Destructure if/when used to display UI for this error
 }) => {
   const nextImage = () => {
     setSelectedImage((selectedImage + 1) % images.length);

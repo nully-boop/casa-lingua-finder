@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building, Mail, Lock, User, PhoneCall } from "lucide-react";
+import { Building, Lock, User, PhoneCall } from "lucide-react"; // Removed Mail
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import type { UserType } from "@/contexts/LanguageContext";
@@ -65,11 +65,18 @@ const Register = () => {
       //   navigate("/");
       // }
       navigate("/");
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Please check your input and try again";
+    } catch (error: unknown) { // Typed error as unknown
+      let errorMessage = "Please check your input and try again";
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const errResponse = error.response as { data?: { message?: string; error?: string } };
+        if (errResponse.data?.message) {
+          errorMessage = errResponse.data.message;
+        } else if (errResponse.data?.error) {
+          errorMessage = errResponse.data.error;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
 
       toast({
         title: "Registration failed",

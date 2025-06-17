@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 const Footer = () => {
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL: _isRTL } = useLanguage(); // Prefixed isRTL
 
   const footerLinks = {
     en: {

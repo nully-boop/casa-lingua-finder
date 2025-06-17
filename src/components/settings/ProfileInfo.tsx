@@ -101,14 +101,14 @@ const ProfileInfo = () => {
 
   const handleSaveProfile = async () => {
     try {
-      let payload: any;
+      let payload: FormData | { name: string; phone: string };
       const isAvatarChanged = !!avatarFile;
 
-      if (isAvatarChanged) {
-        payload = new FormData();
+      if (isAvatarChanged && avatarFile) { // Ensure avatarFile is not null
+        payload = new FormData(); // Initialize payload here
         payload.append("name", formData.name);
         payload.append("phone", formData.phone);
-        payload.append("url", avatarFile);
+        payload.append("url", avatarFile); // avatarFile is confirmed to be non-null here
 
         console.log("Sending profile update with image file:", {
           name: formData.name,
@@ -147,12 +147,20 @@ const ProfileInfo = () => {
       setPhotoPreview(null);
       setAvatarFile(null);
       refetch();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Profile update error:", error);
+      let errorMessage = "Could not update profile.";
+      if (error && typeof error === 'object' && 'response' in error) {
+        const response = error.response as { data?: { message?: string } };
+        if (response?.data?.message) {
+          errorMessage = response.data.message;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       toast({
         title: "Profile Update Failed",
-        description:
-          error?.response?.data?.message || "Could not update profile.",
+        description: errorMessage,
         variant: "destructive",
       });
     }

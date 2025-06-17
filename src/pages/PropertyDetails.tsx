@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,7 +6,7 @@ import { propertiesAPI } from "@/services/api";
 import IProperty from "@/interfaces/IProperty";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2, AlertTriangle, RotateCw } from "lucide-react";
 import Footer from "@/components/Footer";
 import PropertyImageGallery from "@/components/properties/PropertyImageGallery";
 import PropertyInfoCard from "@/components/properties/PropertyInfoCard";
@@ -49,8 +49,10 @@ const PropertyDetails = () => {
 
   const {
     data: propertyResponse,
-    isLoading,
-    error,
+    isLoading: isPropertyLoading,
+    isError: isPropertyQueryError,
+    error: propertyQueryError,
+    refetch: refetchProperty,
   } = useQuery({
     queryKey: ["property-details", id],
     queryFn: () => propertiesAPI.getProperty(id!),
@@ -61,31 +63,49 @@ const PropertyDetails = () => {
   const {
     data: favoritedResponse,
     isLoading: isFavoritedLoading,
+    isError: isFavoriteQueryError,
+    error: favoriteQueryError,
+    // We might not need a dedicated refetch for this if main property load fails,
+    // or if favorite action itself handles refetch on error.
   } = useQuery({
     queryKey: ["property-favorited", id],
     queryFn: () => propertiesAPI.isFavorited(parseInt(id!)),
-    enabled: !!id && isAuthenticated,
+    enabled: !!id && isAuthenticated && !isPropertyQueryError, // Don't run if main query failed
   });
 
-  console.log("Property response:", propertyResponse);
-  console.log("Favorited response:", favoritedResponse);
+  useEffect(() => {
+    if (isFavoriteQueryError) {
+      console.error("Favorite status query error:", favoriteQueryError?.message);
+      // Optionally, show a non-intrusive toast or log to an error reporting service
+      // toast({
+      //   title: t("error.favoriteStatusErrorTitle") || "Favorite Status Error",
+      //   description: favoriteQueryError?.message || t("error.favoriteStatusErrorDescription") || "Could not load favorite status.",
+      //   variant: "destructive",
+      //   duration: 3000, // Short duration
+      // });
+    }
+  }, [isFavoriteQueryError, favoriteQueryError, t, toast]);
 
-  const propertyArray = propertyResponse?.data?.property || [];
-  const relatedPropertiesRaw = propertyResponse?.data?.relaitedproperties || [];
-  const isFavorited = favoritedResponse?.data?.is_favorited === true;
+  // console.log("Property response:", propertyResponse);
+  // console.log("Favorited response:", favoritedResponse);
+
+  const propertyArray = !isPropertyQueryError ? propertyResponse?.data?.property || [] : [];
+  const relatedPropertiesRaw = !isPropertyQueryError ? propertyResponse?.data?.relaitedproperties || [] : [];
+
+  const isFavorited = !isFavoriteQueryError && favoritedResponse?.data?.is_favorited === true;
 
   const rawProperty = propertyArray.find(
-    (prop: any) => prop.id === parseInt(id!)
+    (prop: IProperty) => prop.id === parseInt(id!)
   );
-  const property = rawProperty ? normalizeProperty(rawProperty) : null;
+  const property = rawProperty && !isPropertyQueryError ? normalizeProperty(rawProperty) : null;
 
   const relatedProperties = relatedPropertiesRaw
-    .map((prop: any) => normalizeProperty(prop))
+    .map((prop: IProperty) => normalizeProperty(prop))
     .filter((prop: IProperty) => prop.id !== parseInt(id!));
 
-  console.log("Found property:", property);
-  console.log("Related properties:", relatedProperties);
-  console.log("Is favorited:", isFavorited);
+  // console.log("Found property:", property);
+  // console.log("Related properties:", relatedProperties);
+  // console.log("Is favorited:", isFavorited);
 
   const favoriteMutation = useMutation({
     mutationFn: (propertyId: number) => {
@@ -173,27 +193,36 @@ const PropertyDetails = () => {
     );
   };
 
-  if (isLoading || (isAuthenticated && isFavoritedLoading)) {
+  if (isPropertyLoading || (isAuthenticated && isFavoritedLoading && !isPropertyQueryError)) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-20 text-lg">
-            {t("common.loading") || "Loading..."}
-          </div>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
+          <p className="mt-4 text-muted-foreground">{t("common.loadingProperty") || "Loading property details..."}</p>
         </div>
       </div>
     );
   }
 
-  if (error || !property) {
+  if (isPropertyQueryError || !property) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-20 text-destructive">
-            {t("common.error") || "Error loading property details"}
-          </div>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-destructive mb-2">
+            {t("error.loadFailed", { ns: "common" }) || "Failed to Load Property Details"}
+          </h2>
+          <p className="text-muted-foreground mb-4">
+            {(propertyQueryError as Error)?.message
+              ? t("error.specificLoadFailed", { ns: "common", message: (propertyQueryError as Error).message })
+              : t("propertyDetails.error.generic", { ns: "property" }) || "Could not load the property details. Please try again."}
+          </p>
+          <Button onClick={() => refetchProperty()} variant="outline">
+            <RotateCw className="h-4 w-4 mr-2" />
+            {t("common.retry") || "Retry"}
+          </Button>
         </div>
       </div>
     );
@@ -228,6 +257,7 @@ const PropertyDetails = () => {
               title={property?.title}
               adType={property?.ad_type}
               isFavorited={isFavorited}
+              favoriteQueryFailed={isFavoriteQueryError}
               selectedImage={selectedImage}
               setSelectedImage={setSelectedImage}
               onFavorite={handleFavorite}

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building, Mail, Lock, PhoneCall } from "lucide-react";
+import { Building, Lock, PhoneCall } from "lucide-react"; // Removed Mail
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
@@ -24,7 +24,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { user, userData } = await authService.login({
+      const { user, userData: _userData } = await authService.login({ // Prefixed userData
         phone: phone,
         password: password,
       });
@@ -36,13 +36,13 @@ const Login = () => {
         description: "Welcome back!",
       });
 
-      // if (userData["user_type"] === "seller") {
+      // if (_userData["user_type"] === "seller") { // Adjusted to use _userData if logic is restored
       //   navigate("/dashboard");
       // } else {
       //   navigate("/");
       // }
       navigate("/");
-    } catch (error) {
+    } catch (_error) { // Prefixed error
       toast({
         title: "Login failed",
         description: "Please check your credentials",
