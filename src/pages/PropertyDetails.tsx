@@ -75,15 +75,23 @@ const PropertyDetails = () => {
   console.log("Is favorited:", isFavorited);
 
   const favoriteMutation = useMutation({
-    mutationFn: (propertyId: number) => propertiesAPI.addToFavorite(propertyId),
+    mutationFn: (propertyId: number) => {
+      if (isFavorited) {
+        // Remove from favorites
+        return propertiesAPI.removeFromFavorite(propertyId);
+      } else {
+        // Add to favorites
+        return propertiesAPI.addToFavorite(propertyId);
+      }
+    },
     onSuccess: () => {
       // Refetch the property details to get updated favorite status
       queryClient.invalidateQueries({ queryKey: ["property-details", id] });
       toast({
         title: language === "ar" ? "تم التحديث" : "Updated",
-        description: language === "ar" 
-          ? "تم تحديث قائمة المفضلة" 
-          : "Favorites list updated",
+        description: isFavorited 
+          ? (language === "ar" ? "تم إزالة العقار من المفضلة" : "Property removed from favorites")
+          : (language === "ar" ? "تم إضافة العقار إلى المفضلة" : "Property added to favorites"),
       });
     },
     onError: (error) => {
