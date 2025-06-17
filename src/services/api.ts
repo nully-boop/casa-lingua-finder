@@ -3,7 +3,6 @@ import IRegister from "@/interfaces/IRegister";
 import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
-// إنشاء نسخة من axios بإعدادات أساسية
 const api = axios.create({
   baseURL: "http://192.168.1.5:8000/api",
   timeout: 10000,
@@ -13,7 +12,6 @@ const api = axios.create({
   },
 });
 
-// طلب Interceptor لإضافة التوكن
 api.interceptors.request.use(
   (config) => {
     try {
@@ -38,7 +36,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor لمعالجة الأخطاء
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -47,12 +44,11 @@ api.interceptors.response.use(
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
-    console.error("API Error:", error); // عرض الخطأ في الكونسول لمساعدتك في التصحيح
+    console.error("API Error:", error);
     return Promise.reject(error);
   }
 );
 
-// استدعاءات المصادقة
 export const authAPI = {
   login: (data: ILogin) => api.post("/login", data),
 
@@ -72,7 +68,6 @@ export const authAPI = {
   }) => api.post("/auth/reset-password", data),
 };
 
-// استدعاءات العقارات
 export const propertiesAPI = {
   getProperties: () => api.get("/user/properties"),
 
@@ -92,21 +87,19 @@ export const propertiesAPI = {
 
   getMyProperties: () => api.get("/my-properties"),
 
-  addToFavorite: (propertyId: number) => api.post("/user/addToFavorite", { property_id: propertyId }),
+  addToFavorite: (propertyId: number) =>
+    api.post("/user/addToFavorites", { property_id: propertyId }),
 };
 
-// استدعاءات لوحة التحكم
 export const dashboardAPI = {
   getStats: () => api.get("/dashboard/stats"),
   getRecentProperties: () => api.get("/dashboard/recent-properties"),
 };
 
-// استدعاءات الملف الشخصي
 export const profileAPI = {
   getProfile: () => {
     console.log("Fetching profile data with token...");
     return api.get("/user/getProfile").then((response) => {
-      // Extract user data from nested response
       console.log("Raw API response:", response.data);
       return {
         ...response,
@@ -118,7 +111,6 @@ export const profileAPI = {
   updateProfile: (data: IUpdateProfile) => {
     console.log("Updating profile data with token...");
 
-    // Check if data is FormData (contains file)
     const isFormData = data instanceof FormData;
     const config = isFormData
       ? { headers: { "Content-Type": "multipart/form-data" } }
@@ -128,7 +120,6 @@ export const profileAPI = {
 
     return api.post("/user/updateProfile", data, config).then((response) => {
       console.log("Profile update response:", response.data);
-      // Extract user data from nested response if needed
       return response.data.user
         ? { ...response, data: response.data.user }
         : response;
@@ -144,7 +135,6 @@ export const profileAPI = {
   }) => {
     console.log("Updating profile data with token...");
     return api.post("/auth/create-seller", data).then((response) => {
-      // Extract user data from nested response if needed
       return response.data.user && response.data.seller
         ? {
             ...response,
