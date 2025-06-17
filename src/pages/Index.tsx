@@ -1,43 +1,20 @@
-import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import HeroSection from "@/components/home/HeroSection";
 import FeaturedProperties from "@/components/home/FeaturedProperties";
-import HomeSearchForm from "@/components/home/HomeSearchForm";
 import WhyUs from "@/components/WhyUs";
 import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
-import IProperty from "@/interfaces/IProperty";
-
-function normalizeProperty(apiProp: IProperty): IProperty {
-  return {
-    ...apiProp,
-    price:
-      typeof apiProp.price === "string"
-        ? parseFloat(apiProp.price) || 0
-        : apiProp.price,
-    area:
-      typeof apiProp.area === "string"
-        ? parseFloat(apiProp.area) || 0
-        : apiProp.area,
-  };
-}
-
-const fetchProperties = async () => {
-  const res = await propertiesAPI.getProperties();
-  return res.data.data;
-};
 
 const Index = () => {
-  const { t, language, isRTL } = useLanguage();
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [selectedType, setSelectedType] = useState("");
-  const [priceRange, setPriceRange] = useState("");
+  const { t } = useLanguage();
+
+  const fetchProperties = async () => {
+    const res = await propertiesAPI.getProperties();
+    return res.data.data;
+  };
 
   const {
     data: apiProperties,
@@ -48,54 +25,12 @@ const Index = () => {
     queryFn: fetchProperties,
   });
 
-  const featuredProperties = apiProperties
-    ? apiProperties.slice(0, 4).map(normalizeProperty)
-    : [];
-
-  const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (selectedLocation) params.set("location", selectedLocation);
-    if (selectedType) params.set("type", selectedType);
-    if (priceRange) params.set("price", priceRange);
-
-    navigate(`/properties?${params.toString()}`);
-  };
-
-  const formatPrice = (price: number, currency: string) => {
-    const formattedPrice = price.toLocaleString();
-    return `${formattedPrice} ${currency}`;
-  };
-
-  const handlePropertyClick = (propertyId: number) => {
-    navigate(`/property/${propertyId}`);
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       {/* Hero Section */}
-      <HeroSection
-        title={t("hero.title")}
-        subtitle={t("hero.subtitle")}
-        searchForm={
-          <HomeSearchForm
-            t={t}
-            isRTL={isRTL}
-            language={language}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
-            selectedType={selectedType}
-            setSelectedType={setSelectedType}
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
-            onSearch={handleSearch}
-          />
-        }
-      />
+      <HeroSection />
 
       {/* Featured Properties Section */}
       {isLoading ? (
@@ -111,14 +46,9 @@ const Index = () => {
         </div>
       ) : (
         <FeaturedProperties
-          properties={featuredProperties}
+          apiProperties={apiProperties}
           isLoading={false}
           error={null}
-          formatPrice={formatPrice}
-          t={t}
-          language={language}
-          onPropertyClick={handlePropertyClick}
-          onViewAll={() => navigate("/properties")}
         />
       )}
 
