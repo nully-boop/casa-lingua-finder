@@ -14,11 +14,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useSearchParams } from "react-router-dom";
 
 const PropertySearchBar = () => {
-  const { t, language, isRTL } = useLanguage();
-  const [searchParams] = useSearchParams();
+  const { t, language: _language, isRTL } = useLanguage(); // Prefixed language
+  const [_searchParams] = useSearchParams(); // Prefixed searchParams
 
   const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || ""
+    _searchParams.get("search") || ""
   );
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);

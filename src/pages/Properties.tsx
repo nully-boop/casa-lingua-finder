@@ -3,6 +3,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle, RotateCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { propertiesAPI } from "@/services/api";
 import IProperty from "@/interfaces/IProperty";
 import PropertyFilters from "@/components/properties/PropertyFilters";
@@ -33,22 +35,24 @@ const Properties = () => {
   const [searchParams] = useSearchParams();
 
   const [filteredProperties, setFilteredProperties] = useState<IProperty[]>([]);
-  const [searchQuery, setSearchQuery] = useState(
+  const [searchQuery, _setSearchQuery] = useState(
     searchParams.get("search") || ""
   );
-  const [selectedLocation, setSelectedLocation] = useState(
+  const [selectedLocation, _setSelectedLocation] = useState(
     searchParams.get("location") || ""
   );
-  const [selectedType, setSelectedType] = useState(
+  const [selectedType, _setSelectedType] = useState(
     searchParams.get("type") || ""
   );
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
-  const [sortBy, setSortBy] = useState("newest");
+  const [priceRange, _setPriceRange] = useState<[number, number]>([0, 5000000]);
+  const [sortBy, _setSortBy] = useState("newest");
 
   const {
     data: apiProperties,
     isLoading,
+    isError,
     error,
+    refetch,
   } = useQuery({
     queryKey: ["properties"],
     queryFn: fetchProperties,
@@ -134,15 +138,27 @@ const Properties = () => {
                 {t("common.loading") || "Loading..."}
               </div>
             )}
-            {error && (
-              <div className="text-center py-20 text-destructive">
-                {t("common.error") || "Error loading properties"}
+            {isError && (
+              <div className="text-center py-20">
+                <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2 text-destructive">
+                  {t("error.loadFailed", { ns: "common" }) || "Error Loading Properties"}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {(error as Error)?.message
+                    ? t("error.specificLoadFailed", { ns: "common", message: (error as Error).message })
+                    : t("error.tryAgain", { ns: "common" }) || "Please try again later."}
+                </p>
+                <Button onClick={() => refetch()} variant="outline">
+                  <RotateCw className="h-4 w-4 mr-2" />
+                  {t("common.retry") || "Retry"}
+                </Button>
               </div>
             )}
-            {!isLoading && !error && (
+            {!isLoading && !isError && (
               <PropertyList properties={filteredProperties} />
             )}
-            {filteredProperties.length === 0 && !isLoading && !error && (
+            {filteredProperties.length === 0 && !isLoading && !isError && (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🏠</div>
                 <h3 className="text-xl font-semibold mb-2">

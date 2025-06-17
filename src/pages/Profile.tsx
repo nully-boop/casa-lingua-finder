@@ -39,8 +39,9 @@ const Profile = () => {
       return { user: response.data, seller: response.seller };
     },
     enabled: isAuthenticated && hasToken(),
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 401) return false;
+    retry: (failureCount, error: unknown) => {
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError?.response?.status === 401) return false;
       return failureCount < 3;
     },
   });

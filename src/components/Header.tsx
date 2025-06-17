@@ -1,15 +1,17 @@
+import React, { useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
-import { Building, Sun, Moon, Globe } from "lucide-react";
+import { Building, Sun, Moon, Globe, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"; // If using ShadCN Tooltip
 import { useQuery } from "@tanstack/react-query";
 import { profileAPI } from "@/services/api";
 
 const Header = () => {
-  const { t, user,isAuthenticated, language, setLanguage } = useLanguage();
+  const { t, user, isAuthenticated, language, setLanguage } = useLanguage();
   const { theme, setTheme, isDark } = useTheme();
 
   const hasToken = () => {
@@ -25,21 +27,50 @@ const Header = () => {
     }
   };
 
-  const { data: profileData } = useQuery({
-    queryKey: ["profile"],
+  const {
+    data: profileData,
+    isError: isProfileQueryError,
+    error: profileQueryError
+  } = useQuery({
+    queryKey: ["profile"], // This query key is also used in src/pages/Profile.tsx. Consider if they should be distinct or if this is intentional.
     queryFn: async () => {
       if (!hasToken()) {
-        throw new Error("No authentication token found");
+        // This error will be caught by react-query and set in 'profileQueryError'
+        throw new Error("No authentication token found for profile fetch in Header.");
       }
       const response = await profileAPI.getProfile();
-      return { user: response.data };
+      // Assuming response.data contains the user object, not response.data.user based on ProfileInfo
+      return response.data;
     },
     enabled: isAuthenticated && hasToken(),
-    retry: (failureCount, error: any) => {
-      if (error?.response?.status === 401) return false;
-      return failureCount < 3;
+    retry: (failureCount, error: unknown) => {
+      // Attempt to check for AxiosError-like structure
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError?.response?.status === 401) {
+        // Specific handling for 401, perhaps logout user or clear token if appropriate here
+        console.warn("Profile query in Header received 401, not retrying.");
+        return false;
+      }
+      // For other errors, retry up to 2 times (total 3 attempts)
+      return failureCount < 2;
     },
+    // staleTime: 5 * 60 * 1000, // Optional: 5 minutes, if profile data doesn't change often
   });
+
+  useEffect(() => {
+    if (isProfileQueryError && profileQueryError) {
+      console.error("Header profile query error:", (profileQueryError as Error).message);
+      // Here you could also use a toast notification for critical errors if desired,
+      // but a subtle UI cue is often better for header elements.
+      // e.g., toast({ title: "Profile Error", description: "Could not load profile information.", variant: "destructive" });
+    }
+  }, [isProfileQueryError, profileQueryError]);
+
+  // Update local user context if profileData is successfully fetched
+  // This part depends on how 'user' in LanguageContext is updated.
+  // For now, assuming 'user' from LanguageContext is the primary source for display,
+  // and this query is for fetching more details or ensuring freshness.
+  // If profileData from this query should update the global user state, that logic would be here.
 
   const handleToggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
@@ -141,17 +172,34 @@ const Header = () => {
                 </Button>
               </>
             ) : (
-              <SidebarTrigger asChild>
-                <button className="p-0 border-0 bg-transparent">
-                  <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity">
-                    <AvatarImage
-                      src={user.image?.url}
-                      alt={user.name}
-                    />
-                    <AvatarFallback>{getAvatarInitials()}</AvatarFallback>{" "}
-                  </Avatar>
-                </button>
-              </SidebarTrigger>
+              <div className="flex items-center gap-1">
+                {isProfileQueryError && (
+                  // <TooltipProvider>
+                  //   <Tooltip>
+                  //     <TooltipTrigger>
+                        <AlertTriangle
+                          className="h-4 w-4 text-destructive"
+                          title={t("header.error.profileLoadFailedTooltip") || "Failed to load profile data"}
+                        />
+                  //     </TooltipTrigger>
+                  //     <TooltipContent>
+                  //       <p>{t("header.error.profileLoadFailedTooltip") || "Failed to load profile data"}</p>
+                  //     </TooltipContent>
+                  //   </Tooltip>
+                  // </TooltipProvider>
+                )}
+                <SidebarTrigger asChild>
+                  <button className="p-0 border-0 bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full">
+                    <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity">
+                      <AvatarImage
+                        src={profileData?.image?.url || user.image?.url}
+                        alt={profileData?.name || user.name}
+                      />
+                      <AvatarFallback>{getAvatarInitials()}</AvatarFallback>
+                    </Avatar>
+                  </button>
+                </SidebarTrigger>
+              </div>
             )}
           </div>
         </div>
