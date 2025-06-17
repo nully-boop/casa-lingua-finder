@@ -17,8 +17,16 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
 
+interface SellerProfileData {
+  phone?: string;
+  location?: string;
+  company_name?: string;
+  license_number?: string;
+  user_id: number;
+}
+
 const SellerProfileSetup = () => {
-  const { t } = useLanguage();
+  const { t: _t } = useLanguage(); // Renamed t to _t as it's not used
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -42,7 +50,7 @@ const SellerProfileSetup = () => {
     setIsLoading(true);
 
     try {
-      const profileData: any = {};
+      const profileData: SellerProfileData = { user_id: 0 }; // Initialize with user_id
 
       if (phone.trim()) profileData.phone = phone.trim();
       if (location.trim()) profileData.location = location.trim();
@@ -72,16 +80,23 @@ const SellerProfileSetup = () => {
       });
 
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Profile update error:", error);
-      console.error("Error response:", error.response?.data);
-      console.error("Error status:", error.response?.status);
-      console.error("Error message:", error.message);
+      let errorMessage = "Please check your input and try again";
 
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Please check your input and try again";
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const errResponse = error.response as { data?: { message?: string; error?: string }, status?: number };
+        console.error("Error response:", errResponse.data);
+        console.error("Error status:", errResponse.status);
+        if (errResponse.data?.message) {
+          errorMessage = errResponse.data.message;
+        } else if (errResponse.data?.error) {
+          errorMessage = errResponse.data.error;
+        }
+      } else if (error instanceof Error) {
+        console.error("Error message:", error.message);
+        errorMessage = error.message;
+      }
 
       toast({
         title: "Error updating profile",

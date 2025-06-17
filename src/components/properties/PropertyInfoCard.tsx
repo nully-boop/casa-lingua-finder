@@ -11,11 +11,24 @@ import {
   CheckCircle,
 } from "lucide-react";
 import PropertyMap from "@/components/PropertyMap";
+import IProperty from "@/interfaces/IProperty"; // Import IProperty
+
+// Define a more specific type for the property prop, including priceString
+interface DisplayProperty extends Partial<IProperty> { // Use Partial if not all IProperty fields are guaranteed
+  title: string; // Assuming title, location, priceString etc. are always expected
+  location: string;
+  priceString: string;
+  description: string;
+  rooms?: number; // Make optional if not always present
+  bathrooms: number; // Assuming always present
+  area: number; // Assuming always present
+  floor_number?: number; // Make optional
+}
 
 interface PropertyInfoCardProps {
-  property: any;
+  property: DisplayProperty;
   language: string;
-  t: (key: string) => string;
+  t: (key: string) => string; // Keep 't' if it's planned for future use, otherwise remove or underscore
   amenities: string[];
   amenitiesAr: string[];
   latitude?: string | null;
@@ -25,7 +38,7 @@ interface PropertyInfoCardProps {
 const PropertyInfoCard: React.FC<PropertyInfoCardProps> = ({
   property,
   language,
-  t,
+  t: _t, // Underscore if 't' is unused
   amenities,
   amenitiesAr,
   latitude,

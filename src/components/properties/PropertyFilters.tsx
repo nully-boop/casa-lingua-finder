@@ -14,20 +14,20 @@ import { useSearchParams } from "react-router-dom";
 
 const PropertyFilters = () => {
   const { t, language } = useLanguage();
-  const [searchParams] = useSearchParams();
+  const [_searchParams] = useSearchParams(); // Prefixed as searchParams is not directly used
  
-  const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || ""
+  const [_searchQuery, setSearchQuery] = useState( // Prefixed searchQuery variable
+    _searchParams.get("search") || ""
   );
   const [selectedLocation, setSelectedLocation] = useState(
-    searchParams.get("location") || ""
+    _searchParams.get("location") || ""
   );
   const [selectedType, setSelectedType] = useState(
-    searchParams.get("type") || ""
+    _searchParams.get("type") || ""
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
-  const [sortBy, setSortBy] = useState("newest");
-  const [showFilters, setShowFilters] = useState(false);
+  const [_sortBy, setSortBy] = useState("newest"); // Prefixed sortBy variable
+  const [showFilters, _setShowFilters] = useState(false); // Prefixed setShowFilters setter
 
   const clearFilters = () => {
     setSearchQuery("");

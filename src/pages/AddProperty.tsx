@@ -76,7 +76,7 @@ const AddProperty = () => {
       });
       
       navigate('/dashboard');
-    } catch (error) {
+    } catch (_error) { // Prefixed error
       toast({
         title: language === 'ar' ? 'فشل في إضافة العقار' : 'Failed to add property',
         description: language === 'ar' ? 'حدث خطأ، يرجى المحاولة مرة أخرى' : 'An error occurred, please try again',

@@ -67,7 +67,7 @@ ChartContainer.displayName = "Chart"
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
-    ([_, config]) => config.theme || config.color
+    ([_key, itemConfig]) => itemConfig.theme || itemConfig.color // Changed _ to _key and config to itemConfig for clarity
   )
 
   if (!colorConfig.length) {
