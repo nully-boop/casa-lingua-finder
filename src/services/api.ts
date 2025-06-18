@@ -5,18 +5,9 @@ import axios from "axios";
 
 // Use environment variable for API base URL with a fallback for local development
 const DEFAULT_API_URL = "http://192.168.1.5:8000/api";
-const API_URL = import.meta.env.VITE_API_URL || DEFAULT_API_URL;
-
-if (API_URL === DEFAULT_API_URL && !import.meta.env.VITE_API_URL) {
-  console.warn(
-    `VITE_API_URL is not set. Using default fallback URL: ${DEFAULT_API_URL}. ` +
-    "Please create a .env file in the project root with VITE_API_URL set to your backend API URL. " +
-    "Example: VITE_API_URL=http://localhost:8000/api"
-  );
-}
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: DEFAULT_API_URL,
   timeout: 10000, // 10 seconds
   headers: {
     "Content-Type": "application/json",
@@ -44,7 +35,8 @@ api.interceptors.request.use(
       localStorage.removeItem("user");
       // Redirect to login page because the stored user data is corrupted/invalid
       // and further authenticated requests are likely to fail or be incorrect.
-      window.location.href = "/login?session_expired=true&reason=token_parse_error";
+      window.location.href =
+        "/login?session_expired=true&reason=token_parse_error";
     }
     return config;
   },
@@ -122,32 +114,51 @@ export const profileAPI = {
     console.log("Fetching profile data with token...");
     return api.get("/user/getProfile").then((response) => {
       const responseData = response.data;
-      // console.log("Raw getProfile API response:", responseData);
+      console.log("Raw getProfile API response:", responseData);
 
-      if (!responseData || typeof responseData !== 'object') {
+      if (!responseData || typeof responseData !== "object") {
         throw new Error("Invalid response structure received from getProfile.");
       }
 
       const user = responseData.user;
-      const seller = responseData.seller;
+      // const seller = responseData.seller;
 
-      if (!user || typeof user !== 'object' || !user.id || !user.name || !user.email) {
-        console.error("getProfile response missing critical user fields:", user);
-        throw new Error("Invalid or incomplete user profile data received from server.");
+      if (
+        !user ||
+        typeof user !== "object" ||
+        !user.id ||
+        !user.name ||
+        !user.phone
+      ) {
+        console.error(
+          "getProfile response missing critical user fields:",
+          user
+        );
+        throw new Error(
+          "Invalid or incomplete user profile data received from server."
+        );
       }
 
-      if (seller !== undefined && (seller === null || typeof seller !== 'object')) {
-        // If seller is present but not a valid object (e.g. null, or not an object type)
-        console.warn("getProfile response received invalid seller data, treating as no seller.", seller);
-        return { ...response, data: user, seller: undefined }; // Or null, depending on desired handling
-      }
+      // if (
+      //   seller !== undefined &&
+      //   (seller === null || typeof seller !== "object")
+      // ) {
+      //   console.warn(
+      //     "getProfile response received invalid seller data, treating as no seller.",
+      //     seller
+      //   );
+      //   return { ...response, user: user, seller: undefined };
+      // }
 
-      // At this point, user is valid, and seller is either undefined or a valid object (or null if API can return that)
-      return { ...response, data: user, seller: seller };
+      return {
+        ...response,
+        user: response.data.user,
+        seller: response.data.seller,
+      };
     });
   },
 
-  updateProfile: (data: IUpdateProfile) => {
+  updateProfile: (data: FormData | IUpdateProfile) => {
     console.log("Updating profile data with token...");
 
     const isFormData = data instanceof FormData;
@@ -155,16 +166,16 @@ export const profileAPI = {
       ? { headers: { "Content-Type": "multipart/form-data" } }
       : {};
 
-    // console.log("Update profile request:", { isFormData, data });
 
     return api.post("/user/updateProfile", data, config).then((response) => {
       const responseData = response.data;
-      // console.log("Profile update response:", responseData);
 
-      if (!responseData || typeof responseData !== 'object') {
+      if (!responseData || typeof responseData !== "object") {
         // This case might mean the server responded with an empty body or non-JSON,
         // which could be valid for a 204 No Content, but here we expect user data.
-        console.warn("updateProfile response did not include expected data structure.");
+        console.warn(
+          "updateProfile response did not include expected data structure."
+        );
         // Depending on API contract, this might be an error or just an empty successful response.
         // For now, returning the potentially empty/malformed response for react-query to handle.
         return response;
@@ -172,7 +183,7 @@ export const profileAPI = {
 
       const updatedUser = responseData.user;
 
-      if (updatedUser && typeof updatedUser === 'object') {
+      if (updatedUser && typeof updatedUser === "object") {
         if (!updatedUser.id || !updatedUser.name || !updatedUser.email) {
           console.warn(
             "updateProfile response returned a user object with missing critical fields (id, name, or email). Client-side data might be stale.",
@@ -183,16 +194,22 @@ export const profileAPI = {
         // The calling component/hook should be aware of this possibility.
         return { ...response, data: updatedUser };
       } else if (updatedUser === undefined && responseData) {
-         // It's possible the API returns the updated user data directly in response.data, not response.data.user
-         // This check is an example if the structure varies. For this task, sticking to response.data.user.
-         console.warn("updateProfile response did not contain a 'user' object, but had other data.", responseData);
-         // If the API contract is that it *might* not return user, this could be fine.
-         // If it *should* always return user, this is a warning.
-         return response; // Return original response if no user object to reshape
+        // It's possible the API returns the updated user data directly in response.data, not response.data.user
+        // This check is an example if the structure varies. For this task, sticking to response.data.user.
+        console.warn(
+          "updateProfile response did not contain a 'user' object, but had other data.",
+          responseData
+        );
+        // If the API contract is that it *might* not return user, this could be fine.
+        // If it *should* always return user, this is a warning.
+        return response; // Return original response if no user object to reshape
       }
 
       // If no user object at all, return the original response
-      console.warn("updateProfile response did not include a 'user' object.", responseData);
+      console.warn(
+        "updateProfile response did not include a 'user' object.",
+        responseData
+      );
       return response;
     });
   },
@@ -209,21 +226,43 @@ export const profileAPI = {
       const responseData = response.data;
       // console.log("Create seller response:", responseData);
 
-      if (!responseData || typeof responseData !== 'object') {
-        throw new Error("Invalid response structure received from createSeller.");
+      if (!responseData || typeof responseData !== "object") {
+        throw new Error(
+          "Invalid response structure received from createSeller."
+        );
       }
 
       const user = responseData.user;
       const seller = responseData.seller;
 
-      if (!user || typeof user !== 'object' || !user.id || !user.name || !user.email) {
-        console.error("createSeller response missing critical user fields:", user);
-        throw new Error("Invalid or incomplete user data received from server after creating seller.");
+      if (
+        !user ||
+        typeof user !== "object" ||
+        !user.id ||
+        !user.name ||
+        !user.email
+      ) {
+        console.error(
+          "createSeller response missing critical user fields:",
+          user
+        );
+        throw new Error(
+          "Invalid or incomplete user data received from server after creating seller."
+        );
       }
 
-      if (!seller || typeof seller !== 'object' /* Add checks for essential seller fields here if any, e.g. !seller.id */) {
-        console.error("createSeller response missing critical seller fields:", seller);
-        throw new Error("Invalid or incomplete seller data received from server after creating seller.");
+      if (
+        !seller ||
+        typeof seller !==
+          "object" /* Add checks for essential seller fields here if any, e.g. !seller.id */
+      ) {
+        console.error(
+          "createSeller response missing critical seller fields:",
+          seller
+        );
+        throw new Error(
+          "Invalid or incomplete seller data received from server after creating seller."
+        );
       }
 
       // Assuming the response structure is { user: {...}, seller: {...} } directly in response.data
