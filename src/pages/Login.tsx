@@ -24,7 +24,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { user, userData: _userData } = await authService.login({ // Prefixed userData
+      const { user } = await authService.login({ // Prefixed userData
         phone: phone,
         password: password,
       });
@@ -42,7 +42,7 @@ const Login = () => {
       //   navigate("/");
       // }
       navigate("/");
-    } catch (_error) { // Prefixed error
+    } catch (error) { // Prefixed error
       toast({
         title: "Login failed",
         description: "Please check your credentials",
