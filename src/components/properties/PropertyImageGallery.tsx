@@ -26,8 +26,6 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   setSelectedImage,
   onFavorite,
   onShare,
-  t: _t, // Prefixed t
-  // favoriteQueryFailed, // Destructure if/when used to display UI for this error
 }) => {
   const nextImage = () => {
     setSelectedImage((selectedImage + 1) % images.length);
