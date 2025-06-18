@@ -36,7 +36,7 @@ const Profile = () => {
         throw new Error("No authentication token found");
       }
       const response = await profileAPI.getProfile();
-      return { user: response.data, seller: response.seller };
+      return response.user ;
     },
     enabled: isAuthenticated && hasToken(),
     retry: (failureCount, error: unknown) => {
@@ -97,7 +97,7 @@ const Profile = () => {
       </div>
     );
   }
-
+  console.log(profileData);
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -105,7 +105,7 @@ const Profile = () => {
         <div className="max-w-4xl mx-auto">
           <Card className="mb-8">
             <CardContent className="p-6">
-              <ProfileHeader user={profileData.user} language={language} />
+              <ProfileHeader user={profileData} language={language} />
             </CardContent>
           </Card>
         </div>
