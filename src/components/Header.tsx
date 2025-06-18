@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,6 @@ import { Building, Sun, Moon, Globe, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"; // If using ShadCN Tooltip
 import { useQuery } from "@tanstack/react-query";
 import { profileAPI } from "@/services/api";
 
@@ -30,17 +29,17 @@ const Header = () => {
   const {
     data: profileData,
     isError: isProfileQueryError,
-    error: profileQueryError
+    error: profileQueryError,
   } = useQuery({
     queryKey: ["profile"], // This query key is also used in src/pages/Profile.tsx. Consider if they should be distinct or if this is intentional.
     queryFn: async () => {
       if (!hasToken()) {
-        // This error will be caught by react-query and set in 'profileQueryError'
-        throw new Error("No authentication token found for profile fetch in Header.");
+        throw new Error(
+          "No authentication token found for profile fetch in Header."
+        );
       }
       const response = await profileAPI.getProfile();
-      // Assuming response.data contains the user object, not response.data.user based on ProfileInfo
-      return response.data;
+      return response.user;
     },
     enabled: isAuthenticated && hasToken(),
     retry: (failureCount, error: unknown) => {
@@ -59,7 +58,10 @@ const Header = () => {
 
   useEffect(() => {
     if (isProfileQueryError && profileQueryError) {
-      console.error("Header profile query error:", (profileQueryError as Error).message);
+      console.error(
+        "Header profile query error:",
+        (profileQueryError as Error).message
+      );
       // Here you could also use a toast notification for critical errors if desired,
       // but a subtle UI cue is often better for header elements.
       // e.g., toast({ title: "Profile Error", description: "Could not load profile information.", variant: "destructive" });
@@ -177,10 +179,13 @@ const Header = () => {
                   // <TooltipProvider>
                   //   <Tooltip>
                   //     <TooltipTrigger>
-                        <AlertTriangle
-                          className="h-4 w-4 text-destructive"
-                          title={t("header.error.profileLoadFailedTooltip") || "Failed to load profile data"}
-                        />
+                  <AlertTriangle
+                    className="h-4 w-4 text-destructive"
+                    title={
+                      t("header.error.profileLoadFailedTooltip") ||
+                      "Failed to load profile data"
+                    }
+                  />
                   //     </TooltipTrigger>
                   //     <TooltipContent>
                   //       <p>{t("header.error.profileLoadFailedTooltip") || "Failed to load profile data"}</p>

@@ -27,7 +27,7 @@ const ProfileInfo = () => {
     queryKey: ["settings-profile"],
     queryFn: async () => {
       const response = await profileAPI.getProfile();
-      return response.data;
+      return response.user;
     },
     enabled: isAuthenticated,
   });
