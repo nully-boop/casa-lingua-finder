@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -176,22 +177,7 @@ const Header = () => {
             ) : (
               <div className="flex items-center gap-1">
                 {isProfileQueryError && (
-                  // <TooltipProvider>
-                  //   <Tooltip>
-                  //     <TooltipTrigger>
-                  <AlertTriangle
-                    className="h-4 w-4 text-destructive"
-                    title={
-                      t("header.error.profileLoadFailedTooltip") ||
-                      "Failed to load profile data"
-                    }
-                  />
-                  //     </TooltipTrigger>
-                  //     <TooltipContent>
-                  //       <p>{t("header.error.profileLoadFailedTooltip") || "Failed to load profile data"}</p>
-                  //     </TooltipContent>
-                  //   </Tooltip>
-                  // </TooltipProvider>
+                  <AlertTriangle className="h-4 w-4 text-destructive" />
                 )}
                 <SidebarTrigger asChild>
                   <button className="p-0 border-0 bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full">
