@@ -94,6 +94,8 @@ export const propertiesAPI = {
 
   getMyProperties: () => api.get("/my-properties"),
 
+  getFavorites: () => api.get("/user/getFavorites"),
+
   addToFavorite: (propertyId: number) =>
     api.post("/user/addToFavorites", { property_id: propertyId }),
 
