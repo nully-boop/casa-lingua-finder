@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +20,7 @@ import Settings from "./pages/Settings";
 import SellerProfileSetup from "./pages/SellerProfileSetup";
 import Owner from "./pages/Owner";
 import NotFound from "./pages/NotFound";
+import FavoritesPage from "./pages/FavoritesPage";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +46,7 @@ const AppContent = () => {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/seller-setup" element={<SellerProfileSetup />} />
                 <Route path="/owner" element={<Owner />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
