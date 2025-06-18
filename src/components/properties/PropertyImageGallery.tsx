@@ -1,8 +1,14 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Share2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Heart,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+} from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PropertyImageGalleryProps {
   images: string[];
@@ -13,7 +19,7 @@ interface PropertyImageGalleryProps {
   setSelectedImage: (index: number) => void;
   onFavorite: () => void;
   onShare: () => void;
-  t: (key: string) => string; // This was reported as unused
+  onChat: () => void;
   favoriteQueryFailed?: boolean; // Added based on previous subtask's intention
 }
 
@@ -26,13 +32,18 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   setSelectedImage,
   onFavorite,
   onShare,
+  onChat,
 }) => {
+  const { language } = useLanguage();
+
   const nextImage = () => {
     setSelectedImage((selectedImage + 1) % images.length);
   };
 
   const prevImage = () => {
-    setSelectedImage(selectedImage === 0 ? images.length - 1 : selectedImage - 1);
+    setSelectedImage(
+      selectedImage === 0 ? images.length - 1 : selectedImage - 1
+    );
   };
 
   return (
@@ -44,7 +55,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
           alt={title}
           className="w-full h-full object-cover"
         />
-        
+
         {/* Navigation Arrows */}
         {images.length > 1 && (
           <>
@@ -72,16 +83,24 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
           <Button
             variant="outline"
             size="icon"
+            className={`bg-white/80 hover:bg-white w-full`}
+            onClick={onChat}
+          >
+            <Sparkles className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
+            {language === "ar" ? "الدردشة مع الذكاء الاصطناعي" : "Ask AI"}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
             className={`bg-white/80 hover:bg-white ${
-              isFavorited 
-                ? 'text-red-500 hover:text-red-600' 
-                : 'text-gray-600 hover:text-gray-700'
+              isFavorited
+                ? "text-red-500 hover:text-red-600"
+                : "text-gray-600 hover:text-gray-700"
             }`}
             onClick={onFavorite}
           >
-            <Heart 
-              className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} 
-            />
+            <Heart className={`h-4 w-4 ${isFavorited ? "fill-current" : ""}`} />
           </Button>
           <Button
             variant="outline"
