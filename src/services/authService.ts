@@ -10,9 +10,9 @@ export const authService = {
   // Registration service
   register: async (data: IRegister) => {
     const response = await authAPI.register(data);
-    const token = response.data?.token?.original;
-    const userData = token?.user;
-    const accessToken = token?.access_token;
+    const token = response.data.token.original;
+    const userData = token.user;
+    const accessToken = token.access_token;
 
     if (!userData || typeof userData !== 'object') {
       throw new Error("Invalid user data structure received from server during registration.");
@@ -21,10 +21,10 @@ export const authService = {
       throw new Error("Missing access token from server during registration.");
     }
 
-    const { id, name, email, phone: rawPhone, user_type: rawUserType, created_at: rawCreatedAt } = userData;
+    const { id, name, phone, user_type: rawUserType, created_at: rawCreatedAt } = userData;
 
-    if (!id || !name || !email) {
-      console.error("Missing critical user fields:", { id, name, email });
+    if (!id || !name || !phone) {
+      console.error("Missing critical user fields:", { id, name, phone });
       throw new Error("Missing critical user information (id, name, or email) received from server during registration.");
     }
 
@@ -38,15 +38,11 @@ export const authService = {
     const user: IUser = {
       id: Number(id),
       name: String(name),
-      email: String(email),
+      phone: String(phone),
       user_type: user_type,
       token: accessToken,
       created_at: rawCreatedAt ? String(rawCreatedAt) : new Date().toISOString(),
     };
-
-    if (rawPhone !== undefined && rawPhone !== null) {
-      user.phone = String(rawPhone);
-    }
 
     localStorage.setItem("user", JSON.stringify(user));
     return { user, userData };
@@ -71,10 +67,10 @@ export const authService = {
       throw new Error("Missing access token from server during login.");
     }
 
-    const { id, name, email, phone: rawPhone, user_type: rawUserType, created_at: rawCreatedAt } = userData;
+    const { id, name,phone, user_type: rawUserType, created_at: rawCreatedAt } = userData;
 
-    if (!id || !name || !email) {
-      console.error("Missing critical user fields during login:", { id, name, email });
+    if (!id || !name || !phone) {
+      console.error("Missing critical user fields during login:", { id, name, phone });
       throw new Error("Missing critical user information (id, name, or email) received from server during login.");
     }
 
@@ -88,15 +84,11 @@ export const authService = {
     const user: IUser = {
       id: Number(id),
       name: String(name),
-      email: String(email),
+      phone: String(phone),
       user_type: user_type,
       token: accessToken,
       created_at: rawCreatedAt ? String(rawCreatedAt) : new Date().toISOString(),
     };
-
-    if (rawPhone !== undefined && rawPhone !== null) {
-      user.phone = String(rawPhone);
-    }
 
     localStorage.setItem("user", JSON.stringify(user));
     return { user, userData };
