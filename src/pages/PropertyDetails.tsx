@@ -103,22 +103,15 @@ const PropertyDetails = () => {
     .map((prop: IProperty) => normalizeProperty(prop))
     .filter((prop: IProperty) => prop.id !== parseInt(id!));
 
-  // console.log("Found property:", property);
-  // console.log("Related properties:", relatedProperties);
-  // console.log("Is favorited:", isFavorited);
-
   const favoriteMutation = useMutation({
     mutationFn: (propertyId: number) => {
       if (isFavorited) {
-        // Remove from favorites
         return propertiesAPI.removeFromFavorite(propertyId);
       } else {
-        // Add to favorites
         return propertiesAPI.addToFavorite(propertyId);
       }
     },
     onSuccess: () => {
-      // Refetch the favorite status to get updated state
       queryClient.invalidateQueries({ queryKey: ["property-favorited", id] });
       toast({
         title: language === "ar" ? "تم التحديث" : "Updated",
@@ -140,7 +133,6 @@ const PropertyDetails = () => {
   });
 
   const handleFavorite = () => {
-    // Check if user is authenticated
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
