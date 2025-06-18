@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,7 @@ interface PropertyImageGalleryProps {
   onFavorite: () => void;
   onShare: () => void;
   onChat: () => void;
-  favoriteQueryFailed?: boolean; // Added based on previous subtask's intention
+  favoriteQueryFailed?: boolean;
 }
 
 const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
@@ -82,12 +83,14 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
         <div className="absolute top-4 right-4 flex gap-2">
           <Button
             variant="outline"
-            size="icon"
-            className={`bg-white/80 hover:bg-white w-full`}
+            size="sm"
+            className="bg-white/80 hover:bg-white flex items-center gap-2 px-3"
             onClick={onChat}
           >
-            <Sparkles className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
-            {language === "ar" ? "الدردشة مع الذكاء الاصطناعي" : "Ask AI"}
+            <Sparkles className="h-4 w-4" />
+            <span className="text-xs">
+              {language === "ar" ? "الدردشة مع الذكاء الاصطناعي" : "Ask AI"}
+            </span>
           </Button>
 
           <Button
