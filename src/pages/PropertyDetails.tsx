@@ -254,7 +254,7 @@ const PropertyDetails = () => {
               setSelectedImage={setSelectedImage}
               onFavorite={handleFavorite}
               onShare={() => {}}
-              t={t}
+              onChat={() => setIsChatOpen(true)}
             />
 
             <PropertyInfoCard
@@ -274,7 +274,6 @@ const PropertyDetails = () => {
               agent={agent}
               language={language}
               onContact={handleContactAgent}
-              onChat={() => setIsChatOpen(true)}
             />
           </div>
         </div>
