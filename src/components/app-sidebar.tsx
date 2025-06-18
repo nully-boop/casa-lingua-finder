@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +21,7 @@ import {
   Globe,
   X,
   Building2,
+  Heart,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -94,8 +94,8 @@ export const AppSidebar: React.FC = () => {
   };
 
   const sidebarSide = language === "ar" ? "left" : "right";
-  const profileImage = user?.image?.url;
-  
+  const profileImage = user.image?.url;
+
   return (
     <Sidebar side={sidebarSide}>
       <SidebarHeader>
@@ -127,6 +127,34 @@ export const AppSidebar: React.FC = () => {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>
+            {t("nav.profileActions") || "Profile Actions"}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/profile">
+                    <User className="w-4 h-4" />
+                    <span>{t("nav.profile") || "Profile"}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/favorites">
+                    <Heart className="w-4 h-4" />
+                    <span>{t("nav.favorites") || "Favorites"}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>
             {t("nav.navigation") || "Navigation"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -142,20 +170,13 @@ export const AppSidebar: React.FC = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel>
             {t("nav.profileActions") || "Profile Actions"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/profile">
-                    <User className="w-4 h-4" />
-                    <span>{t("nav.profile") || "Profile"}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/settings">
