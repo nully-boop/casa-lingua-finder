@@ -143,6 +143,7 @@ const translations = {
     "aiChat.apiKeyPlaceholder": "Enter your Gemini API Key here (for testing)",
     "aiChat.startConversation": "Ask a question to get started!",
     "aiChat.inputPlaceholder": "Ask about amenities, neighborhood, etc.",
+    "aiChat.askAi": "Ask AI",
   },
   ar: {
     // Navigation
@@ -270,6 +271,7 @@ const translations = {
     "aiChat.apiKeyPlaceholder": "أدخل مفتاح Gemini API الخاص بك هنا (للاختبار)",
     "aiChat.startConversation": "اطرح سؤالاً للبدء!",
     "aiChat.inputPlaceholder": "اسأل عن وسائل الراحة، الحي، إلخ.",
+    "aiChat.askAi": "الدردشة مع الذكاء الاصطناعي",
   },
 };
 
