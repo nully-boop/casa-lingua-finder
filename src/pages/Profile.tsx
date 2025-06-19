@@ -9,21 +9,8 @@ import { profileAPI } from "@/services/api";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 
 const Profile = () => {
-  const { language, isAuthenticated } = useLanguage();
+  const { language, isAuthenticated, hasToken } = useLanguage();
   const queryClient = useQueryClient();
-
-  const hasToken = () => {
-    try {
-      const userData = localStorage.getItem("user");
-      if (userData) {
-        const parsedUser = JSON.parse(userData);
-        return !!parsedUser?.token;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  };
 
   const {
     data: profileData,
@@ -36,7 +23,7 @@ const Profile = () => {
         throw new Error("No authentication token found");
       }
       const response = await profileAPI.getProfile();
-      return response.user ;
+      return response.user;
     },
     enabled: isAuthenticated && hasToken(),
     retry: (failureCount, error: unknown) => {
