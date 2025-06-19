@@ -15,26 +15,7 @@ import RelatedProperties from "@/components/properties/RelatedProperties";
 import { AIChatDrawer } from "@/components/properties/AIChatDrawer";
 import { useToast } from "@/hooks/use-toast";
 import AuthModal from "@/components/auth/AuthModal";
-
-const normalizeProperty = (property: IProperty): IProperty => {
-  return {
-    ...property,
-    price:
-      typeof property.price === "string"
-        ? parseFloat(property.price) || 0
-        : property.price,
-    area:
-      typeof property.area === "string"
-        ? parseFloat(property.area) || 0
-        : property.area,
-  };
-};
-
-const formatPrice = (price: number, currency: string) => {
-  if (currency === "USD") return `$${price.toLocaleString()}`;
-  if (currency === "AED") return `${price.toLocaleString()} د.إ`;
-  return `${price.toLocaleString()} ${currency}`;
-};
+import { formatPrice, normalizeProperty } from "@/func/properties";
 
 const PropertyDetails = () => {
   const { id } = useParams();
