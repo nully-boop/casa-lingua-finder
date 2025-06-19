@@ -2,38 +2,37 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Bed, Bath, Square } from "lucide-react"; // Removed Star, PhoneCall
+import { MapPin, Bed, Bath, Square, Heart } from "lucide-react"; // Removed Star, PhoneCall
 import { useLanguage } from "@/contexts/LanguageContext";
 import IProperty from "@/interfaces/IProperty";
 import { useNavigate } from "react-router-dom";
+import { formatPrice } from "@/func/properties";
 
 interface PropertyCardProps {
   property: IProperty;
+  isFavorited: boolean;
+  onFavorite: () => void;
 }
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({
+  property,
+  isFavorited,
+  onFavorite,
+}) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const handlePropertyClick = (propertyId: number) => {
-    navigate(`/property/${propertyId}`);
-  };
+  // const handlePropertyClick = (propertyId: number) => {
+  //   navigate(`/property/${propertyId}`);
+  // };
 
   const handleViewClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate(`/property/${property.id}`);
   };
 
-  const formatPrice = (price: number, currency: string) => {
-    const formattedPrice = price.toLocaleString();
-    return `${formattedPrice} ${currency}`;
-  };
-
   return (
-    <Card
-      className="overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-fade-in cursor-pointer"
-      onClick={() => handlePropertyClick(property.id)}
-    >
+    <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-fade-in">
       <div className="relative">
         <img
           src={
@@ -44,13 +43,26 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           alt={property.title}
           className="w-full h-48 object-cover"
         />
-        <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4">
+
+        <div className="absolute top-2 left-2 flex gap-2 rtl:left-auto rtl:right-4">
           <Badge
-            variant={property.ad_type === "sale" ? "default" : "secondary"}
+            variant={property.ad_type === "sale" ? "sellColor" : "rentColor"}
           >
             {property.ad_type === "sale" ? t("common.sale") : t("common.rent")}
           </Badge>
+          <Badge variant="secondary">{property.type}</Badge>
         </div>
+
+        <button
+          className={`absolute top-2 right-2 bg-white p-1.5 rounded-full ${
+            isFavorited
+              ? "text-red-500 hover:text-red-600"
+              : "text-gray-600 hover:text-gray-700"
+          } transition-colors`}
+          onClick={onFavorite}
+        >
+          <Heart className={`h-5 w-5 ${isFavorited ? "fill-current" : ""}`} />
+        </button>
       </div>
       <CardContent className="p-6">
         <h3 className="text-xl font-semibold mb-2">{property.title}</h3>
