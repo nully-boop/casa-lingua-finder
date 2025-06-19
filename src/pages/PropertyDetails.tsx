@@ -43,7 +43,6 @@ const PropertyDetails = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [selectedImage, setSelectedImage] = React.useState(0);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [showAuthModal, setShowAuthModal] = React.useState(false);
 
@@ -75,7 +74,10 @@ const PropertyDetails = () => {
 
   useEffect(() => {
     if (isFavoriteQueryError) {
-      console.error("Favorite status query error:", favoriteQueryError?.message);
+      console.error(
+        "Favorite status query error:",
+        favoriteQueryError?.message
+      );
       // Optionally, show a non-intrusive toast or log to an error reporting service
       // toast({
       //   title: t("error.favoriteStatusErrorTitle") || "Favorite Status Error",
@@ -86,18 +88,23 @@ const PropertyDetails = () => {
     }
   }, [isFavoriteQueryError, favoriteQueryError, t, toast]);
 
-  // console.log("Property response:", propertyResponse);
-  // console.log("Favorited response:", favoritedResponse);
+  const propertyArray = !isPropertyQueryError
+    ? propertyResponse?.data?.property || []
+    : [];
+  const relatedPropertiesRaw = !isPropertyQueryError
+    ? propertyResponse?.data?.relaitedproperties || []
+    : [];
 
-  const propertyArray = !isPropertyQueryError ? propertyResponse?.data?.property || [] : [];
-  const relatedPropertiesRaw = !isPropertyQueryError ? propertyResponse?.data?.relaitedproperties || [] : [];
-
-  const isFavorited = !isFavoriteQueryError && favoritedResponse?.data?.is_favorited === true;
+  const isFavorited =
+    !isFavoriteQueryError && favoritedResponse?.data?.is_favorited === true;
 
   const rawProperty = propertyArray.find(
     (prop: IProperty) => prop.id === parseInt(id!)
   );
-  const property = rawProperty && !isPropertyQueryError ? normalizeProperty(rawProperty) : null;
+  const property =
+    rawProperty && !isPropertyQueryError
+      ? normalizeProperty(rawProperty)
+      : null;
 
   const relatedProperties = relatedPropertiesRaw
     .map((prop: IProperty) => normalizeProperty(prop))
@@ -115,18 +122,23 @@ const PropertyDetails = () => {
       queryClient.invalidateQueries({ queryKey: ["property-favorited", id] });
       toast({
         title: language === "ar" ? "تم التحديث" : "Updated",
-        description: isFavorited 
-          ? (language === "ar" ? "تم إزالة العقار من المفضلة" : "Property removed from favorites")
-          : (language === "ar" ? "تم إضافة العقار إلى المفضلة" : "Property added to favorites"),
+        description: isFavorited
+          ? language === "ar"
+            ? "تم إزالة العقار من المفضلة"
+            : "Property removed from favorites"
+          : language === "ar"
+          ? "تم إضافة العقار إلى المفضلة"
+          : "Property added to favorites",
       });
     },
     onError: (error) => {
       console.error("Error updating favorite:", error);
       toast({
         title: language === "ar" ? "خطأ" : "Error",
-        description: language === "ar" 
-          ? "حدث خطأ في تحديث المفضلة" 
-          : "Error updating favorites",
+        description:
+          language === "ar"
+            ? "حدث خطأ في تحديث المفضلة"
+            : "Error updating favorites",
         variant: "destructive",
       });
     },
@@ -143,55 +155,18 @@ const PropertyDetails = () => {
     }
   };
 
-  const priceString = property
-    ? formatPrice(property.price, property.currency)
-    : "";
-
-  const amenities = [
-    "Swimming Pool",
-    "Gym & Fitness Center",
-    "Covered Parking",
-    "24/7 Security",
-    "Balcony with View",
-    "Built-in Wardrobes",
-    "Central AC",
-    "Concierge Service",
-  ];
-  const amenitiesAr = [
-    "حمام سباحة",
-    "صالة رياضية ومركز لياقة",
-    "موقف مغطى",
-    "أمن على مدار الساعة",
-    "شرفة بإطلالة",
-    "خزائن مدمجة",
-    "تكييف مركزي",
-    "خدمة الكونسيرج",
-  ];
-
-  const agent = {
-    name: "Ahmed Al-Rashid",
-    nameAr: "أحمد الراشد",
-    phone: "+971 50 123 4567",
-    email: "ahmed@casalingua.com",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-  };
-
-  const handleContactAgent = () => {
-    alert(
-      language === "ar"
-        ? "سيتم التواصل مع الوكيل قريبا."
-        : "The agent will be contacted soon."
-    );
-  };
-
-  if (isPropertyLoading || (isAuthenticated && isFavoritedLoading && !isPropertyQueryError)) {
+  if (
+    isPropertyLoading ||
+    (isAuthenticated && isFavoritedLoading && !isPropertyQueryError)
+  ) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
-          <p className="mt-4 text-muted-foreground">{t("common.loadingProperty") || "Loading property details..."}</p>
+          <p className="mt-4 text-muted-foreground">
+            {t("common.loadingProperty") || "Loading property details..."}
+          </p>
         </div>
       </div>
     );
@@ -204,12 +179,17 @@ const PropertyDetails = () => {
         <div className="container mx-auto px-4 py-16 text-center">
           <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-destructive mb-2">
-            {t("error.loadFailed", { ns: "common" }) || "Failed to Load Property Details"}
+            {t("error.loadFailed", { ns: "common" }) ||
+              "Failed to Load Property Details"}
           </h2>
           <p className="text-muted-foreground mb-4">
             {(propertyQueryError as Error)?.message
-              ? t("error.specificLoadFailed", { ns: "common", message: (propertyQueryError as Error).message })
-              : t("propertyDetails.error.generic", { ns: "property" }) || "Could not load the property details. Please try again."}
+              ? t("error.specificLoadFailed", {
+                  ns: "common",
+                  message: (propertyQueryError as Error).message,
+                })
+              : t("propertyDetails.error.generic", { ns: "property" }) ||
+                "Could not load the property details. Please try again."}
           </p>
           <Button onClick={() => refetchProperty()} variant="outline">
             <RotateCw className="h-4 w-4 mr-2" />
@@ -250,19 +230,12 @@ const PropertyDetails = () => {
               adType={property?.ad_type}
               isFavorited={isFavorited}
               favoriteQueryFailed={isFavoriteQueryError}
-              selectedImage={selectedImage}
-              setSelectedImage={setSelectedImage}
               onFavorite={handleFavorite}
-              onShare={() => {}}
               onChat={() => setIsChatOpen(true)}
             />
 
             <PropertyInfoCard
-              property={{ ...property, priceString }}
-              language={language}
-              t={t}
-              amenities={amenities}
-              amenitiesAr={amenitiesAr}
+              property={{ ...property }}
               latitude={property?.latitude}
               longitude={property?.longitude}
             />
@@ -270,11 +243,7 @@ const PropertyDetails = () => {
 
           {/* Agent Info Sidebar */}
           <div className="space-y-6">
-            <AgentSidebar
-              agent={agent}
-              language={language}
-              onContact={handleContactAgent}
-            />
+            <AgentSidebar />
           </div>
         </div>
 
@@ -294,10 +263,7 @@ const PropertyDetails = () => {
         />
       )}
 
-      <AuthModal 
-        open={showAuthModal} 
-        onOpenChange={setShowAuthModal} 
-      />
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
 
       <Footer />
     </div>
