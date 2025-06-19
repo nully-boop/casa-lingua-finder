@@ -2,63 +2,65 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  MapPin,
-  Bed,
-  Bath,
-  Square,
-  Building,
-  CheckCircle,
-} from "lucide-react";
+import { MapPin, Bed, Bath, Square, Building, CheckCircle } from "lucide-react";
 import PropertyMap from "@/components/PropertyMap";
 import IProperty from "@/interfaces/IProperty"; // Import IProperty
-
-// Define a more specific type for the property prop, including priceString
-interface DisplayProperty extends Partial<IProperty> { // Use Partial if not all IProperty fields are guaranteed
-  title: string; // Assuming title, location, priceString etc. are always expected
-  location: string;
-  priceString: string;
-  description: string;
-  rooms?: number; // Make optional if not always present
-  bathrooms: number; // Assuming always present
-  area: number; // Assuming always present
-  floor_number?: number; // Make optional
-}
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PropertyInfoCardProps {
-  property: DisplayProperty;
-  language: string;
-  t: (key: string) => string; // Keep 't' if it's planned for future use, otherwise remove or underscore
-  amenities: string[];
-  amenitiesAr: string[];
+  property: IProperty;
   latitude?: string | null;
   longitude?: string | null;
 }
 
 const PropertyInfoCard: React.FC<PropertyInfoCardProps> = ({
   property,
-  language,
-  t: _t, // Underscore if 't' is unused
-  amenities,
-  amenitiesAr,
   latitude,
   longitude,
 }) => {
+  const { language } = useLanguage();
+  const amenities = [
+    "Swimming Pool",
+    "Gym & Fitness Center",
+    "Covered Parking",
+    "24/7 Security",
+    "Balcony with View",
+    "Built-in Wardrobes",
+    "Central AC",
+    "Concierge Service",
+  ];
+  const amenitiesAr = [
+    "حمام سباحة",
+    "صالة رياضية ومركز لياقة",
+    "موقف مغطى",
+    "أمن على مدار الساعة",
+    "شرفة بإطلالة",
+    "خزائن مدمجة",
+    "تكييف مركزي",
+    "خدمة الكونسيرج",
+  ];
+
+  const formatPrice = (price: number, currency: string) => {
+    if (currency === "USD") return `$${price.toLocaleString()}`;
+    if (currency === "AED") return `${price.toLocaleString()} د.إ`;
+    return `${price.toLocaleString()} ${currency}`;
+  };
+  
+  const priceString = property
+    ? formatPrice(property.price, property.currency)
+    : "";
+
   return (
     <Card>
       <CardContent className="p-6">
         <div className="space-y-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">
-              {property.title}
-            </h1>
+            <h1 className="text-3xl font-bold mb-2">{property.title}</h1>
             <div className="flex items-center text-muted-foreground mb-4">
               <MapPin className="h-5 w-5 mr-2 rtl:mr-0 rtl:ml-2" />
               <span>{property.location}</span>
             </div>
-            <div className="text-3xl font-bold text-primary">
-              {property.priceString}
-            </div>
+            <div className="text-3xl font-bold text-primary">{priceString}</div>
           </div>
 
           <Separator />
@@ -79,9 +81,7 @@ const PropertyInfoCard: React.FC<PropertyInfoCardProps> = ({
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
               <Bath className="h-5 w-5 text-muted-foreground" />
               <div>
-                <div className="font-semibold">
-                  {property.bathrooms}
-                </div>
+                <div className="font-semibold">{property.bathrooms}</div>
                 <div className="text-sm text-muted-foreground">
                   {language === "ar" ? "الحمامات" : "Bathrooms"}
                 </div>
