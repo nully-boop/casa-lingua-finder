@@ -34,7 +34,8 @@ export const AppSidebar: React.FC = () => {
   const { language, setLanguage, t, user, logout } = useLanguage();
   const { theme, setTheme, isDark } = useTheme();
   const navigate = useNavigate();
-  const { toggleSidebar } = useSidebar();
+
+  const { open, isMobile, toggleSidebar } = useSidebar(); // Get state from context
 
   const handleToggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
@@ -97,133 +98,143 @@ export const AppSidebar: React.FC = () => {
   const profileImage = user.image?.url;
 
   return (
-    <Sidebar side={sidebarSide}>
-      <SidebarHeader>
-        <div className="flex w-full justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="h-7 w-7"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="flex flex-col items-center space-y-2">
-          <Avatar className="mb-2">
-            <AvatarImage src={profileImage} alt={user?.name} />
-            <AvatarFallback>{getAvatarInitials()}</AvatarFallback>
-          </Avatar>
+    <>
+      {/* Overlay Layer (only for desktop when sidebar is open) */}
+      {!isMobile && open && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-10 transition-opacity duration-300 ease-in-out"
+          onClick={toggleSidebar}
+          aria-hidden="true"
+        />
+      )}
 
-          <div className="text-sm font-semibold text-center">
-            {user?.name || "User"}
+      <Sidebar side={sidebarSide}>
+        <SidebarHeader>
+          <div className="flex w-full justify-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="h-7 w-7"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-          <div className="text-xs text-muted-foreground text-center">
-            {user?.phone}
+          <div className="flex flex-col items-center space-y-2">
+            <Avatar className="mb-2">
+              <AvatarImage src={profileImage} alt={user?.name} />
+              <AvatarFallback>{getAvatarInitials()}</AvatarFallback>
+            </Avatar>
+
+            <div className="text-sm font-semibold text-center">
+              {user?.name || "User"}
+            </div>
+            <div className="text-xs text-muted-foreground text-center">
+              {user?.phone}
+            </div>
           </div>
-        </div>
-      </SidebarHeader>
+        </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            {t("nav.profileActions") || "Profile Actions"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/profile">
-                    <User className="w-4 h-4" />
-                    <span>{t("nav.profile") || "Profile"}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              {t("nav.profileActions") || "Profile Actions"}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/profile">
+                      <User className="w-4 h-4" />
+                      <span>{t("nav.profile") || "Profile"}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
 
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/favorites">
-                    <Heart className="w-4 h-4" />
-                    <span>{t("nav.favorites") || "Favorites"}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/favorites">
+                      <Heart className="w-4 h-4" />
+                      <span>{t("nav.favorites") || "Favorites"}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              {t("nav.navigation") || "Navigation"}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/owner">
+                      <Building2 className="w-4 h-4" />
+                      <span>{t("nav.owner") || "Owner Dashboard"}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            {t("nav.navigation") || "Navigation"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/owner">
-                    <Building2 className="w-4 h-4" />
-                    <span>{t("nav.owner") || "Owner Dashboard"}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              {t("nav.settings") || "Settings"}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/settings">
+                      <Settings className="w-4 h-4" />
+                      <span>{t("nav.settings") || "Settings"}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={handleToggleLanguage}>
+                    <Globe className="h-4 w-4" />
+                    <span>{t("nav.language") || "Language"}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={handleToggleTheme}>
+                    {isDark ? (
+                      <Sun className="h-4 w-4" />
+                    ) : (
+                      <Moon className="h-4 w-4" />
+                    )}
+                    <span>
+                      {isDark
+                        ? t("nav.light") || "Light"
+                        : t("nav.dark") || "Dark"}
+                    </span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={handleLogout}
+                    className="text-destructive"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>{t("nav.logout") || "Logout"}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            {t("nav.profileActions") || "Profile Actions"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/settings">
-                    <Settings className="w-4 h-4" />
-                    <span>{t("nav.settings") || "Settings"}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleToggleLanguage}>
-                  <Globe className="h-4 w-4" />
-                  <span>{t("nav.language") || "Language"}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleToggleTheme}>
-                  {isDark ? (
-                    <Sun className="h-4 w-4" />
-                  ) : (
-                    <Moon className="h-4 w-4" />
-                  )}
-                  <span>
-                    {isDark
-                      ? t("nav.light") || "Light"
-                      : t("nav.dark") || "Dark"}
-                  </span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleLogout}
-                  className="text-destructive"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>{t("nav.logout") || "Logout"}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter>
-        <div className="text-xs text-muted-foreground text-center py-2">
-          Casa Lingua © {new Date().getFullYear()}
-        </div>
-      </SidebarFooter>
-    </Sidebar>
+        <SidebarFooter>
+          <div className="text-xs text-muted-foreground text-center py-2">
+            Casa Lingua © {new Date().getFullYear()}
+          </div>
+        </SidebarFooter>
+      </Sidebar>
+    </>
   );
 };
