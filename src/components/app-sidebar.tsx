@@ -27,15 +27,17 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import { authAPI } from "@/services/api";
+import { authAPI, profileAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
 
 export const AppSidebar: React.FC = () => {
-  const { language, setLanguage, t, user, logout } = useLanguage();
+  const { language, setLanguage, t, isAuthenticated, logout, hasToken } =
+    useLanguage();
   const { theme, setTheme, isDark } = useTheme();
   const navigate = useNavigate();
 
-  const { open, isMobile, toggleSidebar } = useSidebar(); // Get state from context
+  const { open, isMobile, toggleSidebar } = useSidebar();
 
   const handleToggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
@@ -44,6 +46,23 @@ export const AppSidebar: React.FC = () => {
   const handleToggleLanguage = () => {
     setLanguage(language === "en" ? "ar" : "en");
   };
+
+  const { data: profileData } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      if (!hasToken()) {
+        throw new Error("No authentication token found");
+      }
+      const response = await profileAPI.getProfile();
+      return response.user;
+    },
+    enabled: isAuthenticated && hasToken(),
+    retry: (failureCount, error: unknown) => {
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError?.response?.status === 401) return false;
+      return failureCount < 3;
+    },
+  });
 
   const handleLogout = async () => {
     try {
@@ -84,8 +103,8 @@ export const AppSidebar: React.FC = () => {
   };
 
   const getAvatarInitials = () => {
-    if (user?.name) {
-      return user.name
+    if (profileData?.name) {
+      return profileData.name
         .split(" ")
         .map((n: string) => n[0])
         .join("")
@@ -95,8 +114,7 @@ export const AppSidebar: React.FC = () => {
   };
 
   const sidebarSide = language === "ar" ? "left" : "right";
-  const profileImage = user.image?.url;
-
+  const profileImage = profileData?.image?.url;
   return (
     <>
       {/* Overlay Layer (only for desktop when sidebar is open) */}
@@ -122,15 +140,15 @@ export const AppSidebar: React.FC = () => {
           </div>
           <div className="flex flex-col items-center space-y-2">
             <Avatar className="mb-2">
-              <AvatarImage src={profileImage} alt={user?.name} />
+              <AvatarImage src={profileImage} alt={profileData?.name} />
               <AvatarFallback>{getAvatarInitials()}</AvatarFallback>
             </Avatar>
 
             <div className="text-sm font-semibold text-center">
-              {user?.name || "User"}
+              {profileData?.name || "User"}
             </div>
             <div className="text-xs text-muted-foreground text-center">
-              {user?.phone}
+              {profileData?.phone}
             </div>
           </div>
         </SidebarHeader>
