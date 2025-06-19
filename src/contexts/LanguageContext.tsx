@@ -13,6 +13,7 @@ interface LanguageContextType {
   login: (user: IUser) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  hasToken: () => boolean;
 }
 
 const translations = {
@@ -46,7 +47,7 @@ const translations = {
     // Hero Section
     "hero.title": "Find Your Perfect Property",
     "hero.subtitle":
-      "Discover amazing properties for sale and rent in your preferred location",
+      "Whether you're looking to buy, sell, or rent, we have the perfect property for you.",
     "hero.search": "Search properties...",
     "hero.location": "Location",
     "hero.type": "Property Type",
@@ -174,7 +175,8 @@ const translations = {
 
     // Hero Section
     "hero.title": "اعثر على العقار المثالي",
-    "hero.subtitle": "اكتشف عقارات مذهلة للبيع والإيجار في موقعك المفضل",
+    "hero.subtitle":
+      "سواء كنت تبحث عن الشراء أو البيع أو الإيجار، فلدينا العقار المثالي لك.",
     "hero.search": "البحث عن العقارات...",
     "hero.location": "الموقع",
     "hero.type": "نوع العقار",
@@ -308,7 +310,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = language;
 
-    // Update font family based on language
     if (language === "ar") {
       document.body.style.fontFamily = "Rubik, sans-serif";
     } else {
@@ -340,6 +341,19 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("user");
   };
 
+  const hasToken = () => {
+    try {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+        return !!parsedUser?.token;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
   const isRTL = language === "ar";
   const isAuthenticated = !!user;
 
@@ -354,6 +368,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
         login,
         logout,
         isAuthenticated,
+        hasToken,
       }}
     >
       {children}
