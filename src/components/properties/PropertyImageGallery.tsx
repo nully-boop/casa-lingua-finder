@@ -1,25 +1,16 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Heart,
-  Share2,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-} from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import ShareButton from "../buttons/ShareButton";
 
 interface PropertyImageGalleryProps {
   images: string[];
   title?: string;
   adType?: string;
   isFavorited: boolean;
-  selectedImage: number;
-  setSelectedImage: (index: number) => void;
   onFavorite: () => void;
-  onShare: () => void;
   onChat: () => void;
   favoriteQueryFailed?: boolean;
 }
@@ -29,13 +20,11 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   title,
   adType,
   isFavorited,
-  selectedImage,
-  setSelectedImage,
   onFavorite,
-  onShare,
   onChat,
 }) => {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
+  const [selectedImage, setSelectedImage] = React.useState(0);
 
   const nextImage = () => {
     setSelectedImage((selectedImage + 1) % images.length);
@@ -81,17 +70,21 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
 
         {/* Top Right Actions */}
         <div className="absolute top-4 right-4 flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="bg-white/80 hover:bg-white flex items-center gap-2 px-3"
-            onClick={onChat}
-          >
-            <Sparkles className="h-4 w-4" />
-            <span className="text-xs">
-              {language === "ar" ? "الدردشة مع الذكاء الاصطناعي" : "Ask AI"}
+          <div className="relative inline-block">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/80 hover:bg-white flex items-center gap-2 px-3"
+              onClick={onChat}
+            >
+              <Sparkles className="h-4 w-4" />
+              <span className="text-xs">{t("aiChat.askAi")}</span>
+            </Button>
+
+            <span className="absolute -top-2 -right-1 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded-full uppercase font-bold shadow-md">
+              new
             </span>
-          </Button>
+          </div>
 
           <Button
             variant="outline"
@@ -105,14 +98,8 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
           >
             <Heart className={`h-4 w-4 ${isFavorited ? "fill-current" : ""}`} />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="bg-white/80 hover:bg-white"
-            onClick={onShare}
-          >
-            <Share2 className="h-4 w-4" />
-          </Button>
+
+          <ShareButton />
         </div>
 
         {/* Ad Type Badge */}
