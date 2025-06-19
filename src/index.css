@@ -44,6 +44,12 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --sellColor: 204 80% 40%;
+    --sellColor-foreground: 210 40% 98%;
+
+    --rentColor: 182 60% 45%;
+    --rentColor-foreground: 210 40% 98%;
   }
 
   .dark {
@@ -82,6 +88,12 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --sellColor: 204 80% 50%;
+    --sellColor-foreground: 222.2 47.4% 11.2%;
+
+    --rentColor: 182 60% 45%;
+    --rentColor-foreground: 222.2 47.4% 11.2%;
   }
 }
 
