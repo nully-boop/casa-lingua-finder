@@ -19,3 +19,14 @@ export const formatPrice = (price: number, currency: string) => {
   if (currency === "AED") return `${price.toLocaleString()} د.إ`;
   return `${price.toLocaleString()} ${currency}`;
 };
+
+export const formatPriceSeller = (
+  price: number,
+  currency: string,
+  forSale: boolean,
+  t: (t?: string) => string
+) => {
+  const formattedPrice = price.toLocaleString();
+  const period = forSale ? "" : t("m.month");
+  return `${formattedPrice} ${currency}${period}`;
+};
