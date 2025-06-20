@@ -104,7 +104,7 @@ const Header = () => {
             className="flex items-center space-x-2 rtl:space-x-reverse"
           >
             <Building className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-primary">Casa Lingua</span>
+            <span className="text-2xl font-bold text-primary">Aqar Zone</span>
           </Link>
 
           {/* Navigation */}
