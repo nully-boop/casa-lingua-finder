@@ -32,6 +32,14 @@ const translations = {
     "nav.light": "Light Mode",
     "nav.dark": "Dark Mode",
     "nav.favorites": "Favorites",
+    "nav.owner": "Owner Dashboard",
+
+    //Owner
+    "owner.subtitle": "Manage your properties and track performance",
+    "owner.addProperty": "Add Property",
+    "owner.totalProperties": "Total Properties",
+    "owner.activeListings": "Active Listings",
+    "owner.totalValue": "Total Value",
 
     // Toast messages
     "toast.logoutSuccess": "Logout successful",
@@ -41,8 +49,15 @@ const translations = {
 
     // Error messages
     "error.loadFailed": "Failed to load properties",
+    "error.loadProfile": "Failed to load profile data",
     "error.tryAgain":
       "There was a problem fetching the properties. Please try again later.",
+    "error.access": "You need to be logged in to access this page.",
+    "error.access.feature": "You need to be logged in.",
+    "err.error": "error",
+    "rt.retry": "Retry",
+    "accss.denied": "Access Denied",
+    "error.notFound": "Oops! Page not found",
 
     // Hero Section
     "hero.title": "Find Your Perfect Property",
@@ -79,9 +94,14 @@ const translations = {
     "common.contact": "Contact Seller",
     "common.close": "Close",
     "common.loading": "Loading...",
+    "common.loadingProperty": "Loading property details...",
+    "common.back": "Back",
+    "common.loading.profile": "Loading profile...",
+    "common.returnHome": "Return to home",
 
     // Authentication
     "auth.email": "Email",
+    "auth.required": "Login Required",
     "auth.password": "Password",
     "auth.phone": "Phone",
     "auth.confirmPassword": "Confirm Password",
@@ -97,6 +117,13 @@ const translations = {
     "auth.registerTitle": "Create Account",
     "auth.loginSubtitle": "Sign in to your account",
     "auth.registerSubtitle": "Join our property platform",
+    "auth.noAccount": "Don't have an account?   ",
+    "auth.haveAccount": "Already have an account?   ",
+
+    //Settings
+    "stt.manageTitle": "Manage your account and preferences",
+    "stt.appearance": "Appearance",
+    "stt.dangerZone": "Danger Zone",
 
     // Dashboard
     "dashboard.welcome": "Welcome back",
@@ -124,6 +151,15 @@ const translations = {
     "add.images": "Property Images",
     "add.uploadImages": "Upload Images",
 
+    //props
+    "props.empty": "No properties available",
+    "props.featured": "Featured Properties",
+    "props.discover": "Discover the best properties available",
+    "props.viewAll": "View All Properties",
+    "props.changeFilters": "Try adjusting your filters for better results",
+
+    "m.month": "/month",
+
     // Search & Filters
     "search.results": "Search Results",
     "search.filters": "Filters",
@@ -145,6 +181,18 @@ const translations = {
     "aiChat.startConversation": "Ask a question to get started!",
     "aiChat.inputPlaceholder": "Ask about amenities, neighborhood, etc.",
     "aiChat.askAi": "Ask AI",
+
+    //Fav
+    "fav.loading": "Loading favorites...",
+    "fav.error": "Failed to load favorites:",
+    "fav.error.update": "Error updating favorites",
+    "fav.properties": "Favorite Properties",
+    "fav.emtpy.title": "No Favorite Properties",
+    "fav.empty": "You haven't added any properties to your favorites yet.",
+    "fav.added": "Added to favorites",
+    "fav.removed": "Removed from favorites",
+    "fav.updated": "Updated",
+    "brs.browse": "Browse Properties",
   },
   ar: {
     // Navigation
@@ -161,6 +209,14 @@ const translations = {
     "nav.light": "الوضع الفاتح",
     "nav.dark": "الوضع الداكن",
     "nav.favorites": "المفضلة",
+    "nav.owner": "لوحة تحكم المالك",
+
+    //Owner
+    "owner.subtitle": "إدارة الممتلكات الخاصة بك وتتبع الأداء",
+    "owner.addProperty": "أضف عقار",
+    "owner.totalProperties": "العقارات الكلية",
+    "owner.activeListings": "القوائم النشطة",
+    "owner.totalValue": "القيمة الكلية",
 
     // Toast messages
     "toast.logoutSuccess": "تم تسجيل الخروج بنجاح",
@@ -169,9 +225,16 @@ const translations = {
     "toast.error": "حدث خطأ",
 
     // Error messages
-    "error.loadFailed": "فشل تحميل العقارات",
+    "error.loadFailed": "فشل تحميل العقار",
+    "error.loadProfile": "فشل تحميل ملفك الشخصي",
     "error.tryAgain":
       "حدثت مشكلة في جلب العقارات. يرجى المحاولة مرة أخرى في وقت لاحق.",
+    "error.access": "يجب تسجيل الدخول للوصول إلى هذه الصفحة.",
+    "error.access.feature": "يجب عليك تسجيل الدخول.",
+    "err.error": "حدث خطأ",
+    "rt.retry": "أعد المحاولة",
+    "accss.denied": "الوصول مرفوض",
+    "error.notFound": "أسف! الصفحة غير موجودة",
 
     // Hero Section
     "hero.title": "اعثر على العقار المثالي",
@@ -208,9 +271,14 @@ const translations = {
     "common.contact": "اتصل بالبائع",
     "common.close": "إغلاق",
     "common.loading": "جار التحميل...",
+    "common.loadingProperty": "جاري تحميل معلومات العقار ...",
+    "common.back": "العودة",
+    "common.loading.profile": "تحميل ملفك الشخصي ...",
+    "common.returnHome": "العودة إلى الصفحة الرئيسية",
 
     // Authentication
     "auth.email": "البريد الإلكتروني",
+    "auth.required": "تسجيل الدخول مطلوب",
     "auth.phone": "رقم الهاتف",
     "auth.password": "كلمة المرور",
     "auth.confirmPassword": "تأكيد كلمة المرور",
@@ -226,6 +294,13 @@ const translations = {
     "auth.registerTitle": "إنشاء حساب جديد",
     "auth.loginSubtitle": "تسجيل الدخول إلى حسابك",
     "auth.registerSubtitle": "انضم إلى منصة العقارات الخاصة بنا",
+    "auth.noAccount": "ليس لديك حساب؟   ",
+    "auth.haveAccount": "ألديك حساب؟   ",
+
+    //Settings
+    "stt.manageTitle": "إدارة حسابك وتفضيلاتك",
+    "stt.appearance": "المظهر",
+    "stt.dangerZone": "منطقة خطيرة",
 
     // Dashboard
     "dashboard.welcome": "مرحباً بعودتك",
@@ -253,6 +328,14 @@ const translations = {
     "add.images": "صور العقار",
     "add.uploadImages": "رفع الصور",
 
+    //props
+    "props.empty": "لا توجد عقارات متاحة",
+    "props.featured": "العقارات المميزة",
+    "props.discover": "اكتشف أفضل العقارات المتاحة",
+    "props.viewAll": "عرض جميع العقارات",
+    "props.changeFilters": "جرب تعديل المرشحات للحصول على نتائج أفضل",
+    "m.month": "/شهر",
+
     // Search & Filters
     "search.results": "نتائج البحث",
     "search.filters": "المرشحات",
@@ -274,6 +357,18 @@ const translations = {
     "aiChat.startConversation": "اطرح سؤالاً للبدء!",
     "aiChat.inputPlaceholder": "اسأل عن وسائل الراحة، الحي، إلخ.",
     "aiChat.askAi": "الدردشة مع الذكاء الاصطناعي",
+
+    //Fav
+    "fav.loading": "جاري تحميل المفضلة...",
+    "fav.error": "فشل في تحميل المفضلة:",
+    "fav.error.update": "حدث خطأ في تحديث المفضلة",
+    "fav.properties": "العقارات المفضلة",
+    "fav.emtpy.title": "لا توجد عقارات مفضلة",
+    "fav.empty": "لم تقم بإضافة أي عقارات إلى المفضلة بعد.",
+    "fav.added": "تمت إضافة العقار إلى المفضلة",
+    "fav.updated": "تم التحديث",
+    "fav.removed": "تمت إزالة العقار من المفضلة",
+    "brs.browse": "تصفح العقارات",
   },
 };
 
