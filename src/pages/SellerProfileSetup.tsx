@@ -26,7 +26,7 @@ interface SellerProfileData {
 }
 
 const SellerProfileSetup = () => {
-  const { t: _t } = useLanguage(); // Renamed t to _t as it's not used
+  const { t} = useLanguage(); 
   const navigate = useNavigate();
   const { toast } = useToast();
 
