@@ -45,27 +45,23 @@ const PropertyDetails = () => {
     isLoading: isFavoritedLoading,
     isError: isFavoriteQueryError,
     error: favoriteQueryError,
-    // We might not need a dedicated refetch for this if main property load fails,
-    // or if favorite action itself handles refetch on error.
   } = useQuery({
     queryKey: ["property-favorited", id],
     queryFn: () => propertiesAPI.isFavorited(parseInt(id!)),
-    enabled: !!id && isAuthenticated && !isPropertyQueryError, // Don't run if main query failed
+    enabled: !!id && isAuthenticated && !isPropertyQueryError,
   });
 
   useEffect(() => {
     if (isFavoriteQueryError) {
-      console.error(
-        "Favorite status query error:",
-        favoriteQueryError?.message
-      );
-      // Optionally, show a non-intrusive toast or log to an error reporting service
-      // toast({
-      //   title: t("error.favoriteStatusErrorTitle") || "Favorite Status Error",
-      //   description: favoriteQueryError?.message || t("error.favoriteStatusErrorDescription") || "Could not load favorite status.",
-      //   variant: "destructive",
-      //   duration: 3000, // Short duration
-      // });
+      toast({
+        title: t("error.favoriteStatusErrorTitle") || "Favorite Status Error",
+        description:
+          favoriteQueryError?.message ||
+          t("error.favoriteStatusErrorDescription") ||
+          "Could not load favorite status.",
+        variant: "destructive",
+        duration: 3000,
+      });
     }
   }, [isFavoriteQueryError, favoriteQueryError, t, toast]);
 
@@ -102,24 +98,15 @@ const PropertyDetails = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["property-favorited", id] });
       toast({
-        title: language === "ar" ? "تم التحديث" : "Updated",
-        description: isFavorited
-          ? language === "ar"
-            ? "تم إزالة العقار من المفضلة"
-            : "Property removed from favorites"
-          : language === "ar"
-          ? "تم إضافة العقار إلى المفضلة"
-          : "Property added to favorites",
+        title: t("fav.updated"),
+        description: isFavorited ? t("fav.removed") : t("fav.added"),
       });
     },
     onError: (error) => {
       console.error("Error updating favorite:", error);
       toast({
-        title: language === "ar" ? "خطأ" : "Error",
-        description:
-          language === "ar"
-            ? "حدث خطأ في تحديث المفضلة"
-            : "Error updating favorites",
+        title: t("err.error"),
+        description: t("fav.error.update"),
         variant: "destructive",
       });
     },
@@ -135,6 +122,8 @@ const PropertyDetails = () => {
       favoriteMutation.mutate(property.id);
     }
   };
+  const handleAIChat = () =>
+    !isAuthenticated ? setShowAuthModal(true) : setIsChatOpen(true);
 
   if (
     isPropertyLoading ||
@@ -146,7 +135,7 @@ const PropertyDetails = () => {
         <div className="container mx-auto px-4 py-16 text-center">
           <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
           <p className="mt-4 text-muted-foreground">
-            {t("common.loadingProperty") || "Loading property details..."}
+            {t("common.loadingProperty")}
           </p>
         </div>
       </div>
@@ -160,8 +149,7 @@ const PropertyDetails = () => {
         <div className="container mx-auto px-4 py-16 text-center">
           <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-destructive mb-2">
-            {t("error.loadFailed", { ns: "common" }) ||
-              "Failed to Load Property Details"}
+            {t("error.loadFailed") || "Failed to Load Property Details"}
           </h2>
           <p className="text-muted-foreground mb-4">
             {(propertyQueryError as Error)?.message
@@ -174,7 +162,7 @@ const PropertyDetails = () => {
           </p>
           <Button onClick={() => refetchProperty()} variant="outline">
             <RotateCw className="h-4 w-4 mr-2" />
-            {t("common.retry") || "Retry"}
+            {t("rt.retry") || "Retry"}
           </Button>
         </div>
       </div>
@@ -199,7 +187,7 @@ const PropertyDetails = () => {
               isRTL ? "rotate-180" : ""
             } mr-2 rtl:mr-0 rtl:ml-2`}
           />
-          {language === "ar" ? "العودة" : "Back"}
+          {t("common.back")}
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -212,7 +200,7 @@ const PropertyDetails = () => {
               isFavorited={isFavorited}
               favoriteQueryFailed={isFavoriteQueryError}
               onFavorite={handleFavorite}
-              onChat={() => setIsChatOpen(true)}
+              onChat={handleAIChat}
             />
 
             <PropertyInfoCard
