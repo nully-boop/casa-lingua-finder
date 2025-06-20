@@ -97,6 +97,11 @@
   }
 }
 
+.z-30,
+.z-30 * {
+  z-index: 30 !important;
+}
+
 @layer base {
   * {
     @apply border-border;
