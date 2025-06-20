@@ -1,12 +1,24 @@
-
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { propertiesAPI, dashboardAPI } from "@/services/api";
 import Header from "@/components/Header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Building, Eye, DollarSign, TrendingUp, AlertTriangle, RotateCw } from "lucide-react";
+import {
+  Plus,
+  Building,
+  Eye,
+  DollarSign,
+  TrendingUp,
+  AlertTriangle,
+  RotateCw,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import IProperty from "@/interfaces/IProperty";
@@ -20,9 +32,9 @@ const Owner = () => {
     isLoading: propertiesLoading,
     isError: propertiesIsError,
     error: propertiesError,
-    refetch: refetchProperties
+    refetch: refetchProperties,
   } = useQuery({
-    queryKey: ['myProperties'],
+    queryKey: ["myProperties"],
     queryFn: propertiesAPI.getMyProperties,
   });
 
@@ -32,9 +44,9 @@ const Owner = () => {
     isLoading: statsLoading,
     isError: statsIsError,
     error: statsError,
-    refetch: refetchStats
+    refetch: refetchStats,
   } = useQuery({
-    queryKey: ['dashboardStats'],
+    queryKey: ["dashboardStats"],
     queryFn: dashboardAPI.getStats,
   });
 
@@ -44,16 +56,17 @@ const Owner = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              {t("owner.dashboard") || "Owner Dashboard"}
+              {t("nav.owner") || "Owner Dashboard"}
             </h1>
             <p className="text-muted-foreground">
-              {t("owner.subtitle") || "Manage your properties and track performance"}
+              {t("owner.subtitle") ||
+                "Manage your properties and track performance"}
             </p>
           </div>
           <Button asChild className="mt-4 md:mt-0">
@@ -75,9 +88,19 @@ const Owner = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {statsLoading ? "..." : statsIsError ? <AlertTriangle className="h-6 w-6 text-destructive" /> : dashboardStats.totalProperties || propertyList.length || 0}
+                {statsLoading ? (
+                  "..."
+                ) : statsIsError ? (
+                  <AlertTriangle className="h-6 w-6 text-destructive" />
+                ) : (
+                  dashboardStats.totalProperties || propertyList.length || 0
+                )}
               </div>
-              {statsIsError && <p className="text-xs text-destructive">{t("owner.error.statsLoadFailedShort") || "Failed to load"}</p>}
+              {statsIsError && (
+                <p className="text-xs text-destructive">
+                  {t("owner.error.statsLoadFailedShort") || "Failed to load"}
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -90,9 +113,21 @@ const Owner = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {statsLoading ? "..." : statsIsError ? <AlertTriangle className="h-6 w-6 text-destructive" /> : dashboardStats.activeListings || propertyList.filter(p => p.status === 'active').length || 0}
+                {statsLoading ? (
+                  "..."
+                ) : statsIsError ? (
+                  <AlertTriangle className="h-6 w-6 text-destructive" />
+                ) : (
+                  dashboardStats.activeListings ||
+                  propertyList.filter((p) => p.status === "active").length ||
+                  0
+                )}
               </div>
-              {statsIsError && <p className="text-xs text-destructive">{t("owner.error.statsLoadFailedShort") || "Failed to load"}</p>}
+              {statsIsError && (
+                <p className="text-xs text-destructive">
+                  {t("owner.error.statsLoadFailedShort") || "Failed to load"}
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -105,9 +140,19 @@ const Owner = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {statsLoading ? "..." : statsIsError ? <AlertTriangle className="h-6 w-6 text-destructive" /> : `$${dashboardStats.totalValue?.toLocaleString() || "0"}`}
+                {statsLoading ? (
+                  "..."
+                ) : statsIsError ? (
+                  <AlertTriangle className="h-6 w-6 text-destructive" />
+                ) : (
+                  `$${dashboardStats.totalValue?.toLocaleString() || "0"}`
+                )}
               </div>
-              {statsIsError && <p className="text-xs text-destructive">{t("owner.error.statsLoadFailedShort") || "Failed to load"}</p>}
+              {statsIsError && (
+                <p className="text-xs text-destructive">
+                  {t("owner.error.statsLoadFailedShort") || "Failed to load"}
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -120,9 +165,19 @@ const Owner = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {statsLoading ? "..." : statsIsError ? <AlertTriangle className="h-6 w-6 text-destructive" /> : dashboardStats.monthlyViews?.toLocaleString() || "0"}
+                {statsLoading ? (
+                  "..."
+                ) : statsIsError ? (
+                  <AlertTriangle className="h-6 w-6 text-destructive" />
+                ) : (
+                  dashboardStats.monthlyViews?.toLocaleString() || "0"
+                )}
               </div>
-              {statsIsError && <p className="text-xs text-destructive">{t("owner.error.statsLoadFailedShort") || "Failed to load"}</p>}
+              {statsIsError && (
+                <p className="text-xs text-destructive">
+                  {t("owner.error.statsLoadFailedShort") || "Failed to load"}
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -132,10 +187,19 @@ const Owner = () => {
             <div className="flex flex-col items-center">
               <AlertTriangle className="h-8 w-8 text-destructive mb-2" />
               <p className="text-destructive mb-2 font-semibold">
-                {t("owner.error.statsLoadFailed") || "Failed to load dashboard statistics."}
+                {t("owner.error.statsLoadFailed") ||
+                  "Failed to load dashboard statistics."}
               </p>
-              {statsError && <p className="text-xs text-destructive/80 mb-3">{(statsError as Error)?.message}</p>}
-              <Button onClick={() => refetchStats()} variant="destructive" size="sm">
+              {statsError && (
+                <p className="text-xs text-destructive/80 mb-3">
+                  {(statsError as Error)?.message}
+                </p>
+              )}
+              <Button
+                onClick={() => refetchStats()}
+                variant="destructive"
+                size="sm"
+              >
                 <RotateCw className="h-4 w-4 mr-2" />
                 {t("common.retry") || "Retry"}
               </Button>
@@ -148,7 +212,8 @@ const Owner = () => {
           <CardHeader>
             <CardTitle>{t("owner.myProperties") || "My Properties"}</CardTitle>
             <CardDescription>
-              {t("owner.propertiesDescription") || "Manage and monitor your property listings"}
+              {t("owner.propertiesDescription") ||
+                "Manage and monitor your property listings"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -162,9 +227,14 @@ const Owner = () => {
               <div className="text-center py-8">
                 <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2 text-destructive">
-                  {t("owner.error.propertiesLoadFailed") || "Failed to load your properties."}
+                  {t("owner.error.propertiesLoadFailed") ||
+                    "Failed to load your properties."}
                 </h3>
-                {propertiesError && <p className="text-sm text-muted-foreground mb-4">{(propertiesError as Error)?.message}</p>}
+                {propertiesError && (
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {(propertiesError as Error)?.message}
+                  </p>
+                )}
                 <Button onClick={() => refetchProperties()} variant="outline">
                   <RotateCw className="h-4 w-4 mr-2" />
                   {t("common.retry") || "Retry"}
@@ -177,7 +247,8 @@ const Owner = () => {
                   {t("owner.noProperties") || "No Properties Yet"}
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  {t("owner.noPropertiesDescription") || "Start by adding your first property listing"}
+                  {t("owner.noPropertiesDescription") ||
+                    "Start by adding your first property listing"}
                 </p>
                 <Button asChild>
                   <Link to="/add-property">
@@ -189,7 +260,10 @@ const Owner = () => {
             ) : (
               <div className="space-y-4">
                 {propertyList.map((property: IProperty) => (
-                  <div key={property.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                  <div
+                    key={property.id}
+                    className="flex items-center justify-between p-4 border border-border rounded-lg"
+                  >
                     <div className="flex items-center space-x-4">
                       <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
                         <Building className="h-8 w-8 text-muted-foreground" />
@@ -200,8 +274,14 @@ const Owner = () => {
                           {property.address} • {property.type}
                         </p>
                         <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant={property.status === 'active' ? 'default' : 'secondary'}>
-                            {property.status || 'active'}
+                          <Badge
+                            variant={
+                              property.status === "active"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {property.status || "active"}
                           </Badge>
                           <span className="text-sm font-medium">
                             {property.price} {property.currency}
