@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,7 +19,7 @@ interface AuthModalProps {
 
 const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { t } = useLanguage();
 
   const handleLogin = () => {
     onOpenChange(false);
@@ -36,24 +35,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            {language === "ar" ? "تسجيل الدخول مطلوب" : "Login Required"}
-          </AlertDialogTitle>
+          <AlertDialogTitle>{t("auth.required")}</AlertDialogTitle>
           <AlertDialogDescription>
-            {language === "ar"
-              ? "يجب عليك تسجيل الدخول لإضافة العقارات إلى المفضلة"
-              : "You need to be logged in to add properties to favorites"}
+            {t("error.access.feature")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>
-            {language === "ar" ? "إلغاء" : "Cancel"}
-          </AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction onClick={handleLogin}>
-            {language === "ar" ? "تسجيل الدخول" : "Login"}
+            {t("auth.login")}
           </AlertDialogAction>
           <AlertDialogAction onClick={handleRegister}>
-            {language === "ar" ? "التسجيل" : "Register"}
+            {t("auth.register")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
