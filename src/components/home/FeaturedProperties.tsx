@@ -9,7 +9,6 @@ import { propertiesAPI } from "@/services/api";
 import { Button } from "../ui/button";
 import { normalizeProperty } from "@/func/properties";
 
-
 interface IProps {
   apiProperties: IProperty[];
   isLoading: boolean;
@@ -21,7 +20,7 @@ const FeaturedProperties: FC<IProps> = ({
   isLoading,
   error,
 }) => {
-  const { t, language, isAuthenticated } = useLanguage();
+  const { t, isAuthenticated } = useLanguage();
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
@@ -36,33 +35,28 @@ const FeaturedProperties: FC<IProps> = ({
   const onViewAll = () => {
     navigate("/properties");
   };
-  // Check if property is favorited - only if user is authenticated
   const {
     data: favoritedResponse,
     isLoading: isFavoritedLoading,
     isError: isFavoriteQueryError,
     error: favoriteQueryError,
-    // We might not need a dedicated refetch for this if main property load fails,
-    // or if favorite action itself handles refetch on error.
   } = useQuery({
     queryKey: ["property-favorited", id],
     queryFn: () => propertiesAPI.isFavorited(parseInt(id!)),
-    enabled: !!id && isAuthenticated && !error, // Don't run if main query failed
+    enabled: !!id && isAuthenticated && !error,
   });
 
   useEffect(() => {
     if (isFavoriteQueryError) {
-      console.error(
-        "Favorite status query error:",
-        favoriteQueryError?.message
-      );
-      // Optionally, show a non-intrusive toast or log to an error reporting service
-      // toast({
-      //   title: t("error.favoriteStatusErrorTitle") || "Favorite Status Error",
-      //   description: favoriteQueryError?.message || t("error.favoriteStatusErrorDescription") || "Could not load favorite status.",
-      //   variant: "destructive",
-      //   duration: 3000, // Short duration
-      // });
+      toast({
+        title: t("error.favoriteStatusErrorTitle") || "Favorite Status Error",
+        description:
+          favoriteQueryError?.message ||
+          t("error.favoriteStatusErrorDescription") ||
+          "Could not load favorite status.",
+        variant: "destructive",
+        duration: 3000,
+      });
     }
   }, [isFavoriteQueryError, favoriteQueryError, t, toast]);
 
@@ -87,24 +81,15 @@ const FeaturedProperties: FC<IProps> = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["property-favorited", id] });
       toast({
-        title: language === "ar" ? "تم التحديث" : "Updated",
-        description: isFavorited
-          ? language === "ar"
-            ? "تم إزالة العقار من المفضلة"
-            : "Property removed from favorites"
-          : language === "ar"
-          ? "تم إضافة العقار إلى المفضلة"
-          : "Property added to favorites",
+        title: t("fav.updated"),
+        description: isFavorited ? t("fav.removed") : t("fav.added"),
       });
     },
     onError: (error) => {
       console.error("Error updating favorite:", error);
       toast({
-        title: language === "ar" ? "خطأ" : "Error",
-        description:
-          language === "ar"
-            ? "حدث خطأ في تحديث المفضلة"
-            : "Error updating favorites",
+        title: t("err.error"),
+        description: t("fav.error.update"),
         variant: "destructive",
       });
     },
@@ -122,9 +107,7 @@ const FeaturedProperties: FC<IProps> = ({
   };
   if (isLoading || (isFavoritedLoading && isAuthenticated)) {
     return (
-      <div className="text-center py-20 text-lg">
-        {t("common.loading") || "Loading..."}
-      </div>
+      <div className="text-center py-20 text-lg">{t("common.loading")}</div>
     );
   }
 
@@ -133,13 +116,9 @@ const FeaturedProperties: FC<IProps> = ({
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {language === "ar" ? "العقارات المميزة" : "Featured Properties"}
+            {t("props.featured")}
           </h2>
-          <p className="text-lg text-muted-foreground">
-            {language === "ar"
-              ? "اكتشف أفضل العقارات المتاحة"
-              : "Discover the best properties available"}
-          </p>
+          <p className="text-lg text-muted-foreground">{t("props.discover")}</p>
         </div>
 
         {error && (
@@ -163,11 +142,7 @@ const FeaturedProperties: FC<IProps> = ({
         {!isLoading && !error && properties.length === 0 && (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🏠</div>
-            <h3 className="text-xl font-semibold mb-2">
-              {language === "ar"
-                ? "لا توجد عقارات متاحة"
-                : "No properties available"}
-            </h3>
+            <h3 className="text-xl font-semibold mb-2">{t("props.empty")}</h3>
           </div>
         )}
       </div>
@@ -176,7 +151,7 @@ const FeaturedProperties: FC<IProps> = ({
           className="border border-primary bg-white text-primary rounded px-6 py-3 text-lg font-semibold hover:bg-primary hover:text-white transition-colors"
           onClick={onViewAll}
         >
-          {language === "ar" ? "عرض جميع العقارات" : "View All Properties"}
+          {t("props.viewAll")}
         </Button>
       </div>
     </section>
