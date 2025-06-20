@@ -10,20 +10,7 @@ import IProperty from "@/interfaces/IProperty";
 import PropertyFilters from "@/components/properties/PropertyFilters";
 import PropertySearchBar from "@/components/properties/PropertySearchBar";
 import PropertyList from "@/components/properties/PropertyList";
-
-function normalizeProperty(apiProp: IProperty): IProperty {
-  return {
-    ...apiProp,
-    price:
-      typeof apiProp.price === "string"
-        ? parseFloat(apiProp.price) || 0
-        : apiProp.price,
-    area:
-      typeof apiProp.area === "string"
-        ? parseFloat(apiProp.area) || 0
-        : apiProp.area,
-  };
-}
+import { normalizeProperty } from "@/func/properties";
 
 const fetchProperties = async () => {
   const res = await propertiesAPI.getProperties();
@@ -116,7 +103,6 @@ const Properties = () => {
     sortBy,
   ]);
 
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -142,16 +128,21 @@ const Properties = () => {
               <div className="text-center py-20">
                 <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-destructive">
-                  {t("error.loadFailed", { ns: "common" }) || "Error Loading Properties"}
+                  {t("error.loadFailed", { ns: "common" }) ||
+                    "Error Loading Properties"}
                 </h3>
                 <p className="text-muted-foreground mb-4">
                   {(error as Error)?.message
-                    ? t("error.specificLoadFailed", { ns: "common", message: (error as Error).message })
-                    : t("error.tryAgain", { ns: "common" }) || "Please try again later."}
+                    ? t("error.specificLoadFailed", {
+                        ns: "common",
+                        message: (error as Error).message,
+                      })
+                    : t("error.tryAgain", { ns: "common" }) ||
+                      "Please try again later."}
                 </p>
                 <Button onClick={() => refetch()} variant="outline">
                   <RotateCw className="h-4 w-4 mr-2" />
-                  {t("common.retry") || "Retry"}
+                  {t("rt.retry") || "Retry"}
                 </Button>
               </div>
             )}
@@ -162,14 +153,10 @@ const Properties = () => {
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🏠</div>
                 <h3 className="text-xl font-semibold mb-2">
-                  {language === "ar"
-                    ? "لم يتم العثور على عقارات"
-                    : "No properties found"}
+                  {t("props.empty")}
                 </h3>
                 <p className="text-muted-foreground">
-                  {language === "ar"
-                    ? "جرب تعديل المرشحات للحصول على نتائج أفضل"
-                    : "Try adjusting your filters for better results"}
+                  {t("props.changeFilters")}
                 </p>
               </div>
             )}
