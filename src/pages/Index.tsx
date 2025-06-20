@@ -8,9 +8,10 @@ import FeaturedProperties from "@/components/home/FeaturedProperties";
 import WhyUs from "@/components/WhyUs";
 import { propertiesAPI } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
+import BoloForm from "@/components/home/BoloForm";
 
 const Index = () => {
-  const { t} = useLanguage();
+  const { t } = useLanguage();
 
   const fetchProperties = async () => {
     const res = await propertiesAPI.getProperties();
@@ -27,7 +28,6 @@ const Index = () => {
     queryKey: ["featured-properties"],
     queryFn: fetchProperties,
   });
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,6 +69,8 @@ const Index = () => {
           error={isError}
         />
       )}
+
+      <BoloForm />
 
       {/* WhyUs Section */}
       <WhyUs />
