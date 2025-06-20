@@ -65,10 +65,12 @@ const Register = () => {
       //   navigate("/");
       // }
       navigate("/");
-    } catch (error: unknown) { // Typed error as unknown
+    } catch (error: unknown) {
       let errorMessage = "Please check your input and try again";
-      if (typeof error === 'object' && error !== null && 'response' in error) {
-        const errResponse = error.response as { data?: { message?: string; error?: string } };
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const errResponse = error.response as {
+          data?: { message?: string; error?: string };
+        };
         if (errResponse.data?.message) {
           errorMessage = errResponse.data.message;
         } else if (errResponse.data?.error) {
@@ -192,7 +194,7 @@ const Register = () => {
                 </Button>
 
                 <div className="text-center text-sm text-muted-foreground">
-                  Already have an account?{" "}
+                  {t("auth.haveAccount")}
                   <Link to="/login" className="text-primary hover:underline">
                     {t("auth.login")}
                   </Link>
