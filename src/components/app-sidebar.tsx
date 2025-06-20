@@ -30,6 +30,7 @@ import { toast } from "@/hooks/use-toast";
 import { authAPI, profileAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
+import { getAvatarInitials } from "@/func/user";
 
 export const AppSidebar: React.FC = () => {
   const { language, setLanguage, t, isAuthenticated, logout, hasToken } =
@@ -102,17 +103,6 @@ export const AppSidebar: React.FC = () => {
     }
   };
 
-  const getAvatarInitials = () => {
-    if (profileData?.name) {
-      return profileData.name
-        .split(" ")
-        .map((n: string) => n[0])
-        .join("")
-        .toUpperCase();
-    }
-    return "U";
-  };
-
   const sidebarSide = language === "ar" ? "left" : "right";
   const profileImage = profileData?.image?.url;
   return (
@@ -121,12 +111,18 @@ export const AppSidebar: React.FC = () => {
       {!isMobile && open && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-10 transition-opacity duration-300 ease-in-out"
-          onClick={toggleSidebar}
+          onClick={(e) => {
+            // Check if click is outside the sidebar
+            const sidebar = document.querySelector("[data-sidebar]");
+            if (sidebar && !sidebar.contains(e.target as Node)) {
+              toggleSidebar();
+            }
+          }}
           aria-hidden="true"
         />
       )}
 
-      <Sidebar side={sidebarSide}>
+      <Sidebar side={sidebarSide} className="z-30">
         <SidebarHeader>
           <div className="flex w-full justify-end">
             <Button
@@ -141,7 +137,7 @@ export const AppSidebar: React.FC = () => {
           <div className="flex flex-col items-center space-y-2">
             <Avatar className="mb-2">
               <AvatarImage src={profileImage} alt={profileData?.name} />
-              <AvatarFallback>{getAvatarInitials()}</AvatarFallback>
+              <AvatarFallback>{getAvatarInitials(profileData)}</AvatarFallback>
             </Avatar>
 
             <div className="text-sm font-semibold text-center">
@@ -249,7 +245,7 @@ export const AppSidebar: React.FC = () => {
 
         <SidebarFooter>
           <div className="text-xs text-muted-foreground text-center py-2">
-            Casa Lingua © {new Date().getFullYear()}
+            Aqar Zone © {new Date().getFullYear()}
           </div>
         </SidebarFooter>
       </Sidebar>
