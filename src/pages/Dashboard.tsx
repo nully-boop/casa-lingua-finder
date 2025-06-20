@@ -13,6 +13,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import AccessDenied from "@/components/AccessDenied";
+import { formatPriceSeller } from "@/func/properties";
 
 // Mock data for dashboard
 const dashboardStats = {
@@ -77,27 +79,8 @@ const Dashboard = () => {
   const { t, language, user, isAuthenticated } = useLanguage();
 
   if (!isAuthenticated || user?.user_type !== "seller") {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="text-muted-foreground mb-4">
-            You need to be logged in as a seller to access this page.
-          </p>
-          <Link to="/login">
-            <Button>Login</Button>
-          </Link>
-        </div>
-      </div>
-    );
+    return <AccessDenied />;
   }
-
-  const formatPrice = (price: number, currency: string, forSale: boolean) => {
-    const formattedPrice = price.toLocaleString();
-    const period = forSale ? "" : language === "ar" ? "/شهر" : "/month";
-    return `${formattedPrice} ${currency}${period}`;
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -283,10 +266,11 @@ const Dashboard = () => {
 
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-lg font-bold text-primary">
-                      {formatPrice(
+                      {formatPriceSeller(
                         property.price,
                         property.currency,
-                        property.forSale
+                        property.forSale,
+                        t
                       )}
                     </div>
                   </div>
