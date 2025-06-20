@@ -24,7 +24,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { user } = await authService.login({ // Prefixed userData
+      const { user } = await authService.login({
         phone: phone,
         password: password,
       });
@@ -42,7 +42,8 @@ const Login = () => {
       //   navigate("/");
       // }
       navigate("/");
-    } catch (error) { // Prefixed error
+    } catch (error) {
+      console.error(error);
       toast({
         title: "Login failed",
         description: "Please check your credentials",
@@ -116,7 +117,7 @@ const Login = () => {
                 </Button>
 
                 <div className="text-center text-sm text-muted-foreground">
-                  Don't have an account?{" "}
+                  {t("auth.noAccount")}
                   <Link to="/register" className="text-primary hover:underline">
                     {t("auth.register")}
                   </Link>
