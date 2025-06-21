@@ -137,7 +137,7 @@ const SellerProfileSetup = () => {
                 <div className="space-y-2">
                   <Label htmlFor="avatar">Profile Photo</Label>
                   <div className="flex items-center space-x-4">
-                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
+                    <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
                       {avatar ? (
                         <img
                           src={URL.createObjectURL(avatar)}
