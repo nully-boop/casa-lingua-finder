@@ -3,7 +3,7 @@ import IRegister from "@/interfaces/IRegister";
 import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
-const DEFAULT_API_URL = "http://192.168.1.5:8000/api";
+const DEFAULT_API_URL = "http://192.168.99.209:8000/api";
 
 const api = axios.create({
   baseURL: DEFAULT_API_URL,
@@ -32,8 +32,7 @@ api.interceptors.request.use(
     } catch (error) {
       console.error("Error parsing user token from localStorage:", error);
       localStorage.removeItem("user");
-      // Redirect to login page because the stored user data is corrupted/invalid
-      // and further authenticated requests are likely to fail or be incorrect.
+      
       window.location.href =
         "/login?session_expired=true&reason=token_parse_error";
     }
