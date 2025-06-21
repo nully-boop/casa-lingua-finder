@@ -12,23 +12,28 @@ interface PropertyCardProps {
   property: IProperty;
   isFavorited: boolean;
   onFavorite: () => void;
+  onAdTypeFilter?: (adType: string) => void;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
   property,
   isFavorited,
   onFavorite,
+  onAdTypeFilter,
 }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  // const handlePropertyClick = (propertyId: number) => {
-  //   navigate(`/property/${propertyId}`);
-  // };
-
   const handleViewClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate(`/property/${property.id}`);
+  };
+
+  const handleAdTypeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onAdTypeFilter) {
+      onAdTypeFilter(property.ad_type);
+    }
   };
 
   return (
@@ -45,24 +50,28 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         />
 
         <div className="absolute top-2 left-2 flex gap-2 rtl:left-auto rtl:right-4">
-          <Badge
+          <Button
             variant={property.ad_type === "sale" ? "sellColor" : "rentColor"}
+            size="sm"
+            className="px-2 py-0 h-6 text-xs font-medium rounded-full"
+            onClick={handleAdTypeClick}
           >
             {property.ad_type === "sale" ? t("common.sale") : t("common.rent")}
-          </Badge>
+          </Button>
           <Badge variant="secondary">{property.type}</Badge>
         </div>
 
-        <button
-          className={`absolute top-2 right-2 bg-white p-1.5 rounded-full ${
+        <Button
+          size="icon"
+          className={`absolute top-2 right-2 bg-background/80 backdrop-blur-sm border border-border/50 p-1 rounded-full ${
             isFavorited
-              ? "text-red-500 hover:text-red-600"
-              : "text-gray-600 hover:text-gray-700"
+              ? "text-destructive hover:text-destructive/80"
+              : "text-muted-foreground hover:text-foreground"
           } transition-colors`}
           onClick={onFavorite}
         >
           <Heart className={`h-5 w-5 ${isFavorited ? "fill-current" : ""}`} />
-        </button>
+        </Button>
       </div>
       <CardContent className="p-6">
         <h3 className="text-xl font-semibold mb-2">{property.title}</h3>
