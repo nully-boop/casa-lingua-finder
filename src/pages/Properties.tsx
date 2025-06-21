@@ -3,14 +3,52 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, RotateCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { propertiesAPI } from "@/services/api";
 import IProperty from "@/interfaces/IProperty";
 import PropertyFilters from "@/components/properties/PropertyFilters";
 import PropertySearchBar from "@/components/properties/PropertySearchBar";
 import PropertyList from "@/components/properties/PropertyList";
 import { normalizeProperty } from "@/func/properties";
+import { useToast } from "@/hooks/use-toast";
+
+interface FavoriteItem {
+  id: number;
+  user_id: number;
+  favoriteable_type: string;
+  favoriteable_id: number;
+  created_at: string;
+  updated_at: string;
+  favoriteable: {
+    id: number;
+    owner_type: string;
+    owner_id: number;
+    ad_number: string;
+    title: string;
+    description: string;
+    price: string;
+    location: string;
+    latitude: string;
+    longitude: string;
+    area: string;
+    floor_number: number;
+    ad_type: string;
+    type: string;
+    status: string;
+    is_offer: number;
+    offer_expires_at: string;
+    currency: string;
+    views: number;
+    bathrooms: number;
+    rooms: number;
+    seller_type: string;
+    direction: string;
+    furnishing: string;
+    features: string | null;
+    is_available: number;
+    created_at: string;
+    updated_at: string;
+  };
+}
 
 const fetchProperties = async () => {
   const res = await propertiesAPI.getProperties();
@@ -18,8 +56,9 @@ const fetchProperties = async () => {
 };
 
 const Properties = () => {
-  const { t, language } = useLanguage();
+  const { t, isAuthenticated, hasToken } = useLanguage();
   const [searchParams] = useSearchParams();
+  const { toast } = useToast();
 
   const [filteredProperties, setFilteredProperties] = useState<IProperty[]>([]);
   const [searchQuery, _setSearchQuery] = useState(
@@ -33,17 +72,37 @@ const Properties = () => {
   );
   const [priceRange, _setPriceRange] = useState<[number, number]>([0, 5000000]);
   const [sortBy, _setSortBy] = useState("newest");
+  const [favoriteProperties, setFavoriteProperties] = useState<number[]>([]);
 
-  const {
-    data: apiProperties,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useQuery({
+  const { data: apiProperties, isLoading } = useQuery({
     queryKey: ["properties"],
     queryFn: fetchProperties,
   });
+
+  // Fetch favorites if user is authenticated
+  const { data: favoritesData } = useQuery({
+    queryKey: ["favorites"],
+    queryFn: async () => {
+      if (!hasToken()) {
+        throw new Error("No authentication token found");
+      }
+      const response = await propertiesAPI.getFavorites();
+      return response.data;
+    },
+    enabled: isAuthenticated && hasToken(),
+    retry: (failureCount, error: unknown) => {
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError?.response?.status === 401) return false;
+      return failureCount < 3;
+    },
+  });
+
+  // Handle favorites data when it changes
+  useEffect(() => {
+    if (favoritesData && Array.isArray(favoritesData)) {
+      setFavoriteProperties(favoritesData.map((prop: FavoriteItem) => prop.id));
+    }
+  }, [favoritesData]);
 
   const properties = useMemo(() => {
     if (!apiProperties) return [];
@@ -103,6 +162,47 @@ const Properties = () => {
     sortBy,
   ]);
 
+  const handleFavoriteToggle = async (propertyId: number) => {
+    if (!isAuthenticated || !hasToken()) {
+      toast({
+        title: t("error.authRequired"),
+        description: t("error.loginToFavorite"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Check if property is already favorited
+      const isFavorited = favoriteProperties.includes(propertyId);
+
+      if (isFavorited) {
+        // Remove from favorites - use the correct API method
+        await propertiesAPI.removeFromFavorite(propertyId);
+        setFavoriteProperties((prev) => prev.filter((id) => id !== propertyId));
+        toast({
+          title: t("success.removed"),
+          description: t("success.removedFromFavorites"),
+        });
+      } else {
+        // Add to favorites - use the correct API method
+        await propertiesAPI.addToFavorite(propertyId);
+        setFavoriteProperties((prev) => [...prev, propertyId]);
+        toast({
+          title: t("success.added"),
+          description: t("success.addedToFavorites"),
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast({
+        title: t("error.failed"),
+        description: t("error.favoriteActionFailed"),
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -111,55 +211,13 @@ const Properties = () => {
         <PropertySearchBar />
         <div className="flex gap-8">
           <PropertyFilters />
-
-          {/* Properties Grid */}
           <div className="flex-1">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">
-                {t("search.results")} ({filteredProperties.length})
-              </h2>
-            </div>
-            {isLoading && (
-              <div className="text-center py-20 text-lg">
-                {t("common.loading") || "Loading..."}
-              </div>
-            )}
-            {isError && (
-              <div className="text-center py-20">
-                <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-destructive">
-                  {t("error.loadFailed", { ns: "common" }) ||
-                    "Error Loading Properties"}
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  {(error as Error)?.message
-                    ? t("error.specificLoadFailed", {
-                        ns: "common",
-                        message: (error as Error).message,
-                      })
-                    : t("error.tryAgain", { ns: "common" }) ||
-                      "Please try again later."}
-                </p>
-                <Button onClick={() => refetch()} variant="outline">
-                  <RotateCw className="h-4 w-4 mr-2" />
-                  {t("rt.retry") || "Retry"}
-                </Button>
-              </div>
-            )}
-            {!isLoading && !isError && (
-              <PropertyList properties={filteredProperties} />
-            )}
-            {filteredProperties.length === 0 && !isLoading && !isError && (
-              <div className="text-center py-16">
-                <div className="text-6xl mb-4">🏠</div>
-                <h3 className="text-xl font-semibold mb-2">
-                  {t("props.empty")}
-                </h3>
-                <p className="text-muted-foreground">
-                  {t("props.changeFilters")}
-                </p>
-              </div>
-            )}
+            <PropertyList
+              properties={filteredProperties}
+              isLoading={isLoading}
+              favoritedProperties={favoriteProperties}
+              onFavorite={handleFavoriteToggle}
+            />
           </div>
         </div>
       </div>
