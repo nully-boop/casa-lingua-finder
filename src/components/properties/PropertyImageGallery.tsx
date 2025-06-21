@@ -39,7 +39,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   return (
     <div className="space-y-4">
       {/* Main Image */}
-      <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
+      <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
         <img
           src={images[selectedImage]}
           alt={title}
@@ -52,7 +52,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background"
               onClick={prevImage}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -60,7 +60,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background"
               onClick={nextImage}
             >
               <ChevronRight className="h-4 w-4" />
@@ -74,14 +74,17 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
             <Button
               variant="outline"
               size="sm"
-              className="bg-white/80 hover:bg-white flex items-center gap-2 px-3"
+              className="bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-background flex items-center gap-2 px-3 transition-all duration-300 hover:scale-105 hover:shadow-md hover:border-primary/50 group"
               onClick={onChat}
             >
-              <Sparkles className="h-4 w-4" />
-              <span className="text-xs">{t("aiChat.askAi")}</span>
+              <Sparkles className="h-4 w-4 text-primary transition-all duration-300 group-hover:text-primary-600 group-hover:animate-pulse" />
+
+              <span className="text-xs group-hover:text-primary-600 transition-colors">
+                {t("aiChat.askAi")}
+              </span>
             </Button>
 
-            <span className="absolute -top-2 -right-1 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded-full uppercase font-bold shadow-md">
+            <span className="absolute -top-2 -right-1 bg-success text-success-foreground text-[10px] px-1.5 py-0.5 rounded-full uppercase font-bold shadow-md">
               new
             </span>
           </div>
@@ -89,10 +92,10 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
           <Button
             variant="outline"
             size="icon"
-            className={`bg-white/80 hover:bg-white ${
+            className={`bg-background/80 backdrop-blur-sm border border-border/50 ${
               isFavorited
-                ? "text-red-500 hover:text-red-600"
-                : "text-gray-600 hover:text-gray-700"
+                ? "text-destructive hover:text-destructive/80"
+                : "text-muted-foreground hover:text-foreground"
             }`}
             onClick={onFavorite}
           >
@@ -105,8 +108,10 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
         {/* Ad Type Badge */}
         {adType && (
           <div className="absolute top-4 left-4">
-            <Badge variant="secondary" className="bg-white/90">
-              {adType}
+            <Badge
+              variant={adType === "sale" ? "sellColor" : "rentColor"}
+            >
+            {adType === "sale" ? t("common.sale") : t("common.rent")}
             </Badge>
           </div>
         )}
@@ -114,7 +119,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
         {/* Image Counter */}
         {images.length > 1 && (
           <div className="absolute bottom-4 right-4">
-            <Badge variant="secondary" className="bg-black/70 text-white">
+            <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm border border-border/50">
               {selectedImage + 1} / {images.length}
             </Badge>
           </div>
@@ -130,7 +135,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
               className={`aspect-video rounded-md overflow-hidden border-2 transition-colors ${
                 selectedImage === index
                   ? "border-primary"
-                  : "border-transparent hover:border-gray-300"
+                  : "border-transparent hover:border-border"
               }`}
               onClick={() => setSelectedImage(index)}
             >
@@ -142,7 +147,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
             </button>
           ))}
           {images.length > 6 && (
-            <div className="aspect-video rounded-md bg-gray-100 flex items-center justify-center text-sm text-gray-500">
+            <div className="aspect-video rounded-md bg-muted flex items-center justify-center text-sm text-muted-foreground">
               +{images.length - 6}
             </div>
           )}
