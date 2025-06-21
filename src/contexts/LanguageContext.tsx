@@ -14,6 +14,8 @@ interface LanguageContextType {
   logout: () => void;
   isAuthenticated: boolean;
   hasToken: () => boolean;
+  isLanguageTransitioning: boolean;
+  triggerLanguageAnimation: () => void;
 }
 
 const translations = {
@@ -98,6 +100,7 @@ const translations = {
     "common.back": "Back",
     "common.loading.profile": "Loading profile...",
     "common.returnHome": "Return to home",
+    "common.loadingProperties": "Loading properties data...",
 
     // Authentication
     "auth.email": "Email",
@@ -175,12 +178,13 @@ const translations = {
     "search.priceHigh": "Price: High to Low",
 
     // AI Chat
-    "aiChat.title": "AI Property Assistant",
+    "aiChat.title": "Casa AI",
     "aiChat.description": 'Ask anything about "{title}".',
     "aiChat.apiKeyPlaceholder": "Enter your Gemini API Key here (for testing)",
     "aiChat.startConversation": "Ask a question to get started!",
     "aiChat.inputPlaceholder": "Ask about amenities, neighborhood, etc.",
-    "aiChat.askAi": "Ask AI",
+    "aiChat.askAi": "Ask Casa AI",
+    "aiChat.globalDescription": "Ask me about our properties!",
 
     //Fav
     "fav.loading": "Loading favorites...",
@@ -275,6 +279,7 @@ const translations = {
     "common.back": "العودة",
     "common.loading.profile": "تحميل ملفك الشخصي ...",
     "common.returnHome": "العودة إلى الصفحة الرئيسية",
+    "common.loadingProperties": "جاري تحميل بيانات العقارات...",
 
     // Authentication
     "auth.email": "البريد الإلكتروني",
@@ -351,12 +356,13 @@ const translations = {
     "search.priceHigh": "السعر: من الأعلى للأقل",
 
     // AI Chat
-    "aiChat.title": "مساعد العقارات الذكي",
+    "aiChat.title": "كاسا الذكاء الاصطناعي",
     "aiChat.description": 'اسأل أي شيء عن "{title}".',
     "aiChat.apiKeyPlaceholder": "أدخل مفتاح Gemini API الخاص بك هنا (للاختبار)",
-    "aiChat.startConversation": "اطرح سؤالاً للبدء!",
+    "aiChat.startConversation": "اطرح سؤالً للبدء!",
     "aiChat.inputPlaceholder": "اسأل عن وسائل الراحة، الحي، إلخ.",
-    "aiChat.askAi": "الدردشة مع الذكاء الاصطناعي",
+    "aiChat.askAi": "اسأل كاسا الذكاء الاصطناعي",
+    "aiChat.globalDescription": "اسألني عن عقاراتنا!",
 
     //Fav
     "fav.loading": "جاري تحميل المفضلة...",
@@ -381,6 +387,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [language, setLanguage] = useState<Language>("en");
   const [user, setUser] = useState<IUser | null>(null);
+  const [isLanguageTransitioning, setIsLanguageTransitioning] = useState(false);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("language") as Language;
@@ -400,10 +407,36 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  const triggerLanguageAnimation = () => {
+    setIsLanguageTransitioning(true);
+
+    // Add language transition class to body
+    document.body.classList.add('language-transition');
+
+    // Add content fade effect
+    const contentElements = document.querySelectorAll('main, .content-fade');
+    contentElements.forEach(el => {
+      el.classList.add('content-fade', 'transitioning');
+    });
+
+    setTimeout(() => {
+      // Remove transition classes
+      document.body.classList.remove('language-transition');
+      contentElements.forEach(el => {
+        el.classList.remove('transitioning');
+      });
+      setIsLanguageTransitioning(false);
+    }, 600);
+  };
+
   useEffect(() => {
     localStorage.setItem("language", language);
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = language;
+
+    // Add smooth transition classes
+    document.body.classList.add('smooth-colors');
+    document.documentElement.classList.add('rtl-transition');
 
     if (language === "ar") {
       document.body.style.fontFamily = "Rubik, sans-serif";
@@ -464,6 +497,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
         logout,
         isAuthenticated,
         hasToken,
+        isLanguageTransitioning,
+        triggerLanguageAnimation,
       }}
     >
       {children}
