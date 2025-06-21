@@ -240,7 +240,7 @@ const Dashboard = () => {
                       variant={
                         property.status === "active" ? "default" : "secondary"
                       }
-                      className="bg-white text-black"
+                      className="bg-background text-foreground border border-border"
                     >
                       {property.status === "active"
                         ? language === "ar"
