@@ -50,6 +50,12 @@
 
     --rentColor: 182 60% 45%;
     --rentColor-foreground: 210 40% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 48 96% 53%;
+    --warning-foreground: 222.2 84% 4.9%;
   }
 
   .dark {
@@ -94,6 +100,12 @@
 
     --rentColor: 182 60% 45%;
     --rentColor-foreground: 222.2 47.4% 11.2%;
+
+    --success: 142 76% 46%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 48 96% 63%;
+    --warning-foreground: 222.2 84% 4.9%;
   }
 }
 
@@ -174,10 +186,302 @@
     transition-duration: 150ms;
   }
 
+  /* Theme transition animations */
+  * {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Language transition animations */
+  html {
+    transition: direction 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body {
+    transition: font-family 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Theme switch animation overlay */
+  .theme-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+    transition: opacity 0.3s ease-out;
+  }
+
+  .theme-transition-overlay.dark {
+    background: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, transparent 70%);
+  }
+
+  .theme-transition-overlay.active {
+    opacity: 1;
+  }
+
+  /* Language switch animation */
+  .language-transition {
+    animation: languageSwitch 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes languageSwitch {
+    0% {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+    25% {
+      transform: translateX(-10px) scale(0.98);
+      opacity: 0.8;
+    }
+    50% {
+      transform: translateX(0) scale(0.95);
+      opacity: 0.6;
+    }
+    75% {
+      transform: translateX(10px) scale(0.98);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+  }
+
   /* Focus styles */
   .focus-visible\:ring-2:focus-visible {
     outline: 2px solid transparent;
     outline-offset: 2px;
     box-shadow: 0 0 0 2px hsl(var(--ring));
   }
+
+  /* Enhanced button and link interactions */
+  button, a {
+    @apply transition-all duration-200;
+  }
+  
+  /* Primary buttons hover effect */
+  .btn-primary-hover, 
+  button[class*="bg-primary"]:not([disabled]),
+  a[class*="bg-primary"]:not([disabled]) {
+    @apply hover:shadow-md hover:translate-y-[-1px] active:translate-y-0 active:shadow-sm;
+  }
+  
+  /* Ghost and outline buttons hover effect */
+  button[class*="variant-ghost"], 
+  button[class*="variant-outline"],
+  a[class*="variant-ghost"], 
+  a[class*="variant-outline"] {
+    @apply hover:bg-accent/50 hover:border-accent-foreground/30;
+  }
+  
+  /* Icon buttons hover effect */
+  button[class*="size-icon"]:not([disabled]) {
+    @apply hover:scale-105 active:scale-95;
+  }
+  
+  /* Navigation links hover effect */
+  nav a {
+    @apply relative after:absolute after:bottom-[-2px] after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full;
+  }
+}
+
+/* Add this to your existing CSS */
+.sparkle-glow {
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+  transition: filter 0.3s ease;
+}
+
+.sparkle-glow:hover {
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)) brightness(1.2);
+}
+
+@keyframes sparkle-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5)) brightness(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)) brightness(1.3);
+  }
+}
+
+.animate-sparkle-glow {
+  animation: sparkle-glow 2s ease-in-out infinite;
+}
+
+/* Enhanced sparkle effects */
+.sparkle-icon {
+  position: relative;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.3));
+  transition: all 0.3s ease;
+}
+
+.sparkle-icon::before,
+.sparkle-icon::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sparkle-icon::before {
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+  z-index: -1;
+}
+
+.sparkle-icon::after {
+  background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+  z-index: -2;
+}
+
+.group:hover .sparkle-icon {
+  filter: drop-shadow(0 0 3px rgba(255,255,255,0.7)) brightness(1.3);
+}
+
+.group:hover .sparkle-icon::before,
+.group:hover .sparkle-icon::after {
+  opacity: 0.7;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(255,255,255,0.5)) brightness(1.1);
+  }
+  50% {
+    filter: drop-shadow(0 0 4px rgba(255,255,255,0.8)) brightness(1.4);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* Advanced Theme Switch Animations */
+@keyframes themeRipple {
+  0% {
+    transform: scale(0);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.theme-ripple {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  animation: themeRipple 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-ripple.light {
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%);
+}
+
+.theme-ripple.dark {
+  background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 100%);
+}
+
+/* Theme toggle button enhanced animations */
+.theme-toggle-enhanced {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.theme-toggle-enhanced:hover::before {
+  width: 100px;
+  height: 100px;
+}
+
+.theme-toggle-enhanced.dark::before {
+  background: radial-gradient(circle, rgba(0,0,0,0.3) 0%, transparent 70%);
+}
+
+/* Language switch enhanced animations */
+.language-toggle-enhanced {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.language-toggle-enhanced::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.language-toggle-enhanced:hover::after {
+  left: 100%;
+}
+
+/* RTL transition animations */
+.rtl-transition {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[dir="rtl"] .rtl-transition {
+  transform: scaleX(-1);
+}
+
+/* Content fade during transitions */
+.content-fade {
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.content-fade.transitioning {
+  opacity: 0.7;
+  transform: translateY(2px);
+}
+
+/* Icon rotation animations for theme toggle */
+.icon-rotate {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-rotate.rotating {
+  transform: rotate(180deg);
+}
+
+/* Smooth color transitions for specific elements */
+.smooth-colors {
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
