@@ -31,27 +31,27 @@ const HomeSearchForm = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-2xl animate-scale-in">
+    <div className="bg-card rounded-2xl p-6 shadow-2xl animate-scale-in border border-border">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         <div className="relative">
           <Search
             className={`absolute top-3 ${
               isRTL ? "right-3" : "left-3"
-            } h-5 w-5 text-gray-400`}
+            } h-5 w-5 text-muted-foreground`}
           />
           <Input
             placeholder={t("hero.search")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className={`${isRTL ? "pr-10" : "pl-10"} text-black h-12`}
+            className={`${isRTL ? "pr-10" : "pl-10"} h-12`}
           />
         </div>
 
         <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-          <SelectTrigger className="h-12 text-black">
+          <SelectTrigger className="h-12">
             <SelectValue placeholder={t("hero.location")} />
           </SelectTrigger>
-          <SelectContent className="bg-white">
+          <SelectContent>
             <SelectItem value="dubai-marina">
               {language === "ar" ? "مرسى دبي" : "Dubai Marina"}
             </SelectItem>
@@ -68,10 +68,10 @@ const HomeSearchForm = () => {
         </Select>
 
         <Select value={selectedType} onValueChange={setSelectedType}>
-          <SelectTrigger className="h-12 text-black">
+          <SelectTrigger className="h-12">
             <SelectValue placeholder={t("hero.type")} />
           </SelectTrigger>
-          <SelectContent className="bg-white">
+          <SelectContent>
             <SelectItem value="apartment">{t("type.apartment")}</SelectItem>
             <SelectItem value="villa">{t("type.villa")}</SelectItem>
             <SelectItem value="land">{t("type.land")}</SelectItem>
@@ -81,10 +81,10 @@ const HomeSearchForm = () => {
         </Select>
 
         <Select value={priceRange} onValueChange={setPriceRange}>
-          <SelectTrigger className="h-12 text-black">
+          <SelectTrigger className="h-12">
             <SelectValue placeholder={t("hero.price")} />
           </SelectTrigger>
-          <SelectContent className="bg-white">
+          <SelectContent>
             <SelectItem value="0-500000">0 - 500K AED</SelectItem>
             <SelectItem value="500000-1000000">500K - 1M AED</SelectItem>
             <SelectItem value="1000000-2000000">1M - 2M AED</SelectItem>
