@@ -148,7 +148,8 @@ const FeaturedProperties: FC<IProps> = ({
       </div>
       <div className="container mx-auto px-4 mt-8 flex justify-center">
         <Button
-          className="border border-primary bg-white text-primary rounded px-6 py-3 text-lg font-semibold hover:bg-primary hover:text-white transition-colors"
+          variant="outline"
+          className="rounded px-6 py-3 text-lg font-semibold"
           onClick={onViewAll}
         >
           {t("props.viewAll")}
