@@ -19,15 +19,22 @@ import { useToast } from "@/hooks/use-toast";
 import { Sun, Moon, Monitor } from "lucide-react";
 
 const AppearanceSettings = () => {
-  const { theme, setTheme, isDark } = useTheme();
+  const { theme, setTheme, isDark, triggerThemeAnimation } = useTheme();
   const { toast } = useToast();
 
   const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme as "light" | "dark" | "system");
-    toast({
-      title: "Theme Updated",
-      description: `Theme changed to ${newTheme}`,
-    });
+    // Trigger animation if available
+    if (triggerThemeAnimation) {
+      triggerThemeAnimation();
+    }
+
+    setTimeout(() => {
+      setTheme(newTheme as "light" | "dark" | "system");
+      toast({
+        title: "Theme Updated",
+        description: `Theme changed to ${newTheme}`,
+      });
+    }, 150);
   };
 
   const getThemeIcon = () => {
