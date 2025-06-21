@@ -19,6 +19,10 @@ const badgeVariants = cva(
           "border-transparent bg-sellColor text-sellColor-foreground hover:bg-sellColor/80",
         rentColor:
           "border-transparent bg-rentColor text-rentColor-foreground hover:bg-rentColor/80",
+        success:
+          "border-transparent bg-success text-success-foreground hover:bg-success/80",
+        warning:
+          "border-transparent bg-warning text-warning-foreground hover:bg-warning/80",
       },
     },
     defaultVariants: {
