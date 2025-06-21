@@ -1,19 +1,79 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Shield, Clock, BarChart2 } from "lucide-react";
-import { motion } from "framer-motion"; // Import motion from framer-motion
+import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 
 interface StatItemProps {
-  value: string;
+  value: number;
+  suffix?: string;
   label: string;
 }
 
-const StatItem: React.FC<StatItemProps> = ({ value, label }) => (
-  <div className="flex flex-col items-center text-center p-4">
-    <h3 className="text-4xl font-bold text-white mb-2 sm:text-5xl lg:text-6xl">
-      {value}
-    </h3>
-    <p className="text-lg text-white opacity-80 sm:text-xl">{label}</p>
-  </div>
+// Animated counter component
+const AnimatedCounter: React.FC<{ value: number; suffix?: string }> = ({
+  value,
+  suffix = "",
+}) => {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const motionValue = useMotionValue(0);
+  const springValue = useSpring(motionValue, { duration: 3000 });
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    if (isInView) {
+      motionValue.set(value);
+    }
+  }, [motionValue, isInView, value]);
+
+  useEffect(() => {
+    springValue.on("change", (latest) => {
+      if (ref.current) {
+        ref.current.textContent = Math.floor(latest).toLocaleString() + suffix;
+      }
+    });
+  }, [springValue, suffix]);
+
+  return (
+    <motion.h3
+      ref={ref}
+      className="text-4xl font-bold text-primary-foreground mb-2 sm:text-5xl lg:text-6xl"
+      animate={isInView ? { scale: [1, 1.05, 1] } : {}}
+      transition={{ duration: 0.5, delay: 2.5 }}
+    >
+      0{suffix}
+    </motion.h3>
+  );
+};
+
+const StatItem: React.FC<StatItemProps> = ({ value, suffix, label }) => (
+  <motion.div
+    className="flex flex-col items-center text-center p-4"
+    variants={{
+      hidden: { opacity: 0, y: 30, scale: 0.8 },
+      visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+          duration: 0.6,
+          ease: "easeOut",
+        },
+      },
+    }}
+  >
+    <AnimatedCounter value={value} suffix={suffix} />
+    <motion.p
+      className="text-lg text-primary-foreground opacity-80 sm:text-xl"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 0.8,
+          transition: { delay: 0.3, duration: 0.4 },
+        },
+      }}
+    >
+      {label}
+    </motion.p>
+  </motion.div>
 );
 
 interface FeatureCardProps {
@@ -27,18 +87,18 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   title,
   description,
 }) => (
-  <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform hover:scale-105 transition-transform duration-300 ease-in-out h-full">
-    <div className="text-black-500 mb-4">
+  <div className="bg-card rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform hover:scale-105 transition-transform duration-300 ease-in-out h-full border border-border">
+    <div className="text-primary mb-4">
       {/* Icon sizing for responsiveness */}
       {React.cloneElement(icon as React.ReactElement, {
         size: 48,
         className: "w-12 h-12 sm:w-16 sm:h-16",
       })}
     </div>
-    <h4 className="text-xl font-semibold text-gray-800 mb-3 sm:text-2xl">
+    <h4 className="text-xl font-semibold text-card-foreground mb-3 sm:text-2xl">
       {title}
     </h4>
-    <p className="text-gray-600 text-base leading-relaxed flex-grow">
+    <p className="text-muted-foreground text-base leading-relaxed flex-grow">
       {description}
     </p>
   </div>
@@ -54,23 +114,13 @@ const WhyUs: React.FC = () => {
 
   return (
     <div className="font-sans antialiased min-h-screen">
-      {/* Statistics Section */}
-      <section className="relative bg-gradient-to-r from-primary to-primary/80 text-white py-12 px-4 shadow-lg sm:py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-12">
-          <StatItem value="1000+" label="Properties Listed" />
-          <StatItem value="850+" label="Properties Sold" />
-          <StatItem value="500+" label="Happy Clients" />
-          <StatItem value="15+" label="Cities Covered" />
-        </div>
-      </section>
-
       {/* Why Choose Aqar Zone Section */}
       <section className="py-16 px-4 text-center sm:py-20 lg:py-24">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-extrabold text-gray-800 mb-6 sm:text-5xl">
+          <h2 className="text-4xl font-extrabold text-foreground mb-6 sm:text-5xl">
             Why Choose Aqar Zone?
           </h2>
-          <p className="text-lg text-gray-600 leading-relaxed sm:text-xl">
+          <p className="text-lg text-muted-foreground leading-relaxed sm:text-xl">
             We provide exceptional service and expertise to help you find the
             perfect property.
           </p>
