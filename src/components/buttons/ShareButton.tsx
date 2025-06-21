@@ -74,8 +74,8 @@ export default function ShareButton() {
               rel="noopener noreferrer"
             >
               <Button
-                variant="outline"
-                className="bg-green-500 text-white hover:bg-green-600"
+                variant="success"
+                className="hover:bg-success/90"
               >
                 WhatsApp
               </Button>
@@ -89,7 +89,7 @@ export default function ShareButton() {
             >
               <Button
                 variant="outline"
-                className="bg-blue-400 text-white hover:bg-blue-500"
+                className="bg-blue-400 text-white hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600"
               >
                 Twitter
               </Button>
@@ -103,7 +103,7 @@ export default function ShareButton() {
             >
               <Button
                 variant="outline"
-                className="bg-blue-600 text-white hover:bg-blue-700"
+                className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
               >
                 Facebook
               </Button>
@@ -114,8 +114,7 @@ export default function ShareButton() {
               )}`}
             >
               <Button
-                variant="outline"
-                className="bg-gray-600 text-white hover:bg-gray-700"
+                variant="secondary"
               >
                 Email
               </Button>
