@@ -33,19 +33,27 @@ import { useQuery } from "@tanstack/react-query";
 import { getAvatarInitials } from "@/func/user";
 
 export const AppSidebar: React.FC = () => {
-  const { language, setLanguage, t, isAuthenticated, logout, hasToken } =
+  const { language, setLanguage, t, isAuthenticated, logout, hasToken, triggerLanguageAnimation } =
     useLanguage();
-  const { theme, setTheme, isDark } = useTheme();
+  const { theme, setTheme, isDark, triggerThemeAnimation } = useTheme();
   const navigate = useNavigate();
 
   const { open, isMobile, toggleSidebar } = useSidebar();
 
-  const handleToggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
+  const handleToggleTheme = (event?: React.MouseEvent) => {
+    if (event) {
+      triggerThemeAnimation(event);
+    }
+    setTimeout(() => {
+      setTheme(theme === "light" ? "dark" : "light");
+    }, 150);
   };
 
   const handleToggleLanguage = () => {
-    setLanguage(language === "en" ? "ar" : "en");
+    triggerLanguageAnimation();
+    setTimeout(() => {
+      setLanguage(language === "en" ? "ar" : "en");
+    }, 200);
   };
 
   const { data: profileData } = useQuery({
@@ -210,18 +218,29 @@ export const AppSidebar: React.FC = () => {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={handleToggleLanguage}>
-                    <Globe className="h-4 w-4" />
+                  <SidebarMenuButton
+                    onClick={handleToggleLanguage}
+                    className="language-toggle-enhanced relative overflow-hidden transition-all duration-300 hover:bg-accent/80"
+                  >
+                    <Globe className="h-4 w-4 transition-all duration-300" />
                     <span>{t("nav.language") || "Language"}</span>
+                    <span className="ml-auto text-xs opacity-60 font-medium">
+                      {language === "en" ? "العربية" : "English"}
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={handleToggleTheme}>
-                    {isDark ? (
-                      <Sun className="h-4 w-4" />
-                    ) : (
-                      <Moon className="h-4 w-4" />
-                    )}
+                  <SidebarMenuButton
+                    onClick={handleToggleTheme}
+                    className="theme-toggle-enhanced relative overflow-hidden transition-all duration-300 hover:bg-accent/80"
+                  >
+                    <div className="icon-rotate">
+                      {isDark ? (
+                        <Sun className="h-4 w-4 transition-all duration-300" />
+                      ) : (
+                        <Moon className="h-4 w-4 transition-all duration-300" />
+                      )}
+                    </div>
                     <span>
                       {isDark
                         ? t("nav.light") || "Light"
