@@ -40,7 +40,7 @@ export default function ShareButton() {
       <Button
         variant="outline"
         size="icon"
-        className="bg-white/80 hover:bg-white"
+        className="bg-background/80 backdrop-blur-sm border border-border/50"
         onClick={handleShare}
       >
         <Share2 className="h-4 w-4" />
@@ -89,7 +89,7 @@ export default function ShareButton() {
             >
               <Button
                 variant="outline"
-                className="bg-blue-400 text-white hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Twitter
               </Button>
@@ -103,7 +103,7 @@ export default function ShareButton() {
             >
               <Button
                 variant="outline"
-                className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Facebook
               </Button>
