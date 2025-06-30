@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +15,6 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import AccessDenied from "@/components/AccessDenied";
-import { formatPriceSeller } from "@/func/properties";
 
 // Mock data for dashboard
 const dashboardStats = {
@@ -77,6 +77,7 @@ const recentProperties = [
 
 const Dashboard = () => {
   const { t, language, user, isAuthenticated } = useLanguage();
+  const { formatPrice } = useCurrency();
 
   if (!isAuthenticated || user?.user_type !== "seller") {
     return <AccessDenied />;
@@ -266,11 +267,11 @@ const Dashboard = () => {
 
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-lg font-bold text-primary">
-                      {formatPriceSeller(
-                        property.price,
-                        property.currency,
-                        property.forSale,
-                        t
+                      {formatPrice(property.price, property.currency)}
+                      {!property.forSale && (
+                        <span className="text-sm font-normal">
+                          {t("m.month")}
+                        </span>
                       )}
                     </div>
                   </div>
