@@ -61,17 +61,21 @@ const Properties = () => {
   const { toast } = useToast();
 
   const [filteredProperties, setFilteredProperties] = useState<IProperty[]>([]);
-  const [searchQuery, _setSearchQuery] = useState(
+  const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || ""
   );
-  const [selectedLocation, _setSelectedLocation] = useState(
-    searchParams.get("location") || ""
+  const [selectedLocation, setSelectedLocation] = useState(
+    searchParams.get("location") || "all"
   );
-  const [selectedType, _setSelectedType] = useState(
-    searchParams.get("type") || ""
+  const [selectedType, setSelectedType] = useState(
+    searchParams.get("type") || "all"
   );
-  const [priceRange, _setPriceRange] = useState<[number, number]>([0, 5000000]);
-  const [sortBy, _setSortBy] = useState("newest");
+  const [selectedAdType, setSelectedAdType] = useState(
+    searchParams.get("adType") || "all"
+  );
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
+  const [sortBy, setSortBy] = useState("newest");
+  const [showFilters, setShowFilters] = useState(false);
   const [favoriteProperties, setFavoriteProperties] = useState<number[]>([]);
 
   const { data: apiProperties, isLoading } = useQuery({
@@ -109,34 +113,69 @@ const Properties = () => {
     return apiProperties.map(normalizeProperty);
   }, [apiProperties]);
 
+  // Get unique values for filters from API data
+  const filterOptions = useMemo(() => {
+    if (!properties.length) return { locations: [], types: [], adTypes: [], priceRange: [0, 5000000] };
+
+    const locations = [...new Set(properties.map(p => p.location).filter(Boolean))];
+    const types = [...new Set(properties.map(p => p.type).filter(Boolean))];
+    const adTypes = [...new Set(properties.map(p => p.ad_type).filter(Boolean))];
+    const prices = properties.map(p => p.price).filter(p => p > 0);
+    const maxPrice = prices.length ? Math.max(...prices) : 5000000;
+
+    return {
+      locations: locations.sort(),
+      types: types.sort(),
+      adTypes: adTypes.sort(),
+      priceRange: [0, Math.ceil(maxPrice / 100000) * 100000] as [number, number]
+    };
+  }, [properties]);
+
   useEffect(() => {
     if (!properties) return;
 
     let filtered: IProperty[] = [...properties];
 
-    if (searchQuery) {
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(
         (property) =>
-          property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          property.location.toLowerCase().includes(searchQuery.toLowerCase())
+          property.title.toLowerCase().includes(query) ||
+          property.location.toLowerCase().includes(query) ||
+          property.description?.toLowerCase().includes(query) ||
+          property.type.toLowerCase().includes(query)
       );
     }
 
-    if (selectedLocation) {
+    // Location filter
+    if (selectedLocation && selectedLocation !== "all") {
       filtered = filtered.filter((property) =>
         property.location.toLowerCase().includes(selectedLocation.toLowerCase())
       );
     }
 
-    if (selectedType) {
-      filtered = filtered.filter((property) => property.type === selectedType);
+    // Property type filter
+    if (selectedType && selectedType !== "all") {
+      filtered = filtered.filter((property) =>
+        property.type.toLowerCase() === selectedType.toLowerCase()
+      );
     }
 
+    // Ad type filter (sale/rent)
+    if (selectedAdType && selectedAdType !== "all") {
+      filtered = filtered.filter((property) =>
+        property.ad_type.toLowerCase() === selectedAdType.toLowerCase()
+      );
+    }
+
+    // Price range filter
     filtered = filtered.filter(
       (property) =>
         property.price >= priceRange[0] && property.price <= priceRange[1]
     );
 
+    // Sorting
     switch (sortBy) {
       case "priceLow":
         filtered.sort((a, b) => a.price - b.price);
@@ -145,11 +184,16 @@ const Properties = () => {
         filtered.sort((a, b) => b.price - a.price);
         break;
       case "newest":
-        filtered.sort((a, b) => b.id - a.id);
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         break;
       case "oldest":
-        filtered.sort((a, b) => a.id - b.id);
+        filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         break;
+      case "mostViewed":
+        filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
+        break;
+      default:
+        filtered.sort((a, b) => b.id - a.id);
     }
 
     setFilteredProperties(filtered);
@@ -158,6 +202,7 @@ const Properties = () => {
     searchQuery,
     selectedLocation,
     selectedType,
+    selectedAdType,
     priceRange,
     sortBy,
   ]);
@@ -208,9 +253,35 @@ const Properties = () => {
       <Header />
 
       <div className="container mx-auto px-4 py-8">
-        <PropertySearchBar />
+        <PropertySearchBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          showFilters={showFilters}
+          onToggleFilters={() => setShowFilters(!showFilters)}
+        />
         <div className="flex gap-8">
-          <PropertyFilters />
+          <PropertyFilters
+            showFilters={showFilters}
+            selectedLocation={selectedLocation}
+            onLocationChange={setSelectedLocation}
+            selectedType={selectedType}
+            onTypeChange={setSelectedType}
+            selectedAdType={selectedAdType}
+            onAdTypeChange={setSelectedAdType}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+            filterOptions={filterOptions}
+            onClearFilters={() => {
+              setSearchQuery("");
+              setSelectedLocation("all");
+              setSelectedType("all");
+              setSelectedAdType("all");
+              setPriceRange([0, filterOptions.priceRange[1]]);
+              setSortBy("newest");
+            }}
+          />
           <div className="flex-1">
             <PropertyList
               properties={filteredProperties}
