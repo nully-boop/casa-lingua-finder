@@ -18,8 +18,8 @@ const AgentSidebar = () => {
   const agent: Agent = {
     name: "Ahmed Al-Rashid",
     nameAr: "أحمد الراشد",
-    phone: "+971 50 123 4567",
-    email: "ahmed@casalingua.com",
+    phone: "+963 991 234 567",
+    email: "ahmed@aqarzone.com",
     image:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
   };
