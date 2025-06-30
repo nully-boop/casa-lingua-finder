@@ -12,10 +12,10 @@ import PropertyImageGallery from "@/components/properties/PropertyImageGallery";
 import PropertyInfoCard from "@/components/properties/PropertyInfoCard";
 import AgentSidebar from "@/components/properties/AgentSidebar";
 import RelatedProperties from "@/components/properties/RelatedProperties";
-import { AIChatDrawer } from "@/components/properties/AIChatDrawer";
+import AIChatDrawer from "@/components/properties/AIChatDrawer";
 import { useToast } from "@/hooks/use-toast";
 import AuthModal from "@/components/auth/AuthModal";
-import { formatPrice, normalizeProperty } from "@/func/properties";
+import { normalizeProperty } from "@/func/properties";
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -36,7 +36,7 @@ const PropertyDetails = () => {
   } = useQuery({
     queryKey: ["property-details", id],
     queryFn: () => propertiesAPI.getProperty(id!),
-    enabled: !!id,
+    enabled: !!id && isAuthenticated,
   });
 
   // Check if property is favorited - only if user is authenticated
@@ -65,9 +65,9 @@ const PropertyDetails = () => {
     }
   }, [isFavoriteQueryError, favoriteQueryError, t, toast]);
 
-  const propertyArray = !isPropertyQueryError
-    ? propertyResponse?.data?.property || []
-    : [];
+  const propertyData = !isPropertyQueryError
+    ? propertyResponse?.data?.property
+    : null;
   const relatedPropertiesRaw = !isPropertyQueryError
     ? propertyResponse?.data?.relaitedproperties || []
     : [];
@@ -75,17 +75,24 @@ const PropertyDetails = () => {
   const isFavorited =
     !isFavoriteQueryError && favoritedResponse?.data?.is_favorited === true;
 
-  const rawProperty = propertyArray.find(
-    (prop: IProperty) => prop.id === parseInt(id!)
-  );
+  // Handle both array and single object responses
+  const rawProperty = propertyData
+    ? Array.isArray(propertyData)
+      ? propertyData.find((prop: IProperty) => prop.id === parseInt(id!))
+      : propertyData.id === parseInt(id!)
+      ? propertyData
+      : null
+    : null;
   const property =
     rawProperty && !isPropertyQueryError
       ? normalizeProperty(rawProperty)
       : null;
 
-  const relatedProperties = relatedPropertiesRaw
-    .map((prop: IProperty) => normalizeProperty(prop))
-    .filter((prop: IProperty) => prop.id !== parseInt(id!));
+  const relatedProperties = Array.isArray(relatedPropertiesRaw)
+    ? relatedPropertiesRaw
+        .map((prop: IProperty) => normalizeProperty(prop))
+        .filter((prop: IProperty) => prop.id !== parseInt(id!))
+    : [];
 
   const favoriteMutation = useMutation({
     mutationFn: (propertyId: number) => {
@@ -197,6 +204,7 @@ const PropertyDetails = () => {
               images={propertyImages}
               title={property?.title}
               adType={property?.ad_type}
+              views={property?.views}
               isFavorited={isFavorited}
               favoriteQueryFailed={isFavoriteQueryError}
               onFavorite={handleFavorite}
@@ -220,7 +228,6 @@ const PropertyDetails = () => {
         <RelatedProperties
           relatedProperties={relatedProperties}
           language={language}
-          formatPrice={formatPrice}
         />
       </div>
 
