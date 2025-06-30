@@ -22,9 +22,11 @@ import {
   X,
   Building2,
   Heart,
+  DollarSign,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { authAPI, profileAPI } from "@/services/api";
@@ -36,6 +38,7 @@ export const AppSidebar: React.FC = () => {
   const { language, setLanguage, t, isAuthenticated, logout, hasToken, triggerLanguageAnimation } =
     useLanguage();
   const { theme, setTheme, isDark, triggerThemeAnimation } = useTheme();
+  const { currency, setCurrency } = useCurrency();
   const navigate = useNavigate();
 
   const { open, isMobile, toggleSidebar } = useSidebar();
@@ -54,6 +57,22 @@ export const AppSidebar: React.FC = () => {
     setTimeout(() => {
       setLanguage(language === "en" ? "ar" : "en");
     }, 200);
+  };
+
+  const handleCurrencyChange = () => {
+    const currencies = ["USD", "AED", "SYP"] as const;
+    const currentIndex = currencies.indexOf(currency);
+    const nextIndex = (currentIndex + 1) % currencies.length;
+    setCurrency(currencies[nextIndex]);
+  };
+
+  const getCurrencyDisplay = () => {
+    switch (currency) {
+      case "USD": return "$";
+      case "AED": return "AED";
+      case "SYP": return "SYP";
+      default: return currency;
+    }
   };
 
   const { data: profileData } = useQuery({
@@ -130,7 +149,7 @@ export const AppSidebar: React.FC = () => {
         />
       )}
 
-      <Sidebar side={sidebarSide} className="z-30">
+      <Sidebar side={sidebarSide} className="z-20">
         <SidebarHeader>
           <div className="flex w-full justify-end">
             <Button
@@ -245,6 +264,18 @@ export const AppSidebar: React.FC = () => {
                       {isDark
                         ? t("nav.light") || "Light"
                         : t("nav.dark") || "Dark"}
+                    </span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={handleCurrencyChange}
+                    className="currency-toggle-enhanced relative overflow-hidden transition-all duration-300 hover:bg-accent/80"
+                  >
+                    <DollarSign className="h-4 w-4 transition-all duration-300" />
+                    <span>{t("nav.currency") || "Currency"}</span>
+                    <span className="ml-auto text-xs opacity-60 font-medium">
+                      {getCurrencyDisplay()}
                     </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

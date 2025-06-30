@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 const Footer = () => {
-  const { language, isRTL: _isRTL } = useLanguage(); // Prefixed isRTL
+  const { language } = useLanguage(); // Prefixed isRTL
 
   const footerLinks = {
     en: {
@@ -142,18 +142,18 @@ const Footer = () => {
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
                   {language === "ar"
-                    ? "دبي، الإمارات العربية المتحدة"
-                    : "Dubai, United Arab Emirates"}
+                    ? "دمشق، الجمهورية العربية السورية"
+                    : "Damascus, Syrian Arab Repblic"}
                 </span>
               </div>
               <div className="flex items-center space-x-3 rtl:space-x-reverse text-sm">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">+971 4 123 4567</span>
+                <span className="text-muted-foreground">+963 991 234 567</span>
               </div>
               <div className="flex items-center space-x-3 rtl:space-x-reverse text-sm">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
-                  info@casalingua.com
+                  info@aqarzone.com
                 </span>
               </div>
             </div>
@@ -182,7 +182,7 @@ const Footer = () => {
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="text-sm text-muted-foreground">
-            © 2024 Casa Lingua.{" "}
+            © {new Date().getFullYear()} Aqar Zone.{" "}
             {language === "ar" ? "جميع الحقوق محفوظة." : "All rights reserved."}
           </div>
           <div className="flex space-x-6 rtl:space-x-reverse text-sm">
