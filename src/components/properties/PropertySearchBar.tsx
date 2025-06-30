@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import {
   Select,
   SelectContent,
@@ -11,17 +9,25 @@ import {
 } from "@/components/ui/select";
 import { Search, Filter } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSearchParams } from "react-router-dom";
 
-const PropertySearchBar = () => {
-  const { t, language: _language, isRTL } = useLanguage(); // Prefixed language
-  const [_searchParams] = useSearchParams(); // Prefixed searchParams
+interface PropertySearchBarProps {
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  sortBy: string;
+  onSortChange: (sort: string) => void;
+  showFilters: boolean;
+  onToggleFilters: () => void;
+}
 
-  const [searchQuery, setSearchQuery] = useState(
-    _searchParams.get("search") || ""
-  );
-  const [sortBy, setSortBy] = useState("newest");
-  const [showFilters, setShowFilters] = useState(false);
+const PropertySearchBar: React.FC<PropertySearchBarProps> = ({
+  searchQuery,
+  onSearchChange,
+  sortBy,
+  onSortChange,
+  showFilters,
+  onToggleFilters,
+}) => {
+  const { t, isRTL } = useLanguage();
 
   return (
     <div className="mb-8">
@@ -35,19 +41,21 @@ const PropertySearchBar = () => {
           <Input
             placeholder={t("hero.search")}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             className={`${isRTL ? "pr-10" : "pl-10"} h-12`}
           />
         </div>
         <Button
           variant="outline"
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center space-x-2 rtl:space-x-reverse h-12"
+          onClick={onToggleFilters}
+          className={`flex items-center space-x-2 rtl:space-x-reverse h-12 ${
+            showFilters ? "bg-primary text-primary-foreground" : ""
+          }`}
         >
           <Filter className="h-4 w-4" />
           <span>{t("search.filters")}</span>
         </Button>
-        <Select value={sortBy} onValueChange={setSortBy}>
+        <Select value={sortBy} onValueChange={onSortChange}>
           <SelectTrigger className="w-48 h-12">
             <SelectValue placeholder={t("search.sortBy")} />
           </SelectTrigger>
@@ -56,6 +64,7 @@ const PropertySearchBar = () => {
             <SelectItem value="oldest">{t("search.oldest")}</SelectItem>
             <SelectItem value="priceLow">{t("search.priceLow")}</SelectItem>
             <SelectItem value="priceHigh">{t("search.priceHigh")}</SelectItem>
+            <SelectItem value="mostViewed">{t("search.mostViewed")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
