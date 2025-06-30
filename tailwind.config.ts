@@ -83,11 +83,28 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        // Flutter app primary color
+        flutter: {
+          blue: "#2563EB",
+          "blue-50": "#eff6ff",
+          "blue-100": "#dbeafe",
+          "blue-200": "#bfdbfe",
+          "blue-300": "#93c5fd",
+          "blue-400": "#60a5fa",
+          "blue-500": "#3b82f6",
+          "blue-600": "#2563eb",
+          "blue-700": "#1d4ed8",
+          "blue-800": "#1e40af",
+          "blue-900": "#1e3a8a",
+        },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        // Flutter matching border radius
+        "card": "16px",      // Flutter card radius
+        "button": "12px",    // Flutter button/input radius
+        lg: "var(--radius)", // 16px
+        md: "12px",          // Flutter button radius
+        sm: "8px",
       },
       keyframes: {
         "accordion-down": {
