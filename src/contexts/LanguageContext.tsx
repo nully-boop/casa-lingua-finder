@@ -33,6 +33,7 @@ const translations = {
     "nav.profileActions": "Profile Actions",
     "nav.light": "Light Mode",
     "nav.dark": "Dark Mode",
+    "nav.currency": "Currency",
     "nav.favorites": "Favorites",
     "nav.owner": "Owner Dashboard",
 
@@ -42,6 +43,10 @@ const translations = {
     "owner.totalProperties": "Total Properties",
     "owner.activeListings": "Active Listings",
     "owner.totalValue": "Total Value",
+    "owner.error.statsLoadFailed": "Failed to load dashboard statistics",
+    "owner.noProperties": "No Properties Yet",
+    "owner.noPropertiesDescription": "Start by adding your first property listing",
+    "owner.addFirstProperty": "Add Your First Property",
 
     // Toast messages
     "toast.logoutSuccess": "Logout successful",
@@ -56,6 +61,9 @@ const translations = {
       "There was a problem fetching the properties. Please try again later.",
     "error.access": "You need to be logged in to access this page.",
     "error.access.feature": "You need to be logged in.",
+    "error.failed": "Error",
+    "error.favoriteActionFailed": "Failed to update favorite status",
+    "error.specificLoadFailed": "Error: {message}",
     "err.error": "error",
     "rt.retry": "Retry",
     "accss.denied": "Access Denied",
@@ -101,6 +109,8 @@ const translations = {
     "common.loading.profile": "Loading profile...",
     "common.returnHome": "Return to home",
     "common.loadingProperties": "Loading properties data...",
+    "common.retry": "Retry",
+    "common.all": "All",
 
     // Authentication
     "auth.email": "Email",
@@ -197,6 +207,68 @@ const translations = {
     "fav.removed": "Removed from favorites",
     "fav.updated": "Updated",
     "brs.browse": "Browse Properties",
+
+    // Map and Route
+    "map.calculatingRoute": "Calculating route...",
+    "map.locationPermissionRequired": "Location Permission Required",
+    "map.enableLocationMessage": "Please enable location access to see the route to this property.",
+    "map.tryAgain": "Try Again",
+    "map.routeError": "Route Error",
+    "map.retry": "Retry",
+    "map.yourLocation": "Your Location",
+    "map.destination": "Property Location",
+    "map.geolocationNotSupported": "Geolocation is not supported by this browser.",
+    "map.noRouteFound": "No route could be found.",
+    "map.networkError": "Network Error: Could not connect to the routing service. Please check your internet connection.",
+    "map.unknownError": "An unknown error occurred.",
+    "map.locationRequired": "Your location is required to get directions.",
+    "map.propertyLocation": "Property Location",
+
+    // Form validation and messages
+    "form.passwordMismatch": "Password mismatch",
+    "form.passwordsDoNotMatch": "Passwords do not match",
+    "form.registrationFailed": "Registration failed",
+    "form.checkInputAndTryAgain": "Please check your input and try again",
+    "form.propertyAddedSuccessfully": "Property added successfully",
+    "form.propertyListingPublished": "Your property listing has been published",
+    "form.failedToAddProperty": "Failed to add property",
+    "form.errorOccurredTryAgain": "An error occurred, please try again",
+    "form.basicInformation": "Basic Information",
+    "form.enterPropertyTitleEnglish": "Enter property title in English",
+    "form.english": "English",
+    "form.arabic": "Arabic",
+
+    // Currency and loading states
+    "currency.converting": "Converting...",
+    "currency.loading": "...",
+
+    // Voice chat
+    "voice.thinking": "Thinking...",
+    "voice.aiSpeaking": "AI Speaking...",
+    "voice.listening": "Listening...",
+    "voice.clickToSpeak": "Click to speak",
+    "voice.startVoiceChat": "Start Voice Chat",
+    "voice.endConversation": "End",
+    "voice.testVoice": "Test Voice",
+
+    // Amenities
+    "amenities.swimmingPool": "Swimming Pool",
+    "amenities.gymFitness": "Gym & Fitness Center",
+    "amenities.coveredParking": "Covered Parking",
+    "amenities.security24": "24/7 Security",
+    "amenities.balconyView": "Balcony with View",
+    "amenities.builtInWardrobes": "Built-in Wardrobes",
+    "amenities.centralAC": "Central AC",
+    "amenities.conciergeService": "Concierge Service",
+
+    // Property stats
+    "property.views": "Views",
+
+    // Search and filters
+    "search.adType": "Ad Type",
+    "search.selectAdType": "Select ad type",
+    "search.allAdTypes": "All Ad Types",
+    "search.mostViewed": "Most Viewed",
   },
   ar: {
     // Navigation
@@ -212,6 +284,7 @@ const translations = {
     "nav.profileActions": "إجراءات الملف الشخصي",
     "nav.light": "الوضع الفاتح",
     "nav.dark": "الوضع الداكن",
+    "nav.currency": "العملة",
     "nav.favorites": "المفضلة",
     "nav.owner": "لوحة تحكم المالك",
 
@@ -221,6 +294,10 @@ const translations = {
     "owner.totalProperties": "العقارات الكلية",
     "owner.activeListings": "القوائم النشطة",
     "owner.totalValue": "القيمة الكلية",
+    "owner.error.statsLoadFailed": "فشل في تحميل إحصائيات لوحة التحكم",
+    "owner.noProperties": "لا توجد عقارات بعد",
+    "owner.noPropertiesDescription": "ابدأ بإضافة أول عقار لك",
+    "owner.addFirstProperty": "أضف عقارك الأول",
 
     // Toast messages
     "toast.logoutSuccess": "تم تسجيل الخروج بنجاح",
@@ -235,6 +312,9 @@ const translations = {
       "حدثت مشكلة في جلب العقارات. يرجى المحاولة مرة أخرى في وقت لاحق.",
     "error.access": "يجب تسجيل الدخول للوصول إلى هذه الصفحة.",
     "error.access.feature": "يجب عليك تسجيل الدخول.",
+    "error.failed": "خطأ",
+    "error.favoriteActionFailed": "فشل في تحديث حالة المفضلة",
+    "error.specificLoadFailed": "خطأ: {message}",
     "err.error": "حدث خطأ",
     "rt.retry": "أعد المحاولة",
     "accss.denied": "الوصول مرفوض",
@@ -280,6 +360,8 @@ const translations = {
     "common.loading.profile": "تحميل ملفك الشخصي ...",
     "common.returnHome": "العودة إلى الصفحة الرئيسية",
     "common.loadingProperties": "جاري تحميل بيانات العقارات...",
+    "common.retry": "أعد المحاولة",
+    "common.all": "الكل",
 
     // Authentication
     "auth.email": "البريد الإلكتروني",
@@ -375,6 +457,68 @@ const translations = {
     "fav.updated": "تم التحديث",
     "fav.removed": "تمت إزالة العقار من المفضلة",
     "brs.browse": "تصفح العقارات",
+
+    // Map and Route
+    "map.calculatingRoute": "جاري حساب المسار...",
+    "map.locationPermissionRequired": "إذن الموقع مطلوب",
+    "map.enableLocationMessage": "يرجى تمكين الوصول إلى الموقع لرؤية المسار إلى هذا العقار.",
+    "map.tryAgain": "حاول مرة أخرى",
+    "map.routeError": "خطأ في المسار",
+    "map.retry": "إعادة المحاولة",
+    "map.yourLocation": "موقعك",
+    "map.destination": "موقع العقار",
+    "map.geolocationNotSupported": "تحديد الموقع الجغرافي غير مدعوم في هذا المتصفح.",
+    "map.noRouteFound": "لم يتم العثور على مسار.",
+    "map.networkError": "خطأ في الشبكة: لا يمكن الاتصال بخدمة المسار. يرجى التحقق من اتصال الإنترنت.",
+    "map.unknownError": "حدث خطأ غير معروف.",
+    "map.locationRequired": "موقعك مطلوب للحصول على الاتجاهات.",
+    "map.propertyLocation": "موقع العقار",
+
+    // Form validation and messages
+    "form.passwordMismatch": "كلمات المرور غير متطابقة",
+    "form.passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+    "form.registrationFailed": "فشل التسجيل",
+    "form.checkInputAndTryAgain": "يرجى التحقق من المدخلات والمحاولة مرة أخرى",
+    "form.propertyAddedSuccessfully": "تم إضافة العقار بنجاح",
+    "form.propertyListingPublished": "تم نشر إعلان العقار الخاص بك",
+    "form.failedToAddProperty": "فشل في إضافة العقار",
+    "form.errorOccurredTryAgain": "حدث خطأ، يرجى المحاولة مرة أخرى",
+    "form.basicInformation": "المعلومات الأساسية",
+    "form.enterPropertyTitleEnglish": "أدخل عنوان العقار بالإنجليزية",
+    "form.english": "بالإنجليزية",
+    "form.arabic": "بالعربية",
+
+    // Currency and loading states
+    "currency.converting": "جاري التحويل...",
+    "currency.loading": "...",
+
+    // Voice chat
+    "voice.thinking": "جاري التفكير...",
+    "voice.aiSpeaking": "يتحدث المساعد...",
+    "voice.listening": "أستمع إليك...",
+    "voice.clickToSpeak": "اضغط للتحدث",
+    "voice.startVoiceChat": "ابدأ المحادثة الصوتية",
+    "voice.endConversation": "إنهاء",
+    "voice.testVoice": "اختبار الصوت",
+
+    // Amenities
+    "amenities.swimmingPool": "حمام سباحة",
+    "amenities.gymFitness": "صالة رياضية ومركز لياقة",
+    "amenities.coveredParking": "موقف مغطى",
+    "amenities.security24": "أمن على مدار الساعة",
+    "amenities.balconyView": "شرفة بإطلالة",
+    "amenities.builtInWardrobes": "خزائن مدمجة",
+    "amenities.centralAC": "تكييف مركزي",
+    "amenities.conciergeService": "خدمة الكونسيرج",
+
+    // Property stats
+    "property.views": "المشاهدات",
+
+    // Search and filters
+    "search.adType": "نوع الإعلان",
+    "search.selectAdType": "اختر نوع الإعلان",
+    "search.allAdTypes": "جميع أنواع الإعلانات",
+    "search.mostViewed": "الأكثر مشاهدة",
   },
 };
 
