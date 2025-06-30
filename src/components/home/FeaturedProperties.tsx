@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
 import { Button } from "../ui/button";
 import { normalizeProperty } from "@/func/properties";
+import AuthModal from "../auth/AuthModal";
 
 interface IProps {
   apiProperties: IProperty[];
@@ -35,43 +36,26 @@ const FeaturedProperties: FC<IProps> = ({
   const onViewAll = () => {
     navigate("/properties");
   };
-  const {
-    data: favoritedResponse,
-    isLoading: isFavoritedLoading,
-    isError: isFavoriteQueryError,
-    error: favoriteQueryError,
-  } = useQuery({
-    queryKey: ["property-favorited", id],
-    queryFn: () => propertiesAPI.isFavorited(parseInt(id!)),
-    enabled: !!id && isAuthenticated && !error,
+  // Fetch favorites if user is authenticated
+  const { data: favoritesData } = useQuery({
+    queryKey: ["favorites"],
+    queryFn: async () => {
+      const response = await propertiesAPI.getFavorites();
+      return response.data;
+    },
+    enabled: isAuthenticated,
+    retry: (failureCount, error: unknown) => {
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError?.response?.status === 401) return false;
+      return failureCount < 3;
+    },
   });
 
-  useEffect(() => {
-    if (isFavoriteQueryError) {
-      toast({
-        title: t("error.favoriteStatusErrorTitle") || "Favorite Status Error",
-        description:
-          favoriteQueryError?.message ||
-          t("error.favoriteStatusErrorDescription") ||
-          "Could not load favorite status.",
-        variant: "destructive",
-        duration: 3000,
-      });
-    }
-  }, [isFavoriteQueryError, favoriteQueryError, t, toast]);
-
-  const propertyArray = !error ? apiProperties || [] : [];
-  const isFavorited =
-    !isFavoriteQueryError && favoritedResponse?.data?.is_favorited === true;
-
-  const rawProperty = propertyArray.find(
-    (prop: IProperty) => prop.id === parseInt(id!)
-  );
-  const property =
-    rawProperty && !error ? normalizeProperty(rawProperty) : null;
+  // Get favorited property IDs
+  const favoritePropertyIds = favoritesData?.data?.map((fav: any) => fav.favoriteable.id) || [];
 
   const favoriteMutation = useMutation({
-    mutationFn: (propertyId: number) => {
+    mutationFn: ({ propertyId, isFavorited }: { propertyId: number; isFavorited: boolean }) => {
       if (isFavorited) {
         return propertiesAPI.removeFromFavorite(propertyId);
       } else {
@@ -79,10 +63,10 @@ const FeaturedProperties: FC<IProps> = ({
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["property-favorited", id] });
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
       toast({
         title: t("fav.updated"),
-        description: isFavorited ? t("fav.removed") : t("fav.added"),
+        description: t("fav.added"),
       });
     },
     onError: (error) => {
@@ -95,17 +79,16 @@ const FeaturedProperties: FC<IProps> = ({
     },
   });
 
-  const handleFavorite = () => {
+  const handleFavorite = (propertyId: number) => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
 
-    if (property) {
-      favoriteMutation.mutate(property.id);
-    }
+    const isFavorited = favoritePropertyIds.includes(propertyId);
+    favoriteMutation.mutate({ propertyId, isFavorited });
   };
-  if (isLoading || (isFavoritedLoading && isAuthenticated)) {
+  if (isLoading) {
     return (
       <div className="text-center py-20 text-lg">{t("common.loading")}</div>
     );
@@ -131,9 +114,10 @@ const FeaturedProperties: FC<IProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {properties.map((property) => (
               <PropertyCard
+                key={property.id}
                 property={property}
-                isFavorited={isFavorited}
-                onFavorite={handleFavorite}
+                isFavorited={favoritePropertyIds.includes(property.id)}
+                onFavorite={() => handleFavorite(property.id)}
               />
             ))}
           </div>
@@ -155,6 +139,8 @@ const FeaturedProperties: FC<IProps> = ({
           {t("props.viewAll")}
         </Button>
       </div>
+
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </section>
   );
 };
