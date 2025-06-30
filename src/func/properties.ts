@@ -14,11 +14,7 @@ export const normalizeProperty = (property: IProperty): IProperty => {
   };
 };
 
-export const formatPrice = (price: number, currency: string) => {
-  if (currency === "USD") return `$${price.toLocaleString()}`;
-  if (currency === "AED") return `${price.toLocaleString()} د.إ`;
-  return `${price.toLocaleString()} ${currency}`;
-};
+
 
 export const formatPriceSeller = (
   price: number,
