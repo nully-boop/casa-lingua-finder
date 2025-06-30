@@ -6,6 +6,8 @@ import { MapPin, Bed, Bath, Square, Building, CheckCircle } from "lucide-react";
 import PropertyMap from "@/components/PropertyMap";
 import IProperty from "@/interfaces/IProperty"; // Import IProperty
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { FreeMapRouteComponent } from "./MapRoute";
 
 interface PropertyInfoCardProps {
   property: IProperty;
@@ -19,6 +21,7 @@ const PropertyInfoCard: React.FC<PropertyInfoCardProps> = ({
   longitude,
 }) => {
   const { language } = useLanguage();
+  const { formatPrice } = useCurrency();
   const amenities = [
     "Swimming Pool",
     "Gym & Fitness Center",
@@ -40,16 +43,13 @@ const PropertyInfoCard: React.FC<PropertyInfoCardProps> = ({
     "خدمة الكونسيرج",
   ];
 
-  const formatPrice = (price: number, currency: string) => {
-    if (currency === "USD") return `$${price.toLocaleString()}`;
-    if (currency === "AED") return `${price.toLocaleString()} د.إ`;
-    return `${price.toLocaleString()} ${currency}`;
-  };
-  
   const priceString = property
     ? formatPrice(property.price, property.currency)
     : "";
-
+  const apiDestination = {
+    lat: latitude, // خط العرض كنص
+    lng: longitude, // خط الطول كنص
+  };
   return (
     <Card>
       <CardContent className="p-6">
@@ -156,6 +156,15 @@ const PropertyInfoCard: React.FC<PropertyInfoCardProps> = ({
                 longitude={longitude}
                 className="w-full"
               />
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold mb-3">
+                  {language === "ar" ? "الطريق إلى العقار" : "Route to Property"}
+                </h3>
+                <FreeMapRouteComponent
+                  destination={apiDestination}
+                  height="400px"
+                />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
