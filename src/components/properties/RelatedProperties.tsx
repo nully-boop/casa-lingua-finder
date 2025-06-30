@@ -6,13 +6,11 @@ import PropertyList from "./PropertyList";
 interface RelatedPropertiesProps {
   relatedProperties: IProperty[];
   language: string;
-  formatPrice: (price: number, currency: string) => string;
 }
 
 const RelatedProperties: React.FC<RelatedPropertiesProps> = ({
   relatedProperties,
   language,
-  formatPrice,
 }) => {
   if (relatedProperties.length === 0) return null;
 
@@ -30,7 +28,6 @@ const RelatedProperties: React.FC<RelatedPropertiesProps> = ({
       </div>
       <PropertyList
         properties={relatedProperties}
-        formatPrice={formatPrice}
       />
     </div>
   );
