@@ -3,7 +3,7 @@ import IRegister from "@/interfaces/IRegister";
 import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
-const DEFAULT_API_URL = "http://192.168.99.209:8000/api";
+const DEFAULT_API_URL = "https://state-ecommerce-production.up.railway.app/api";
 
 const api = axios.create({
   baseURL: DEFAULT_API_URL,
