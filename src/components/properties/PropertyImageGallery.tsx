@@ -1,14 +1,16 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "../buttons/ShareButton";
+import { SiriLogo } from "../icons";
 
 interface PropertyImageGalleryProps {
   images: string[];
   title?: string;
   adType?: string;
+  views?: number;
   isFavorited: boolean;
   onFavorite: () => void;
   onChat: () => void;
@@ -19,6 +21,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
   images,
   title,
   adType,
+  views,
   isFavorited,
   onFavorite,
   onChat,
@@ -77,7 +80,10 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
               className="bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-background flex items-center gap-2 px-3 transition-all duration-300 hover:scale-105 hover:shadow-md hover:border-primary/50 group"
               onClick={onChat}
             >
-              <Sparkles className="h-4 w-4 text-primary transition-all duration-300 group-hover:text-primary-600 group-hover:animate-pulse" />
+              <SiriLogo
+                className="h-16 w-16 text-primary transition-all duration-300 group-hover:text-primary-600 group-hover:animate-pulse"
+                color="currentColor"
+              />
 
               <span className="text-xs group-hover:text-primary-600 transition-colors">
                 {t("aiChat.askAi")}
@@ -108,10 +114,21 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
         {/* Ad Type Badge */}
         {adType && (
           <div className="absolute top-4 left-4">
+            <Badge variant={adType === "sale" ? "sellColor" : "rentColor"}>
+              {adType === "sale" ? t("common.sale") : t("common.rent")}
+            </Badge>
+          </div>
+        )}
+
+        {/* Views Counter */}
+        {views !== undefined && (
+          <div className="absolute bottom-4 left-4">
             <Badge
-              variant={adType === "sale" ? "sellColor" : "rentColor"}
+              variant="secondary"
+              className="bg-background/80 backdrop-blur-sm border border-border/50 flex items-center gap-1"
             >
-            {adType === "sale" ? t("common.sale") : t("common.rent")}
+              <Eye className="h-3 w-3" />
+              {views.toLocaleString()}
             </Badge>
           </div>
         )}
@@ -119,7 +136,10 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
         {/* Image Counter */}
         {images.length > 1 && (
           <div className="absolute bottom-4 right-4">
-            <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm border border-border/50">
+            <Badge
+              variant="secondary"
+              className="bg-background/80 backdrop-blur-sm border border-border/50"
+            >
               {selectedImage + 1} / {images.length}
             </Badge>
           </div>
@@ -132,6 +152,7 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
           {images.slice(0, 6).map((image, index) => (
             <button
               key={index}
+              type="button"
               className={`aspect-video rounded-md overflow-hidden border-2 transition-colors ${
                 selectedImage === index
                   ? "border-primary"
