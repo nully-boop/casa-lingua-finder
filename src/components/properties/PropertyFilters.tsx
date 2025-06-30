@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,32 +10,42 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSearchParams } from "react-router-dom";
 
-const PropertyFilters = () => {
+interface FilterOptions {
+  locations: string[];
+  types: string[];
+  adTypes: string[];
+  priceRange: [number, number];
+}
+
+interface PropertyFiltersProps {
+  showFilters: boolean;
+  selectedLocation: string;
+  onLocationChange: (location: string) => void;
+  selectedType: string;
+  onTypeChange: (type: string) => void;
+  selectedAdType: string;
+  onAdTypeChange: (adType: string) => void;
+  priceRange: [number, number];
+  onPriceRangeChange: (range: [number, number]) => void;
+  filterOptions: FilterOptions;
+  onClearFilters: () => void;
+}
+
+const PropertyFilters: React.FC<PropertyFiltersProps> = ({
+  showFilters,
+  selectedLocation,
+  onLocationChange,
+  selectedType,
+  onTypeChange,
+  selectedAdType,
+  onAdTypeChange,
+  priceRange,
+  onPriceRangeChange,
+  filterOptions,
+  onClearFilters,
+}) => {
   const { t, language } = useLanguage();
-  const [_searchParams] = useSearchParams(); // Prefixed as searchParams is not directly used
- 
-  const [_searchQuery, setSearchQuery] = useState( // Prefixed searchQuery variable
-    _searchParams.get("search") || ""
-  );
-  const [selectedLocation, setSelectedLocation] = useState(
-    _searchParams.get("location") || ""
-  );
-  const [selectedType, setSelectedType] = useState(
-    _searchParams.get("type") || ""
-  );
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
-  const [_sortBy, setSortBy] = useState("newest"); // Prefixed sortBy variable
-  const [showFilters, _setShowFilters] = useState(false); // Prefixed setShowFilters setter
-
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedLocation("");
-    setSelectedType("");
-    setPriceRange([0, 5000000]);
-    setSortBy("newest");
-  };
 
   if (!showFilters) return null;
   return (
@@ -44,12 +54,32 @@ const PropertyFilters = () => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">{t("search.filters")}</h3>
-            <Button variant="ghost" size="sm" onClick={clearFilters}>
+            <Button variant="ghost" size="sm" onClick={onClearFilters}>
               {t("search.clearFilters")}
             </Button>
           </div>
 
           <div className="space-y-4">
+            {/* Ad Type Filter (Sale/Rent) */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {t("search.adType")}
+              </label>
+              <Select value={selectedAdType} onValueChange={onAdTypeChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("search.selectAdType")} />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="all">{t("search.allAdTypes")}</SelectItem>
+                  {filterOptions.adTypes.map((adType) => (
+                    <SelectItem key={adType} value={adType}>
+                      {adType === "sale" ? t("common.sale") : t("common.rent")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Location Filter */}
             <div>
               <label className="text-sm font-medium mb-2 block">
@@ -57,27 +87,20 @@ const PropertyFilters = () => {
               </label>
               <Select
                 value={selectedLocation}
-                onValueChange={setSelectedLocation}
+                onValueChange={onLocationChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={t("hero.location")} />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
-                  <SelectItem value="">
+                  <SelectItem value="all">
                     {language === "ar" ? "جميع المواقع" : "All Locations"}
                   </SelectItem>
-                  <SelectItem value="dubai-marina">
-                    {language === "ar" ? "مرسى دبي" : "Dubai Marina"}
-                  </SelectItem>
-                  <SelectItem value="palm-jumeirah">
-                    {language === "ar" ? "نخلة جميرا" : "Palm Jumeirah"}
-                  </SelectItem>
-                  <SelectItem value="business-bay">
-                    {language === "ar" ? "خليج الأعمال" : "Business Bay"}
-                  </SelectItem>
-                  <SelectItem value="jlt">
-                    {language === "ar" ? "أبراج بحيرة الجميرا" : "JLT"}
-                  </SelectItem>
+                  {filterOptions.locations.map((location) => (
+                    <SelectItem key={location} value={location}>
+                      {location}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -87,21 +110,19 @@ const PropertyFilters = () => {
               <label className="text-sm font-medium mb-2 block">
                 {t("hero.type")}
               </label>
-              <Select value={selectedType} onValueChange={setSelectedType}>
+              <Select value={selectedType} onValueChange={onTypeChange}>
                 <SelectTrigger>
                   <SelectValue placeholder={t("hero.type")} />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
-                  <SelectItem value="">
+                  <SelectItem value="all">
                     {language === "ar" ? "جميع الأنواع" : "All Types"}
                   </SelectItem>
-                  <SelectItem value="apartment">
-                    {t("type.apartment")}
-                  </SelectItem>
-                  <SelectItem value="villa">{t("type.villa")}</SelectItem>
-                  <SelectItem value="land">{t("type.land")}</SelectItem>
-                  <SelectItem value="office">{t("type.office")}</SelectItem>
-                  <SelectItem value="shop">{t("type.shop")}</SelectItem>
+                  {filterOptions.types.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -116,11 +137,11 @@ const PropertyFilters = () => {
                   value={priceRange}
                   onValueChange={(val) => {
                     if (Array.isArray(val) && val.length === 2) {
-                      setPriceRange(val as [number, number]);
+                      onPriceRangeChange(val as [number, number]);
                     }
                   }}
-                  max={5000000}
-                  min={0}
+                  max={filterOptions.priceRange[1]}
+                  min={filterOptions.priceRange[0]}
                   step={50000}
                   className="w-full"
                 />
