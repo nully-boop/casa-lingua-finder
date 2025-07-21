@@ -1,16 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, Globe, AlertTriangle, Building } from "lucide-react";
-import { SiriLogo } from "@/components/icons";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { profileAPI } from "@/services/api";
-import GlobalAIChatDrawer from "@/components/GlobalAIChatDrawer";
-import AuthModal from "@/components/auth/AuthModal";
+import GlobalAIChatButton from "./buttons/GlobalAIChatButton";
 
 const Header = () => {
   const {
@@ -22,8 +20,6 @@ const Header = () => {
     triggerLanguageAnimation,
   } = useLanguage();
   const { theme, setTheme, isDark, triggerThemeAnimation } = useTheme();
-  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const hasToken = () => {
     try {
@@ -111,14 +107,6 @@ const Header = () => {
     return "U";
   };
 
-  const handleAIChat = () => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-    } else {
-      setIsAIChatOpen(true);
-    }
-  };
-
   return (
     <>
       <header className="sticky top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-sm shadow-sm border-b border-border">
@@ -129,9 +117,7 @@ const Header = () => {
               to="/"
               className="flex items-center space-x-2 rtl:space-x-reverse group transition-all duration-300 hover:scale-105"
             >
-              <Building
-                className="h-10 w-10 text-primary group-hover:text-primary/80 transition-all duration-300"
-              />
+              <Building className="h-10 w-10 text-primary group-hover:text-primary/80 transition-all duration-300" />
               <span className="text-2xl font-bold text-primary group-hover:text-primary/80 transition-all duration-300">
                 Aqar Zone
               </span>
@@ -151,14 +137,6 @@ const Header = () => {
               >
                 <span>{t("nav.properties")}</span>
               </Link>
-              {isAuthenticated && (
-                <Link
-                  to="/owner"
-                  className="flex items-center space-x-2 rtl:space-x-reverse text-foreground hover:text-primary transition-colors"
-                >
-                  <span>{t("nav.owner") || "Owner"}</span>
-                </Link>
-              )}
             </nav>
 
             {/* Right side actions */}
@@ -166,11 +144,11 @@ const Header = () => {
               {!isAuthenticated ? (
                 <>
                   <Button asChild variant="outline" size="sm" className="px-4">
-                    <Link to="/login">{t("nav.login") || "Login"}</Link>
+                    <Link to="/login">{t("auth.login") || "Login"}</Link>
                   </Button>
                   <Button asChild variant="default" size="sm" className="px-4">
                     <Link to="/register">
-                      {t("nav.register") || "Register"}
+                      {t("auth.getStarted") || "Get Started"}
                     </Link>
                   </Button>
                   <Button
@@ -211,21 +189,7 @@ const Header = () => {
                     <AlertTriangle className="h-4 w-4 text-destructive" />
                   )}
                   {/* AI Chat Button */}
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="group flex items-center relative transition-all duration-300 hover:scale-110 hover:shadow-md hover:border-primary hover:bg-primary/5"
-                    onClick={handleAIChat}
-                  >
-                    <SiriLogo
-                      className="h-16 w-16 text-primary transition-all duration-300 group-hover:text-primary-600 group-hover:animate-pulse"
-                      color="currentColor"
-                    />
-                    
-                    <span className="absolute -top-2 -right-2 bg-success text-success-foreground text-[9px] px-1 py-0.5 rounded-full uppercase font-bold shadow-md hover:bg-success/80 transition-colors">
-                      new
-                    </span>
-                  </Button>
+                  <GlobalAIChatButton />
 
                   <SidebarTrigger asChild>
                     <button className="p-0 border-0 bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full">
@@ -244,12 +208,6 @@ const Header = () => {
           </div>
         </div>
       </header>
-
-      {/* AI Chat Drawer */}
-      <GlobalAIChatDrawer open={isAIChatOpen} onOpenChange={setIsAIChatOpen} />
-
-      {/* Auth Modal */}
-      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </>
   );
 };
