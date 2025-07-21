@@ -1,19 +1,24 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, User, Building, Eye, Users, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
-import { ar, da } from "date-fns/locale";
+import { ar } from "date-fns/locale";
 import IUser from "@/interfaces/IUser";
+import IOffice from "@/interfaces/IOffice";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProfileHeaderProps {
-  user: IUser;
-  language: string;
+  user: IUser | IOffice;
 }
 
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, language }) => {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
+  const { language } = useLanguage();
+
   const date = format(new Date(user.created_at), "dd-MM-yyyy", {
     locale: language === "ar" ? ar : undefined,
   });
   const profileImage = user.image?.url;
+  const isOffice = user.type === "office";
   return (
     <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse">
       <Avatar className="w-24 h-24">
@@ -38,7 +43,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, language }) => {
                 </div>
               )}
               <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                <User className="h-4 w-4" />
+                {isOffice ? (
+                  <Building className="h-4 w-4" />
+                ) : (
+                  <User className="h-4 w-4" />
+                )}
                 <span>
                   {language === "ar" ? "انضم في" : "Joined at"}{" "}
                   {date || "Recently"}
@@ -47,9 +56,49 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, language }) => {
             </div>
           </div>
         </div>
-        <p className="text-muted-foreground">
-          {user.bio || "No bio available."}
+        <p className="text-muted-foreground mb-4">
+          {isOffice
+            ? (user as IOffice).description || "No description available."
+            : user.bio || "No bio available."}
         </p>
+
+        {isOffice && (
+          <div className="flex flex-wrap gap-4 mt-4">
+            <div className="flex items-center space-x-2">
+              <Badge
+                variant="secondary"
+                className="flex items-center space-x-1"
+              >
+                <CheckCircle className="h-3 w-3" />
+                <span className="capitalize">{(user as IOffice).status}</span>
+              </Badge>
+            </div>
+
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Eye className="h-4 w-4" />
+              <span>
+                {(user as IOffice).views}{" "}
+                {language === "ar" ? "مشاهدة" : "views"}
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>
+                {(user as IOffice).followers_count}{" "}
+                {language === "ar" ? "متابع" : "followers"}
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Building className="h-4 w-4" />
+              <span>
+                {(user as IOffice).free_ads}{" "}
+                {language === "ar" ? "إعلان مجاني" : "free ads"}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
