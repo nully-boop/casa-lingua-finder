@@ -20,7 +20,6 @@ import { runMultiPropertyChat } from "@/services/geminiAPI";
 import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
 import IProperty from "@/interfaces/IProperty";
-import { SiriLogo } from "./icons";
 
 interface GlobalAIChatDrawerProps {
   open: boolean;
@@ -172,7 +171,11 @@ const GlobalAIChatDrawer: React.FC<GlobalAIChatDrawerProps> = ({
                       }`}
                     >
                       {msg.sender === "ai" && (
-                        <SiriLogo className="h-6 w-6 flex-shrink-0" />
+                        <img
+                          src="/icons/siri-stroke-rounded (3) (1).png"
+                          alt="AI Chat"
+                          className="h-6 w-6 flex-shrink-0"
+                        />
                       )}
                       <div
                         className={`rounded-lg p-3 text-sm max-w-lg break-words ${
@@ -218,7 +221,11 @@ const GlobalAIChatDrawer: React.FC<GlobalAIChatDrawerProps> = ({
                   ))}
                   {isLoading && (
                     <div className="flex items-start gap-3">
-                      <SiriLogo className="h-6 w-6 flex-shrink-0" />
+                      <img
+                        src="/icons/siri-stroke-rounded (3) (1).png"
+                        alt="AI Chat"
+                        className="h-6 w-6 flex-shrink-0"
+                      />{" "}
                       <div className="rounded-lg p-3 text-sm bg-muted flex items-center">
                         <Loader2 className="h-4 w-4 animate-spin" />
                       </div>
@@ -242,7 +249,7 @@ const GlobalAIChatDrawer: React.FC<GlobalAIChatDrawerProps> = ({
                     onClick={handleVoiceChatNavigation}
                     disabled={isLoading || isPropertiesLoading}
                     size="icon"
-                    variant="outline"
+                    variant="ai"
                     className="shrink-0 bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-primary/25 animate-in fade-in slide-in-from-right"
                   >
                     <AudioLines className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
