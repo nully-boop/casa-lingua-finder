@@ -3,14 +3,20 @@ import IRegister from "@/interfaces/IRegister";
 import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
-const DEFAULT_API_URL = "https://state-ecommerce-production.up.railway.app/api";
+const DEFAULT_API_URL = "https://1f4a9f14ab2d.ngrok-free.app/api";
 
 const api = axios.create({
   baseURL: DEFAULT_API_URL,
-  timeout: 10000, // 10 seconds
+  // timeout: 10000, // 10 seconds
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
+    // Add ngrok-skip-browser-warning header for ngrok tunnels
+    "ngrok-skip-browser-warning": "true",
+    // Add CORS headers
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   },
 });
 
@@ -32,7 +38,7 @@ api.interceptors.request.use(
     } catch (error) {
       console.error("Error parsing user token from localStorage:", error);
       localStorage.removeItem("user");
-      
+
       window.location.href =
         "/login?session_expired=true&reason=token_parse_error";
     }
@@ -44,12 +50,37 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log detailed error information for debugging
+    console.error("API Error Details:", {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      url: error.config?.url,
+      method: error.config?.method,
+    });
+
+    // Handle specific error cases
+    if (error.code === "NETWORK_ERROR" || error.code === "ERR_NETWORK") {
+      console.error(
+        "Network error - check if ngrok tunnel is running and accessible"
+      );
+    }
+
     if (error.response?.status === 401) {
       console.error("Unauthorized request, removing user data");
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
-    console.error("API Error:", error);
+
+    // Handle CORS errors
+    if (
+      error.message?.includes("CORS") ||
+      error.code === "ERR_BLOCKED_BY_CLIENT"
+    ) {
+      console.error("CORS error detected - check server CORS configuration");
+    }
+
     return Promise.reject(error);
   }
 );
@@ -57,26 +88,26 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (data: ILogin) => api.post("/login", data),
 
-  register: (data: IRegister) => api.post("/register", data),
+  register: (data: IRegister) => api.post("/registerUser", data),
 
   logout: (token: string) =>
     api.post("/logout", {}, { headers: { Authorization: `Bearer ${token}` } }),
 
-  forgotPassword: (email: string) =>
-    api.post("/auth/forgot-password", { email }),
+  forgotPassword: (phone: string) =>
+    api.post("/auth/forgot-password", { phone }),
 
   resetPassword: (data: {
     token: string;
-    email: string;
+    phone: string;
     password: string;
     password_confirmation: string;
   }) => api.post("/auth/reset-password", data),
 };
 
 export const propertiesAPI = {
-  getProperties: () => api.get("/user/properties"),
+  getProperties: () => api.get("/visitor/getAllproperty"),
 
-  getProperty: (id: string) => api.get(`/user/properties/show/${id}`),
+  getProperty: (id: string) => api.get(`/user/showProperty/${id}`),
 
   createProperty: (data: FormData) =>
     api.post("/properties", data, {
@@ -94,19 +125,158 @@ export const propertiesAPI = {
 
   getFavorites: () => api.get("/user/getFavorites"),
 
-  addToFavorite: (propertyId: number) =>
-    api.post("/user/addToFavorites", { property_id: propertyId }),
+  addToFavorite: (propertyId: number, favType: string) =>
+    api.post("/user/addToFavorites", {
+      id: propertyId,
+      type: favType,
+    }),
 
-  removeFromFavorite: (propertyId: number) =>
-    api.post("/user/removeFromFavorites", { property_id: propertyId }),
+  removeFromFavorite: (propertyId: number, favType: string) =>
+    api.post("/user/removeFromFavorites", {
+      id: propertyId,
+      type: favType,
+    }),
 
-  isFavorited: (propertyId: number) =>
-    api.get(`/user/is-favorited?property_id=${propertyId}`),
+  isFavorited: (propertyId: number, type: string) =>
+    api.get(`/user/is-favorited?property_id=${propertyId}&type=${type}`),
 };
 
 export const dashboardAPI = {
   getStats: () => api.get("/dashboard/stats"),
   getRecentProperties: () => api.get("/dashboard/recent-properties"),
+};
+
+export const office = {
+  getOffice: () => {
+    console.log("Fetching office data with token...");
+    return api.get("/office/getOffice").then((response) => {
+      const responseData = response.data;
+      console.log("Raw getOffice API response:", responseData);
+
+      if (!responseData || typeof responseData !== "object") {
+        throw new Error("Invalid response structure received from getOffice.");
+      }
+
+      const office = responseData.data;
+      if (
+        !office ||
+        typeof office !== "object" ||
+        !office.id ||
+        !office.name ||
+        !office.phone
+      ) {
+        console.error(
+          "getOffice response missing critical office fields:",
+          office
+        );
+        throw new Error(
+          "Invalid or incomplete office profile data received from server."
+        );
+      }
+      return {
+        ...response,
+        office: office,
+      };
+    });
+  },
+
+  getProperties: () => api.get(`/office/getAllProperties`),
+
+  createProperty: (propertyData: {
+    title: string;
+    description: string;
+    location: string;
+    price: number;
+    currency: string;
+    latitude: number;
+    longitude: number;
+    area: number;
+    floor_number: number;
+    ad_type: string;
+    type: string;
+    position: string;
+    bathrooms: number;
+    rooms: number;
+    seller_type: string;
+    furnishing: string;
+    governorate: string;
+    features: string[];
+    url: File[];
+    Vurl: File[];
+  }) => {
+    console.log("Creating property with office account...");
+
+    // Create FormData and map fields to API expected names
+    const formDataToSend = new FormData();
+
+    // Add images
+    propertyData.url.forEach((image) => {
+      formDataToSend.append("url", image);
+    });
+
+    // Add videos
+    propertyData.Vurl.forEach((video) => {
+      formDataToSend.append("Vurl", video);
+    });
+
+    // Map form data to API field names
+    formDataToSend.append("title", propertyData.title);
+    formDataToSend.append("description", propertyData.description);
+    formDataToSend.append("location", propertyData.location);
+    formDataToSend.append("price", propertyData.price.toString());
+    formDataToSend.append("currency", propertyData.currency);
+    formDataToSend.append("latitude", propertyData.latitude.toString());
+    formDataToSend.append("longitude", propertyData.longitude.toString());
+    formDataToSend.append("area", propertyData.area.toString());
+    formDataToSend.append("floor_number", propertyData.floor_number.toString());
+    formDataToSend.append("ad_type", propertyData.ad_type);
+    formDataToSend.append("type", propertyData.type);
+    formDataToSend.append("position", propertyData.position);
+    formDataToSend.append("bathrooms", propertyData.bathrooms.toString());
+    formDataToSend.append("rooms", propertyData.rooms.toString());
+    formDataToSend.append("seller_type", propertyData.seller_type);
+    formDataToSend.append("direction", propertyData.location); // Using location as direction
+    formDataToSend.append("furnishing", propertyData.furnishing);
+    formDataToSend.append("governorate", propertyData.governorate);
+
+    // Add features as comma-separated string
+    if (propertyData.features.length > 0) {
+      formDataToSend.append("features", propertyData.features.join(","));
+    }
+
+    return api.post("/office/propertyStore", formDataToSend, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
+
+  getPropertyCount: () => api.get("/office/getOfficePropertyCount"),
+  getOfficeViews: () => api.get("/office/getOfficeViews"),
+
+  registerOffice: (data: FormData) =>
+    api.post("/registerOffice", data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+
+  // Subscription APIs
+  getActiveSubscriptions: () => api.get("/office/getActiveSubscriptionsOffice"),
+
+  getPendingSubscriptions: () =>
+    api.get("/office/getPendingSubscriptionsOffice"),
+
+  getRejectedSubscriptions: () =>
+    api.get("/office/getRejectedSubscriptionsOffice"),
+
+  requestSubscription: (data: {
+    subscription_type: "monthly" | "yearly";
+    price: number;
+  }) => api.post("/office/requestSubscription", data),
+
+  // Get office by ID (for public viewing)
+  getOfficeById: (id: string) => api.get(`/user/showOffice/${id}`),
+
+  followOffice: (officeId: string) => api.get(`/user/followOffice/${officeId}`),
 };
 
 export const profileAPI = {
@@ -121,7 +291,6 @@ export const profileAPI = {
       }
 
       const user = responseData.user;
-      // const seller = responseData.seller;
 
       if (
         !user ||
@@ -139,21 +308,9 @@ export const profileAPI = {
         );
       }
 
-      // if (
-      //   seller !== undefined &&
-      //   (seller === null || typeof seller !== "object")
-      // ) {
-      //   console.warn(
-      //     "getProfile response received invalid seller data, treating as no seller.",
-      //     seller
-      //   );
-      //   return { ...response, user: user, seller: undefined };
-      // }
-
       return {
         ...response,
         user: response.data.user,
-        seller: response.data.seller,
       };
     });
   },
@@ -165,7 +322,6 @@ export const profileAPI = {
     const config = isFormData
       ? { headers: { "Content-Type": "multipart/form-data" } }
       : {};
-
 
     return api.post("/user/updateProfile", data, config).then((response) => {
       const responseData = response.data;
@@ -268,6 +424,45 @@ export const profileAPI = {
       // Assuming the response structure is { user: {...}, seller: {...} } directly in response.data
       return { ...response, data: { user, seller } };
     });
+  },
+};
+
+// Admin API functions
+export const admin = {
+  // Get all pending requests (offices and properties)
+  getPendingRequests: () => {
+    return api.get("/admin/pendingRequest");
+  },
+
+  // Office management
+  approveOfficeRequest: (requestId: number) => {
+    return api.get(`/admin/approveOfficeRequest/${requestId}`);
+  },
+
+  rejectOfficeRequest: (requestId: number) => {
+    return api.get(`/admin/rejectOfficeRequest/${requestId}`);
+  },
+
+  // Property management
+  approveProperty: (requestId: number) => {
+    return api.get(`/admin/approveProperty/${requestId}`);
+  },
+
+  rejectProperty: (requestId: number) => {
+    return api.get(`/admin/rejectProperty/${requestId}`);
+  },
+
+  // Subscription management
+  getPendingSubscriptions: () => {
+    return api.get("/admin/pendingSubscription");
+  },
+
+  approveSubscription: (subscriptionId: number) => {
+    return api.get(`/admin/approveSubscription/${subscriptionId}`);
+  },
+
+  rejectSubscription: (subscriptionId: number) => {
+    return api.get(`/admin/rejectSubscription/${subscriptionId}`);
   },
 };
 
