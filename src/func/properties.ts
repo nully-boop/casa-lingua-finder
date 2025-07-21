@@ -1,4 +1,5 @@
 import IProperty from "@/interfaces/IProperty";
+import { office, propertiesAPI } from "@/services/api";
 
 export const normalizeProperty = (property: IProperty): IProperty => {
   return {
@@ -14,6 +15,15 @@ export const normalizeProperty = (property: IProperty): IProperty => {
   };
 };
 
+export const fetchProperties = async () => {
+  const res = await propertiesAPI.getProperties();
+  return res.data.data;
+};
+
+export const fetchPropertiesOffice = async () => {
+  const res = await office.getProperties();
+  return res.data.data;
+};
 
 
 export const formatPriceSeller = (
