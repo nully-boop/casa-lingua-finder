@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "../buttons/ShareButton";
-import { SiriLogo } from "../icons";
 
 interface PropertyImageGalleryProps {
   images: string[];
@@ -80,9 +79,10 @@ const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
               className="bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-background flex items-center gap-2 px-3 transition-all duration-300 hover:scale-105 hover:shadow-md hover:border-primary/50 group"
               onClick={onChat}
             >
-              <SiriLogo
-                className="h-16 w-16 text-primary transition-all duration-300 group-hover:text-primary-600 group-hover:animate-pulse"
-                color="currentColor"
+              <img
+                src="/icons/siri-stroke-rounded (3) (1).png"
+                alt="AI Chat"
+                className="h-6 w-6 transition-all duration-300 group-hover:animate-pulse"
               />
 
               <span className="text-xs group-hover:text-primary-600 transition-colors">
