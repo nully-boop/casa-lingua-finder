@@ -1,7 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import IProperty from "@/interfaces/IProperty";
-import { useNavigate, useParams } from "react-router-dom";
-import { FC, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FC, useState } from "react";
 import PropertyCard from "../properties/PropertyCard";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -23,7 +23,6 @@ const FeaturedProperties: FC<IProps> = ({
 }) => {
   const { t, isAuthenticated } = useLanguage();
   const navigate = useNavigate();
-  const { id } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -52,14 +51,21 @@ const FeaturedProperties: FC<IProps> = ({
   });
 
   // Get favorited property IDs
-  const favoritePropertyIds = favoritesData?.data?.map((fav: any) => fav.favoriteable.id) || [];
+  const favoritePropertyIds =
+    favoritesData?.data?.map((fav: any) => fav.favoriteable.id) || [];
 
   const favoriteMutation = useMutation({
-    mutationFn: ({ propertyId, isFavorited }: { propertyId: number; isFavorited: boolean }) => {
+    mutationFn: ({
+      propertyId,
+      isFavorited,
+    }: {
+      propertyId: number;
+      isFavorited: boolean;
+    }) => {
       if (isFavorited) {
-        return propertiesAPI.removeFromFavorite(propertyId);
+        return propertiesAPI.removeFromFavorite(propertyId, "property");
       } else {
-        return propertiesAPI.addToFavorite(propertyId);
+        return propertiesAPI.addToFavorite(propertyId, "property");
       }
     },
     onSuccess: () => {
