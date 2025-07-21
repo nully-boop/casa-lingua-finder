@@ -20,23 +20,34 @@ import {
   Settings,
   Globe,
   X,
-  Building2,
   Heart,
   DollarSign,
+  Home,
+  Building,
+  Plus,
+  CreditCard,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import { authAPI, profileAPI } from "@/services/api";
+import { authAPI, profileAPI, office } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getAvatarInitials } from "@/func/user";
 
 export const AppSidebar: React.FC = () => {
-  const { language, setLanguage, t, isAuthenticated, logout, hasToken, triggerLanguageAnimation } =
-    useLanguage();
+  const {
+    language,
+    setLanguage,
+    t,
+    isAuthenticated,
+    logout,
+    hasToken,
+    triggerLanguageAnimation,
+    user,
+  } = useLanguage();
   const { theme, setTheme, isDark, triggerThemeAnimation } = useTheme();
   const { currency, setCurrency } = useCurrency();
   const navigate = useNavigate();
@@ -68,21 +79,31 @@ export const AppSidebar: React.FC = () => {
 
   const getCurrencyDisplay = () => {
     switch (currency) {
-      case "USD": return "$";
-      case "AED": return "AED";
-      case "SYP": return "SYP";
-      default: return currency;
+      case "USD":
+        return "$";
+      case "AED":
+        return "AED";
+      case "SYP":
+        return "SYP";
+      default:
+        return currency;
     }
   };
 
   const { data: profileData } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.type],
     queryFn: async () => {
       if (!hasToken()) {
         throw new Error("No authentication token found");
       }
-      const response = await profileAPI.getProfile();
-      return response.user;
+
+      if (user?.type === "office") {
+        const response = await office.getOffice();
+        return response.office;
+      } else {
+        const response = await profileAPI.getProfile();
+        return response.user;
+      }
     },
     enabled: isAuthenticated && hasToken(),
     retry: (failureCount, error: unknown) => {
@@ -132,6 +153,8 @@ export const AppSidebar: React.FC = () => {
 
   const sidebarSide = language === "ar" ? "left" : "right";
   const profileImage = profileData?.image?.url;
+  const isUser = user.type === "user";
+  const isOffice = user.type === "office";
   return (
     <>
       {/* Overlay Layer (only for desktop when sidebar is open) */}
@@ -192,35 +215,69 @@ export const AppSidebar: React.FC = () => {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to="/favorites">
-                      <Heart className="w-4 h-4" />
-                      <span>{t("nav.favorites") || "Favorites"}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {isUser && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/favorites">
+                        <Heart className="w-4 h-4" />
+                        <span>{t("nav.favorites") || "Favorites"}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
 
-          <SidebarGroup>
-            <SidebarGroupLabel>
-              {t("nav.navigation") || "Navigation"}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to="/owner">
-                      <Building2 className="w-4 h-4" />
-                      <span>{t("nav.owner") || "Owner Dashboard"}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {/* Main Navigation - Office Only */}
+          {isOffice && (
+            <SidebarGroup>
+              <SidebarGroupLabel>
+                {t("nav.mainNavigation") || "Main Navigation"}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/dashboard">
+                        <Home className="w-4 h-4" />
+                        <span>{t("nav.dashboard") || "Dashboard"}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/properties-office">
+                        <Building className="w-4 h-4" />
+                        <span>{t("nav.properties") || "Properties"}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/create-property">
+                        <Plus className="w-4 h-4" />
+                        <span>
+                          {t("nav.createProperty") || "Create Property"}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/subscriptions">
+                        <CreditCard className="w-4 h-4" />
+                        <span>{t("nav.subscriptions") || "Subscriptions"}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
 
           <SidebarGroup>
             <SidebarGroupLabel>
