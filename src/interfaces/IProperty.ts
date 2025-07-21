@@ -1,3 +1,4 @@
+import IOffice from "./IOffice";
 
 interface IProperty {
   id: number;
@@ -33,7 +34,7 @@ interface IProperty {
   is_available: number;
   created_at: string;
   updated_at: string;
-  owner: string | null;
+  owner: IOffice | null;
   images: Array<{
     id: number;
     imageable_type: string;
