@@ -51,6 +51,7 @@ const Register = () => {
   const [selectedType, setSelectedType] = useState<"user" | "office" | null>(
     null
   );
+  const [phoneError, setPhoneError] = useState("");
   // UI states
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
