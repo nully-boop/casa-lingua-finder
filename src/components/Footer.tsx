@@ -143,7 +143,7 @@ const Footer = () => {
                 <span className="text-muted-foreground">
                   {language === "ar"
                     ? "دمشق، الجمهورية العربية السورية"
-                    : "Damascus, Syrian Arab Repblic"}
+                    : "Damascus, Syrian Arab Republic"}
                 </span>
               </div>
               <div className="flex items-center space-x-3 rtl:space-x-reverse text-sm">
