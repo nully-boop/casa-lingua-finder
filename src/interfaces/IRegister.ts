@@ -3,7 +3,7 @@ interface IRegister {
   phone: string;
   password: string;
   password_confirmation: string;
-  user_type: string;
+  type: string;
 }
 
 export default IRegister;
