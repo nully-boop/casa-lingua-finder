@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus, Shield } from "lucide-react";
+import { LogIn, UserPlus, Shield, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AuthModalProps {
@@ -19,6 +19,10 @@ interface AuthModalProps {
 const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+
+  const handleClose = () => {
+    onOpenChange(false);
+  };
 
   const renderIntroStep = () => (
     <div className="text-center space-y-6">
@@ -63,11 +67,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <div className="relative">
+          <div className="flex justify-end mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
           <DialogHeader className="sr-only">
             <DialogTitle>Authentication Modal</DialogTitle>
             <DialogDescription>Login or register to continue</DialogDescription>
           </DialogHeader>
-          <div>{renderIntroStep()} </div>
+
+          <div>{renderIntroStep()}</div>
         </div>
       </DialogContent>
     </Dialog>
