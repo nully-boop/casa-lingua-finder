@@ -18,7 +18,6 @@ import remarkGfm from "remark-gfm";
 import IProperty from "@/interfaces/IProperty";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { runChat } from "@/services/geminiAPI";
-import { SiriLogo } from "../icons";
 
 interface AIChatDrawerProps {
   open: boolean;
@@ -152,7 +151,11 @@ const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
                       }`}
                     >
                       {msg.sender === "ai" && (
-                        <SiriLogo className="h-6 w-6 flex-shrink-0" />
+                        <img
+                          src="/icons/siri-stroke-rounded (3) (1).png"
+                          alt="AI Chat"
+                          className="h-6 w-6 flex-shrink-0"
+                        />
                       )}
                       <div
                         className={`rounded-lg p-3 text-sm max-w-lg break-words ${
@@ -198,7 +201,11 @@ const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
                   ))}
                   {isLoading && (
                     <div className="flex items-start gap-3">
-                      <SiriLogo className="h-6 w-6 flex-shrink-0" />
+                      <img
+                        src="/icons/siri-stroke-rounded (3) (1).png"
+                        alt="AI Chat"
+                        className="h-6 w-6 flex-shrink-0"
+                      />{" "}
                       <div className="rounded-lg p-3 text-sm bg-muted flex items-center">
                         <Loader2 className="h-4 w-4 animate-spin" />
                       </div>
@@ -222,7 +229,7 @@ const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
                     onClick={handleVoiceChatNavigation}
                     disabled={isLoading}
                     size="icon"
-                    variant="outline"
+                    variant="ai"
                     className="shrink-0 bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-primary/25 animate-in fade-in slide-in-from-right"
                   >
                     <AudioLines className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
