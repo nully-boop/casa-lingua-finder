@@ -1,0 +1,207 @@
+/* Enhanced Phone Input Styling */
+
+/* Container styling */
+.react-tel-input {
+  position: relative;
+  width: 100%;
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Input field styling */
+.react-tel-input .form-control {
+  width: 100% !important;
+  height: 40px;
+  padding: 8px 12px 8px 58px;
+  border: none;
+  border-radius: 0;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+}
+
+.react-tel-input .form-control:focus {
+  outline: none;
+}
+
+.react-tel-input:focus-within {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+/* Error state styling */
+.react-tel-input.error {
+  border-color: hsl(var(--destructive));
+}
+
+.react-tel-input.error:focus-within {
+  border-color: hsl(var(--destructive));
+  box-shadow: 0 0 0 2px hsl(var(--destructive) / 0.2);
+}
+
+/* Flag button styling */
+.react-tel-input .flag-dropdown {
+  border: none;
+  border-right: 1px solid hsl(var(--border));
+  border-radius: 0;
+  background-color: hsl(var(--background));
+  transition: all 0.2s ease-in-out;
+}
+
+.react-tel-input .flag-dropdown:hover {
+  background-color: hsl(var(--accent));
+}
+
+.react-tel-input .flag-dropdown.open {
+  background-color: hsl(var(--accent));
+}
+
+
+
+/* Selected flag styling */
+.react-tel-input .selected-flag {
+  padding: 0 8px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.react-tel-input .selected-flag .flag {
+  margin-right: 8px;
+}
+
+.react-tel-input .selected-flag .arrow {
+  border-top: 4px solid hsl(var(--foreground));
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  margin-left: 4px;
+}
+
+/* Dropdown styling */
+.react-tel-input .country-list {
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.react-tel-input .country-list .country {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.react-tel-input .country-list .country:hover {
+  background-color: hsl(var(--accent));
+}
+
+.react-tel-input .country-list .country.highlight {
+  background-color: hsl(var(--accent));
+}
+
+/* Search input styling */
+.react-tel-input .search-box {
+  padding: 8px 12px;
+  border: none;
+  border-bottom: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 14px;
+  width: 100%;
+}
+
+.react-tel-input .search-box:focus {
+  outline: none;
+  border-bottom-color: hsl(var(--ring));
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .react-tel-input .form-control {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+  
+  .react-tel-input .flag-dropdown {
+    background-color: hsl(var(--background));
+  }
+  
+  .react-tel-input .country-list {
+    background-color: hsl(var(--background));
+  }
+  
+  .react-tel-input .search-box {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* RTL support */
+[dir="rtl"] .react-tel-input .form-control {
+  padding: 8px 58px 8px 12px;
+}
+
+[dir="rtl"] .react-tel-input .flag-dropdown {
+  border-right: none;
+  border-left: 1px solid hsl(var(--border));
+  border-radius: 0;
+}
+
+[dir="rtl"] .react-tel-input .selected-flag .flag {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+/* Loading state */
+.react-tel-input .form-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.react-tel-input .flag-dropdown:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Focus visible for accessibility */
+.react-tel-input .form-control:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.react-tel-input .flag-dropdown:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Animation for dropdown */
+.react-tel-input .country-list {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .react-tel-input .country-list {
+    max-height: 150px;
+  }
+  
+  .react-tel-input .form-control {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
