@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { authAPI, profileAPI } from "./api";
 import IUser from "@/interfaces/IUser";
@@ -7,94 +6,130 @@ import ILogin from "@/interfaces/ILogin";
 // Removed ISellerProfile import
 
 export const authService = {
-  // Registration service
+  //* Registration service
   register: async (data: IRegister) => {
     const response = await authAPI.register(data);
     const token = response.data.token.original;
     const userData = token.user;
     const accessToken = token.access_token;
 
-    if (!userData || typeof userData !== 'object') {
-      throw new Error("Invalid user data structure received from server during registration.");
+    if (!userData || typeof userData !== "object") {
+      throw new Error(
+        "Invalid user data structure received from server during registration."
+      );
     }
     if (!accessToken) {
       throw new Error("Missing access token from server during registration.");
     }
 
-    const { id, name, phone, user_type: rawUserType, created_at: rawCreatedAt } = userData;
+    const {
+      id,
+      name,
+      phone,
+      type: rawUserType,
+      created_at: rawCreatedAt,
+    } = userData;
 
     if (!id || !name || !phone) {
       console.error("Missing critical user fields:", { id, name, phone });
-      throw new Error("Missing critical user information (id, name, or email) received from server during registration.");
+      throw new Error(
+        "Missing critical user information (id, name, or email) received from server during registration."
+      );
     }
 
-    let user_type = 'buyer'; // Default user_type
+    let user_type = "user";
     if (rawUserType) {
       user_type = String(rawUserType);
     } else {
-      console.warn("user_type not found in registration response, defaulting to 'buyer'. User data:", userData);
+      console.warn(
+        "user_type not found in registration response, defaulting to 'user'. User data:",
+        userData
+      );
     }
 
     const user: IUser = {
       id: Number(id),
       name: String(name),
       phone: String(phone),
-      user_type: user_type,
+      type: user_type,
       token: accessToken,
-      created_at: rawCreatedAt ? String(rawCreatedAt) : new Date().toISOString(),
+      created_at: rawCreatedAt
+        ? String(rawCreatedAt)
+        : new Date().toISOString(),
     };
 
     localStorage.setItem("user", JSON.stringify(user));
     return { user, userData };
   },
 
-  // Login service
+  //* Login service
   login: async (data: ILogin) => {
     const response = await authAPI.login(data);
     const apiResponseData = response.data;
 
-    if (!apiResponseData || typeof apiResponseData !== 'object') {
-      throw new Error("Invalid response structure received from server during login.");
+    if (!apiResponseData || typeof apiResponseData !== "object") {
+      throw new Error(
+        "Invalid response structure received from server during login."
+      );
     }
 
-    const userData = apiResponseData.user;
+    const userData = apiResponseData.data;
     const accessToken = apiResponseData.access_token;
 
-    if (!userData || typeof userData !== 'object') {
-      throw new Error("Invalid user data structure received from server during login.");
+    if (!userData || typeof userData !== "object") {
+      throw new Error(
+        "Invalid user data structure received from server during login."
+      );
     }
     if (!accessToken) {
       throw new Error("Missing access token from server during login.");
     }
 
-    const { id, name,phone, user_type: rawUserType, created_at: rawCreatedAt } = userData;
+    const {
+      id,
+      name,
+      phone,
+      type: rawUserType,
+      created_at: rawCreatedAt,
+    } = userData;
 
     if (!id || !name || !phone) {
-      console.error("Missing critical user fields during login:", { id, name, phone });
-      throw new Error("Missing critical user information (id, name, or email) received from server during login.");
+      console.error("Missing critical user fields during login:", {
+        id,
+        name,
+        phone,
+      });
+      throw new Error(
+        "Missing critical user information (id, name, or email) received from server during login."
+      );
     }
 
-    let user_type = 'buyer'; // Default user_type
+    let user_type = "user";
     if (rawUserType) {
       user_type = String(rawUserType);
     } else {
-      console.warn("user_type not found in login response, defaulting to 'buyer'. User data:", userData);
+      console.warn(
+        "user_type not found in login response, defaulting to 'user'. User data:",
+        userData
+      );
     }
 
     const user: IUser = {
       id: Number(id),
       name: String(name),
       phone: String(phone),
-      user_type: user_type,
+      type: user_type,
       token: accessToken,
-      created_at: rawCreatedAt ? String(rawCreatedAt) : new Date().toISOString(),
+      created_at: rawCreatedAt
+        ? String(rawCreatedAt)
+        : new Date().toISOString(),
     };
 
     localStorage.setItem("user", JSON.stringify(user));
     return { user, userData };
   },
 
-  // Seller profile creation service
+  //* Seller profile creation service
   createSellerProfile: async (profileData: {
     phone?: string;
     location?: string;
@@ -106,7 +141,7 @@ export const authService = {
     return await profileAPI.createSeller(profileData);
   },
 
-  // Logout service
+  //* Logout service
   logout: async () => {
     try {
       const userData = localStorage.getItem("user");
@@ -118,15 +153,11 @@ export const authService = {
       }
     } catch (error) {
       console.error("Logout API error:", error);
-      // Inform the user about the server-side logout failure.
-      // The client-side logout (localStorage removal) will still proceed in the finally block.
       toast.error(
         "Server logout failed. Your session might still be active on the server. Please clear browser data if issues persist."
       );
     } finally {
       localStorage.removeItem("user");
-      // Optionally, redirect to login page after logout, regardless of server success/failure
-      // window.location.href = "/login";
     }
   },
 
