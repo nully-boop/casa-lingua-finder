@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import '@/styles/phone-input.css';
 
 const Login = () => {
   const { t, login } = useLanguage();
@@ -116,23 +117,35 @@ const Login = () => {
                       inputProps={{
                         name: 'phone',
                         required: true,
-                        className: `w-full px-3 py-2 border ${phoneError ? 'border-red-500 focus:border-red-500' : 'border-input'} bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md`,
-                        onBlur: () => validatePhone(phone)
+                        onBlur: () => validatePhone(phone),
+                        autoComplete: 'tel',
+                        'aria-describedby': phoneError ? 'phone-error' : undefined,
+                        'aria-invalid': phoneError ? 'true' : 'false'
                       }}
-                      containerClass="w-full"
-                      inputClass="w-full"
-                      buttonClass={`border ${phoneError ? 'border-red-500' : 'border-input'} bg-background hover:bg-accent hover:text-accent-foreground rounded-l-md`}
-                      dropdownClass="bg-background border border-input rounded-md shadow-md z-50"
-                      searchClass="px-3 py-2 border-b border-input bg-background text-sm"
+                      containerClass={`w-full ${phoneError ? 'error' : ''}`}
                       placeholder={t("auth.phonePlaceholder") || "Enter phone number"}
                       enableSearch={true}
                       disableSearchIcon={false}
                       countryCodeEditable={false}
                       specialLabel=""
+                      searchPlaceholder={t("common.search") || "Search countries..."}
+                      preferredCountries={['sy', 'sa', 'ae', 'jo', 'lb', 'eg']}
+                      excludeCountries={[]}
+                      onlyCountries={[]}
+                      priority={{
+                        sy: 0,
+                        sa: 1,
+                        ae: 2,
+                        jo: 3,
+                        lb: 4,
+                        eg: 5
+                      }}
                     />
                   </div>
                   {phoneError && (
-                    <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+                    <p id="phone-error" className="text-sm text-red-500 mt-1" role="alert">
+                      {phoneError}
+                    </p>
                   )}
                   <p className="text-xs text-muted-foreground">
                     {t("auth.phoneHint") || "Enter your phone number with country code"}
