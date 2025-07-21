@@ -291,7 +291,7 @@ const ProfileInfo = () => {
       </div>
       <div className="space-y-2">
         <Label>User Type</Label>
-        <Input value={profileData.user_type || ""} disabled />
+        <Input value={profileData.type || ""} disabled />
       </div>
       <div className="flex gap-2 pt-4">
         {!isEditing ? (
