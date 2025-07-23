@@ -570,6 +570,10 @@ const translations = {
     "office.followSuccess": "Success",
     "office.followSuccessDesc": "You are now following this office",
     "office.followError": "Failed to follow office",
+    "office.propertiesError": "Error loading properties",
+    "office.propertiesErrorDesc": "Failed to load properties from this office",
+    "office.noProperties": "No properties yet",
+    "office.noPropertiesDesc": "This office hasn't listed any properties yet.",
     "office.userOnly": "User Only",
     "office.userOnlyDesc": "Only users can follow offices",
 
@@ -1374,6 +1378,10 @@ const translations = {
     "office.followSuccess": "نجح",
     "office.followSuccessDesc": "أنت الآن تتابع هذا المكتب",
     "office.followError": "فشل في متابعة المكتب",
+    "office.propertiesError": "خطأ في تحميل العقارات",
+    "office.propertiesErrorDesc": "فشل في تحميل العقارات من هذا المكتب",
+    "office.noProperties": "لا توجد عقارات بعد",
+    "office.noPropertiesDesc": "لم يقم هذا المكتب بإدراج أي عقارات بعد.",
     "office.userOnly": "للمستخدمين فقط",
     "office.userOnlyDesc": "يمكن للمستخدمين فقط متابعة المكاتب",
 
