@@ -1,3 +1,4 @@
+import IOffice from "@/interfaces/IOffice";
 import IUser from "@/interfaces/IUser";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
@@ -9,7 +10,7 @@ interface LanguageContextType {
   setLanguage: (lang: Language) => void;
   isRTL: boolean;
   t: (key: string, options?: { [key: string]: string | number }) => string;
-  user: IUser | null;
+  user: IUser | IOffice | null;
   login: (user: IUser) => void;
   logout: () => void;
   isAuthenticated: boolean;
@@ -48,7 +49,8 @@ const translations = {
     "owner.totalValue": "Total Value",
     "owner.error.statsLoadFailed": "Failed to load dashboard statistics",
     "owner.noProperties": "No Properties Yet",
-    "owner.noPropertiesDescription": "Start by adding your first property listing",
+    "owner.noPropertiesDescription":
+      "Start by adding your first property listing",
     "owner.addFirstProperty": "Add Your First Property",
 
     // Toast messages
@@ -117,6 +119,12 @@ const translations = {
     "common.all": "All",
     "common.step": "Step",
     "common.of": "of",
+    "common.user": "user",
+    "common.yes": "Yes",
+    "common.no": "No",
+    "common.error": "Error",
+    "common.success": "Success",
+    "common.processing": "Processing...",
 
     // Authentication
     "auth.email": "Email",
@@ -142,8 +150,10 @@ const translations = {
     "auth.userAccount": "User Account",
     "auth.officeAccount": "Office Account",
     "auth.userAccountDesc": "Login as a user to browse and search properties",
-    "auth.officeAccountDesc": "Login as a real estate office to manage properties",
-    "auth.selectAccountTypeDesc": "Select the type of account you want to create",
+    "auth.officeAccountDesc":
+      "Login as a real estate office to manage properties",
+    "auth.selectAccountTypeDesc":
+      "Select the type of account you want to create",
     "auth.enterYourName": "Enter your name",
     "auth.enterCredentials": "Enter your credentials",
     "auth.uploadDocument": "Upload required document",
@@ -175,18 +185,90 @@ const translations = {
     "auth.officeBenefit3": "Professional verification badge",
     "auth.selected": "Selected",
     "auth.confirmYourPassword": "Confirm your password",
-    "auth.uploadDocumentDesc": "Please upload a PDF document for office verification",
+    "auth.uploadDocumentDesc":
+      "Please upload a PDF document for office verification",
     "auth.selectPdfFile": "Select PDF File",
     "auth.submitRegistration": "Submit Registration",
     "auth.registrationSubmitted": "Registration Submitted!",
-    "auth.officeRegistrationMessage": "Your office registration request has been sent.",
+    "auth.officeRegistrationMessage":
+      "Your office registration request has been sent.",
     "auth.waitForApproval": "Please wait for admin approval.",
     "auth.goToLogin": "Go to Login",
+    "auth.officeRequired":
+      "Office authentication required to update property status.",
     "common.next": "Next",
+
+    // Office registration
+    "office.photo": "Office Photo",
+    "office.photoDesc": "Upload a photo of your office (optional)",
+    "office.uploadPhoto": "Upload office photo",
+    "office.photoFormats": "PNG, JPG up to 10MB",
+    "office.fileTooLarge": "File too large",
+    "office.fileTooLargeDesc": "Please select a file smaller than 10MB",
+    "office.selectPhoto": "Select Photo",
+    "office.description": "Office Description",
+    "office.descriptionDesc": "Describe your office and services (optional)",
+    "office.descriptionPlaceholder":
+      "Tell potential clients about your office, services, and expertise...",
+    "office.location": "Office Location",
+    "office.locationDesc": "Provide your office location (required)",
+    "office.locationPlaceholder": "Enter your office address or coordinates",
+    "office.manageProperties": "Manage and monitor your property listings",
+    // Office Followers
+    "office.followers": "Followers",
+    "office.followersDesc": "Manage your office followers",
+    "office.followersError": "Error",
+    "office.followersErrorDesc": "Failed to fetch followers",
+    "office.totalFollowers": "Total Followers",
+    "office.filteredResults": "Filtered Results",
+    "office.latestFollower": "Latest Follower",
+    "office.searchFollowers": "Search followers by name or phone...",
+    "office.noSearchResults": "No followers found",
+    "office.noSearchResultsDesc": "Try adjusting your search terms",
+    "office.noFollowers": "No followers yet",
+    "office.noFollowersDesc":
+      "Users will appear here when they follow your office",
+    "office.followedOn": "Followed on",
+    "common.clearSearch": "Clear Search",
+
+    // Office Requests
+    "requests.title": "Property Requests",
+    "requests.subtitle": "Manage your property submission requests",
+    "requests.pending": "Pending",
+    "requests.accepted": "Accepted",
+    "requests.rejected": "Rejected",
+    "requests.fetchError": "Error",
+    "requests.fetchErrorDesc": "Failed to fetch property requests",
+    "requests.submittedOn": "Submitted on",
+    "requests.lastUpdated": "Updated",
+    "requests.noPending": "No pending requests",
+    "requests.noPendingDesc": "You don't have any pending property requests yet.",
+    "requests.noAccepted": "No accepted requests",
+    "requests.noAcceptedDesc": "You don't have any accepted property requests yet.",
+    "requests.noRejected": "No rejected requests",
+    "requests.noRejectedDesc": "You don't have any rejected property requests yet.",
+
+    // Location
+    "location.required": "Location required",
+    "location.requiredDesc": "Please provide your location",
+    "location.notSupported": "Location not supported",
+    "location.notSupportedDesc": "Geolocation is not supported by this browser",
+    "location.success": "Location obtained",
+    "location.successDesc": "Your current location has been set",
+    "location.error": "Location Error",
+    "location.permissionDenied": "Location access denied",
+    "location.unavailable": "Location information unavailable",
+    "location.timeout": "Location request timed out",
+    "location.getting": "Getting location...",
+    "location.current": "Use Current Location",
+    "location.pickOnMap": "Pick on Map",
+    "location.mapPicker": "Map Picker",
+    "location.mapPickerDesc": "Map picker will be available soon",
 
     // Property creation
     "property.createProperty": "Create Property",
-    "property.createPropertyDesc": "Follow the steps to create your property listing",
+    "property.createPropertyDesc":
+      "Follow the steps to create your property listing",
     "property.uploadMedia": "Upload Media",
     "property.propertyDetails": "Property Details",
     "property.specifications": "Specifications",
@@ -196,7 +278,8 @@ const translations = {
 
     // Media upload
     "property.uploadMediaTitle": "Upload Property Media",
-    "property.uploadMediaDesc": "Add images and videos to showcase your property (optional)",
+    "property.uploadMediaDesc":
+      "Add images and videos to showcase your property (optional)",
     "property.images": "Images",
     "property.videos": "Videos",
     "property.addImages": "Add Images",
@@ -209,13 +292,15 @@ const translations = {
 
     // Property details
     "property.propertyDetailsTitle": "Property Details",
-    "property.propertyDetailsDesc": "Add title and description for your property",
+    "property.propertyDetailsDesc":
+      "Add title and description for your property",
     "property.title": "Property Title",
     "property.description": "Property Description",
     "property.generateTitle": "Generate Title",
     "property.generateDescription": "Generate Description",
     "property.generating": "Generating...",
-    "property.aiGenerationNote": "Upload images or videos to enable AI generation",
+    "property.aiGenerationNote":
+      "Upload images or videos to enable AI generation",
     "property.titlePlaceholder": "Enter property title",
     "property.descriptionPlaceholder": "Describe your property in detail...",
     "property.writingTips": "Writing Tips",
@@ -226,7 +311,8 @@ const translations = {
 
     // Property specifications
     "property.specificationsTitle": "Property Specifications",
-    "property.specificationsDesc": "Provide detailed specifications for your property",
+    "property.specificationsDesc":
+      "Provide detailed specifications for your property",
     "property.propertyType": "Property Type",
     "property.selectPropertyType": "Select property type",
     "property.apartment": "Apartment",
@@ -242,7 +328,8 @@ const translations = {
     "property.bathrooms": "Number of Bathrooms",
     "property.floorNumber": "Floor Number",
     "property.features": "Features",
-    "property.featuresPlaceholder": "e.g., Swimming pool, Garden, Parking, Balcony",
+    "property.featuresPlaceholder":
+      "e.g., Swimming pool, Garden, Parking, Balcony",
     "property.featuresNote": "Separate features with commas",
     "property.furnishing": "Furnishing",
     "property.selectFurnishing": "Select furnishing",
@@ -269,7 +356,8 @@ const translations = {
     "property.month": "month",
     "property.pricingTips": "Pricing Tips",
     "property.pricingTip1": "Research similar properties in your area",
-    "property.pricingTip2": "Consider the property's unique features and condition",
+    "property.pricingTip2":
+      "Consider the property's unique features and condition",
     "property.pricingTip3": "Be realistic about market conditions",
     "property.pricingTip4": "You can always adjust the price later",
     "property.pricingSummary": "Pricing Summary",
@@ -296,14 +384,16 @@ const translations = {
     "property.locationTips": "Location Tips",
     "property.locationTip1": "Provide the exact address for better visibility",
     "property.locationTip2": "Include nearby landmarks or metro stations",
-    "property.locationTip3": "Accurate coordinates help buyers find your property",
+    "property.locationTip3":
+      "Accurate coordinates help buyers find your property",
     "property.locationTip4": "Double-check the location before submitting",
     "property.creating": "Creating...",
 
     // Final description step
     "property.finalDescription": "Property Description",
     "property.finalDescriptionTitle": "Property Description & Summary",
-    "property.finalDescriptionDesc": "Review your property details and create a compelling description",
+    "property.finalDescriptionDesc":
+      "Review your property details and create a compelling description",
     "property.propertySummary": "Property Summary",
     "property.pricing": "Pricing",
     "property.media": "Media",
@@ -315,7 +405,8 @@ const translations = {
 
     // Summary step
     "property.finalReview": "Final Review",
-    "property.finalReviewDesc": "Review your property details before submission",
+    "property.finalReviewDesc":
+      "Review your property details before submission",
     "property.basicDetails": "Basic Details",
     "property.files": "files",
     "property.confirmationChecklist": "Confirmation Checklist",
@@ -324,22 +415,30 @@ const translations = {
     "property.checklistPricing": "Pricing information set",
     "property.checklistLocation": "Location information added",
     "property.checklistDescription": "Description completed",
-    "property.readyToSubmit": "Your property listing is ready to be submitted for admin approval.",
-    "property.descriptionStepDesc": "Create a compelling description for your property",
+    "property.readyToSubmit":
+      "Your property listing is ready to be submitted for admin approval.",
+    "property.descriptionStepDesc":
+      "Create a compelling description for your property",
 
     // Success step
-    "property.propertyCreatedDesc": "Your property has been submitted and is now waiting for admin approval.",
+    "property.propertyCreatedDesc":
+      "Your property has been submitted and is now waiting for admin approval.",
     "property.pendingApproval": "Pending Admin Approval",
-    "property.approvalMessage": "Your property listing will be reviewed by our admin team and published once approved. This usually takes 24-48 hours.",
+    "property.approvalMessage":
+      "Your property listing will be reviewed by our admin team and published once approved. This usually takes 24-48 hours.",
     "property.whatsNext": "What's Next?",
     "property.adminReview": "Admin Review",
-    "property.adminReviewDesc": "Our team will review your property details and media for quality and compliance.",
+    "property.adminReviewDesc":
+      "Our team will review your property details and media for quality and compliance.",
     "property.approval": "Approval",
-    "property.approvalDesc": "Once approved, your property will be published and visible to potential buyers/renters.",
+    "property.approvalDesc":
+      "Once approved, your property will be published and visible to potential buyers/renters.",
     "property.inquiries": "Inquiries",
-    "property.inquiriesDesc": "Start receiving inquiries from interested buyers and renters through our platform.",
+    "property.inquiriesDesc":
+      "Start receiving inquiries from interested buyers and renters through our platform.",
     "property.notifications": "Stay Updated",
-    "property.notificationsDesc": "We'll notify you via email and SMS about the approval status and any inquiries.",
+    "property.notificationsDesc":
+      "We'll notify you via email and SMS about the approval status and any inquiries.",
     "property.emailNotifications": "Email notifications enabled",
     "property.smsNotifications": "SMS notifications enabled",
     "property.goToDashboard": "Go to Dashboard",
@@ -348,17 +447,20 @@ const translations = {
     "property.needHelp": "Need help or have questions?",
     "property.contactSupport": "Contact Support",
 
-    // Location names
-    "location.riyadh": "Riyadh",
-    "location.jeddah": "Jeddah",
-    "location.mecca": "Mecca",
-    "location.medina": "Medina",
-    "location.dammam": "Dammam",
-    "location.khobar": "Khobar",
-    "location.tabuk": "Tabuk",
-    "location.abha": "Abha",
-    "location.hail": "Hail",
-    "location.najran": "Najran",
+    // Property Status Modal
+    "property.updateStatus": "Update Property Status",
+    "property.updateStatusDesc":
+      "Change the status of this property to reflect its current availability.",
+    "property.propertyInfo": "Property Information",
+    "property.currentStatus": "Current Status",
+    "property.newStatus": "New Status",
+    "property.newStatusPreview": "New status will be",
+    "property.statusUpdated": "Status Updated",
+    "property.statusUpdatedDesc":
+      "Property status has been updated successfully.",
+    "property.statusUpdateError":
+      "Failed to update property status. Please try again.",
+    "property.updating": "Updating...",
 
     //Settings
     "stt.manageTitle": "Manage your account and preferences",
@@ -374,15 +476,30 @@ const translations = {
     "dashboard.addProperty": "Add New Property",
     "dashboard.myProperties": "My Properties",
     "dashboard.recentProperties": "Recent Properties",
-    "dashboard.manageProperties": "Manage your properties and monitor performance",
+    "dashboard.manageProperties":
+      "Manage your properties and monitor performance",
     "dashboard.quickActions": "Quick Actions",
     "dashboard.viewAnalytics": "View Analytics",
+
+    // Dashboard Charts
+    "dashboard.analytics": "Analytics & Insights",
+    "dashboard.viewsTrend": "Views & Inquiries Trend",
+    "dashboard.propertyTypes": "Property Type Distribution",
+    "dashboard.revenueTrend": "Revenue Trend",
+    "dashboard.propertyStatus": "Property Status Overview",
+    "dashboard.inquirySources": "Inquiry Sources",
+    "dashboard.kpiMetrics": "Key Performance Metrics",
+    "dashboard.viewsLabel": "Views",
+    "dashboard.inquiriesLabel": "Inquiries",
+    "dashboard.revenue": "Revenue",
+    "dashboard.commission": "Commission",
     "dashboard.messages": "Messages",
     "dashboard.responseRate": "Response Rate",
     "dashboard.excellent": "Excellent",
     "dashboard.thisWeek": "this week",
     "dashboard.active": "active",
-    "dashboard.subscriptionRequired": "You need an active subscription to add new properties",
+    "dashboard.subscriptionRequired":
+      "You need an active subscription to add new properties",
     "dashboard.freeAdsRemaining": "Free ads remaining",
     "dashboard.subscriptions": "Subscriptions",
     "dashboard.subscriptionExpiresSoon": "Your subscription expires soon",
@@ -390,18 +507,22 @@ const translations = {
     "dashboard.renewSubscription": "Renew Subscription",
     "dashboard.notSpecified": "Not specified",
     "dashboard.error": "Error",
-    "dashboard.errorPropertyCount": "Failed to get property count. Please try again.",
+    "dashboard.errorPropertyCount":
+      "Failed to get property count. Please try again.",
     "dashboard.errorViews": "Failed to get views. Please try again.",
     "dashboard.editProperty": "Edit Property",
     "dashboard.editingProperty": "Editing property",
     "dashboard.propertyDeleted": "Property Deleted",
     "dashboard.deletedSuccessfully": "has been deleted successfully",
     "dashboard.deleteFailed": "Delete Failed",
-    "dashboard.deleteFailedDesc": "Failed to delete property. Please try again.",
+    "dashboard.deleteFailedDesc":
+      "Failed to delete property. Please try again.",
+    "dashboard.clickToView": "Click to view",
 
     // Subscriptions
     "subscriptions.title": "Subscriptions",
-    "subscriptions.manage": "Manage your subscriptions and subscription requests",
+    "subscriptions.manage":
+      "Manage your subscriptions and subscription requests",
     "subscriptions.requestNew": "Request New Subscription",
     "subscriptions.monthly": "Monthly Subscription",
     "subscriptions.yearly": "Yearly Subscription",
@@ -416,13 +537,17 @@ const translations = {
     "subscriptions.requested": "Requested",
     "subscriptions.rejectedOn": "Rejected",
     "subscriptions.noActive": "No Active Subscriptions",
-    "subscriptions.noActiveDesc": "You don't have any active subscriptions currently",
+    "subscriptions.noActiveDesc":
+      "You don't have any active subscriptions currently",
     "subscriptions.noPending": "No Pending Requests",
-    "subscriptions.noPendingDesc": "You don't have any pending subscription requests",
+    "subscriptions.noPendingDesc":
+      "You don't have any pending subscription requests",
     "subscriptions.noRejected": "No Rejected Requests",
-    "subscriptions.noRejectedDesc": "You don't have any rejected subscription requests",
+    "subscriptions.noRejectedDesc":
+      "You don't have any rejected subscription requests",
     "subscriptions.requestSent": "Request Sent",
-    "subscriptions.requestSentDesc": "Subscription request sent successfully. Wait for admin approval.",
+    "subscriptions.requestSentDesc":
+      "Subscription request sent successfully. Wait for admin approval.",
     "subscriptions.requestError": "Failed to send subscription request",
     "subscriptions.loading": "Loading...",
     "subscriptions.notSpecified": "Not specified",
@@ -433,13 +558,15 @@ const translations = {
     "office.pending": "Pending",
     "office.follow": "Follow",
     "office.following": "Following",
-    "office.followers": "followers",
+    "office.followersCount": "followers",
     "office.views": "views",
     "office.memberSince": "Member since",
     "office.properties": "Properties",
-    "office.propertiesDesc": "Properties from this office will be displayed here.",
+    "office.propertiesDesc":
+      "Properties from this office will be displayed here.",
     "office.notFound": "Office Not Found",
-    "office.notFoundDesc": "The office you're looking for doesn't exist or has been removed.",
+    "office.notFoundDesc":
+      "The office you're looking for doesn't exist or has been removed.",
     "office.followSuccess": "Success",
     "office.followSuccessDesc": "You are now following this office",
     "office.followError": "Failed to follow office",
@@ -490,41 +617,58 @@ const translations = {
     "admin.noPendingOffices": "No Pending Offices",
     "admin.noPendingOfficesDesc": "All office requests have been processed",
     "admin.noPendingProperties": "No Pending Properties",
-    "admin.noPendingPropertiesDesc": "All property requests have been processed",
+    "admin.noPendingPropertiesDesc":
+      "All property requests have been processed",
     "admin.pendingOfficeRequests": "Review and approve pending office requests",
-    "admin.pendingPropertyRequests": "Review and approve pending property requests",
+    "admin.pendingPropertyRequests":
+      "Review and approve pending property requests",
     "admin.contactInfo": "Contact Information",
     "admin.phoneNumber": "Phone Number",
     "admin.location": "Location",
     "admin.documentation": "Documentation",
     "admin.verificationDocument": "Verification Document",
     "admin.awaitingReview": "Awaiting Admin Review",
+
+    // AI Suggestions for Offices
+    "admin.aiAnalyzing": "AI is analyzing ...",
+    "admin.aiSuggestion": "AI Analysis",
+    "admin.aiError": "AI Error",
+    "admin.confidence": "Confidence",
+    "admin.aiReasons": "Analysis Reasons",
+    "admin.documentAnalysis": "Document Analysis",
+    "admin.documentValid": "Document Valid",
+    "admin.documentType": "Document Type",
+    "admin.documentIssues": "Issues",
+    "admin.locationAnalysis": "Location Analysis",
+    "admin.locationValid": "Location Valid",
+    "admin.locationType": "Location Type",
+    "admin.locationIssues": "Issues",
+    "admin.profileAnalysis": "Profile Analysis",
+    "admin.profileCompleteness": "Profile Completeness",
+    "admin.missingFields": "Missing Fields",
+    "admin.suggestions": "Suggestions",
+    "admin.aiReject": "Reject",
+    "admin.confident": "Confident",
+    "admin.priceAnalysis": "Price analysis",
+    "admin.currentPrice": "Current price",
+    "admin.suggestedPrice": "Suggested price",
+    "admin.priceDifference": "Price difference",
+    "admin.marketComparison": "Market comparison",
+
     "admin.propertyDetails": "Property Details",
     "admin.specifications": "Specifications",
     "admin.authError": "Authentication failed. Please login again.",
-    "admin.permissionError": "You don't have permission to perform this action.",
+    "admin.permissionError":
+      "You don't have permission to perform this action.",
     "admin.notFoundError": "Request not found.",
-    "admin.aiAnalyzing": "AI Analyzing...",
-    "admin.aiApprove": "AI: Approve",
-    "admin.aiReject": "AI: Reject",
-    "admin.aiReview": "AI: Review",
-    "admin.aiError": "AI Error",
-    "admin.aiSuggestion": "AI Price Analysis",
-    "admin.aiAnalyzingDesc": "Comparing price with market standards and property features",
-    "admin.confidence": "Confidence",
-    "admin.confident": "Confident",
-    "admin.priceAnalysis": "Price Analysis",
-    "admin.currentPrice": "Current Price",
-    "admin.suggestedPrice": "AI Suggested",
-    "admin.priceDifference": "Difference",
-    "admin.marketComparison": "Market Comparison",
-    "admin.aiReasons": "AI Analysis Reasons",
     "admin.aiSummary": "AI Summary",
     "admin.manageSubscriptions": "Manage Subscriptions",
     "admin.pendingSubscriptions": "Pending Subscriptions",
-    "admin.pendingSubscriptionsDesc": "Review and approve pending subscription requests",
+    "admin.pendingSubscriptionsDesc":
+      "Review and approve pending subscription requests",
     "admin.noPendingSubscriptions": "No Pending Subscriptions",
-    "admin.noPendingSubscriptionsDesc": "All subscription requests have been processed",
+    "admin.noPendingSubscriptionsDesc":
+      "All subscription requests have been processed",
     "admin.subscriptionApproved": "Subscription approved successfully",
     "admin.subscriptionRejected": "Subscription rejected successfully",
     "admin.subscriptionDetails": "Subscription Details",
@@ -551,15 +695,19 @@ const translations = {
     "aiChat.propertyVoiceChat": "Property Voice Chat",
     "aiChat.globalVoiceChat": "AI Voice Assistant",
     "aiChat.propertyVoiceChatDescription": "Ask questions about this property",
-    "aiChat.globalVoiceChatDescription": "Ask about our properties and real estate services",
+    "aiChat.globalVoiceChatDescription":
+      "Ask about our properties and real estate services",
     "aiChat.enterApiKey": "Enter your Gemini API Key",
     "aiChat.apiKeyRequired": "API key is required to start voice chat",
     "aiChat.liveVoiceChat": "Live Voice Chat",
-    "aiChat.liveVoiceChatDescription": "Real-time voice conversation with AI assistant",
+    "aiChat.liveVoiceChatDescription":
+      "Real-time voice conversation with AI assistant",
     "aiChat.connected": "Connected",
     "aiChat.disconnected": "Disconnected",
-    "aiChat.speakNow": "Speak now... The AI is listening and will respond with voice.",
-    "aiChat.clickToStart": "Click the microphone to start a voice conversation with the AI assistant.",
+    "aiChat.speakNow":
+      "Speak now... The AI is listening and will respond with voice.",
+    "aiChat.clickToStart":
+      "Click the microphone to start a voice conversation with the AI assistant.",
 
     // Add Property
     "add.title": "Add New Property",
@@ -615,15 +763,18 @@ const translations = {
     // Map and Route
     "map.calculatingRoute": "Calculating route...",
     "map.locationPermissionRequired": "Location Permission Required",
-    "map.enableLocationMessage": "Please enable location access to see the route to this property.",
+    "map.enableLocationMessage":
+      "Please enable location access to see the route to this property.",
     "map.tryAgain": "Try Again",
     "map.routeError": "Route Error",
     "map.retry": "Retry",
     "map.yourLocation": "Your Location",
     "map.destination": "Property Location",
-    "map.geolocationNotSupported": "Geolocation is not supported by this browser.",
+    "map.geolocationNotSupported":
+      "Geolocation is not supported by this browser.",
     "map.noRouteFound": "No route could be found.",
-    "map.networkError": "Network Error: Could not connect to the routing service. Please check your internet connection.",
+    "map.networkError":
+      "Network Error: Could not connect to the routing service. Please check your internet connection.",
     "map.unknownError": "An unknown error occurred.",
     "map.locationRequired": "Your location is required to get directions.",
     "map.propertyLocation": "Property Location",
@@ -791,6 +942,14 @@ const translations = {
     "common.all": "الكل",
     "common.step": "خطوة",
     "common.of": "من",
+    "common.user": "مستخدم",
+    "common.next": "التالي",
+    "common.clearSearch": "مسح البحث",
+    "common.yes": "نعم",
+    "common.no": "لا",
+    "common.error": "خطأ",
+    "common.success": "تم بنجاح",
+    "common.processing": "تتم المعالجة...",
 
     // Authentication
     "auth.email": "البريد الإلكتروني",
@@ -831,7 +990,8 @@ const translations = {
     "auth.phoneInvalid": "يرجى إدخال رقم هاتف صحيح",
     "auth.phoneHint": "أدخل رقم هاتفك مع رمز البلد",
     "auth.enterPassword": "أدخل كلمة المرور الخاصة بك",
-    "auth.loginToAccess": "يرجى تسجيل الدخول أو إنشاء حساب للوصول إلى هذه الميزة",
+    "auth.loginToAccess":
+      "يرجى تسجيل الدخول أو إنشاء حساب للوصول إلى هذه الميزة",
     "auth.featureAccess": "الميزة",
     "auth.getStarted": "ابدأ الآن",
     "auth.chooseAccountType": "اختر نوع الحساب",
@@ -856,8 +1016,74 @@ const translations = {
     "auth.officeRegistrationMessage": "تم إرسال طلب تسجيل المكتب الخاص بك.",
     "auth.waitForApproval": "يرجى انتظار موافقة المدير.",
     "auth.goToLogin": "الذهاب إلى تسجيل الدخول",
-    "common.next": "التالي",
+    "auth.officeRequired": "مطلوب مصادقة المكتب لتحديث حالة العقار.",
 
+    // Office registration
+    "office.photo": "صورة المكتب",
+    "office.photoDesc": "ارفع صورة لمكتبك (اختياري)",
+    "office.uploadPhoto": "رفع صورة المكتب",
+    "office.photoFormats": "PNG، JPG حتى 10 ميجابايت",
+    "office.fileTooLarge": "الملف كبير جداً",
+    "office.fileTooLargeDesc": "يرجى اختيار ملف أصغر من 10 ميجابايت",
+    "office.selectPhoto": "اختر صورة",
+    "office.description": "وصف المكتب",
+    "office.descriptionDesc": "اوصف مكتبك وخدماتك (اختياري)",
+    "office.descriptionPlaceholder":
+      "أخبر العملاء المحتملين عن مكتبك وخدماتك وخبرتك...",
+    "office.location": "موقع المكتب",
+    "office.locationDesc": "قدم موقع مكتبك (مطلوب)",
+    "office.locationPlaceholder": "أدخل عنوان مكتبك أو الإحداثيات",
+    "office.manageProperties": "إدارة ومراقبة قوائم العقارات الخاصة بك",
+
+    // Office Followers
+    "office.followers": "المتابعون",
+    "office.followersDesc": "إدارة متابعي مكتبك",
+    "office.followersError": "خطأ",
+    "office.followersErrorDesc": "فشل في جلب المتابعين",
+    "office.totalFollowers": "إجمالي المتابعين",
+    "office.filteredResults": "النتائج المفلترة",
+    "office.latestFollower": "آخر متابع",
+    "office.searchFollowers": "البحث في المتابعين بالاسم أو الهاتف...",
+    "office.noSearchResults": "لم يتم العثور على متابعين",
+    "office.noSearchResultsDesc": "حاول تعديل مصطلحات البحث",
+    "office.noFollowers": "لا يوجد متابعون بعد",
+    "office.noFollowersDesc": "سيظهر المستخدمون هنا عندما يتابعون مكتبك",
+    "office.followedOn": "تابع في",
+
+    // Office Requests
+    "requests.title": "طلبات العقارات",
+    "requests.subtitle": "إدارة طلبات تقديم العقارات الخاصة بك",
+    "requests.pending": "قيد الانتظار",
+    "requests.accepted": "مقبولة",
+    "requests.rejected": "مرفوضة",
+    "requests.fetchError": "خطأ",
+    "requests.fetchErrorDesc": "فشل في جلب طلبات العقارات",
+    "requests.submittedOn": "تم التقديم في",
+    "requests.lastUpdated": "آخر تحديث",
+    "requests.noPending": "لا توجد طلبات قيد الانتظار",
+    "requests.noPendingDesc": "ليس لديك أي طلبات عقارات قيد الانتظار حتى الآن.",
+    "requests.noAccepted": "لا توجد طلبات مقبولة",
+    "requests.noAcceptedDesc": "ليس لديك أي طلبات عقارات مقبولة حتى الآن.",
+    "requests.noRejected": "لا توجد طلبات مرفوضة",
+    "requests.noRejectedDesc": "ليس لديك أي طلبات عقارات مرفوضة حتى الآن.",
+
+    // Location
+    "location.required": "الموقع مطلوب",
+    "location.requiredDesc": "يرجى تقديم موقعك",
+    "location.notSupported": "الموقع غير مدعوم",
+    "location.notSupportedDesc":
+      "تحديد الموقع الجغرافي غير مدعوم في هذا المتصفح",
+    "location.success": "تم الحصول على الموقع",
+    "location.successDesc": "تم تعيين موقعك الحالي",
+    "location.error": "خطأ في الموقع",
+    "location.permissionDenied": "تم رفض الوصول للموقع",
+    "location.unavailable": "معلومات الموقع غير متاحة",
+    "location.timeout": "انتهت مهلة طلب الموقع",
+    "location.getting": "جاري الحصول على الموقع...",
+    "location.current": "استخدم الموقع الحالي",
+    "location.pickOnMap": "اختر على الخريطة",
+    "location.mapPicker": "منتقي الخريطة",
+    "location.mapPickerDesc": "منتقي الخريطة سيكون متاحاً قريباً",
 
     // Property creation
     "property.createProperty": "إنشاء عقار",
@@ -877,10 +1103,13 @@ const translations = {
     "property.addImages": "إضافة صور",
     "property.addVideos": "إضافة مقاطع فيديو",
     "property.uploadGuidelines": "إرشادات الرفع",
-    "property.guideline1": "الصور: JPG, PNG, WebP (حد أقصى 10 ميجابايت لكل صورة)",
-    "property.guideline2": "مقاطع الفيديو: MP4, MOV, AVI (حد أقصى 100 ميجابايت لكل مقطع)",
+    "property.guideline1":
+      "الصور: JPG, PNG, WebP (حد أقصى 10 ميجابايت لكل صورة)",
+    "property.guideline2":
+      "مقاطع الفيديو: MP4, MOV, AVI (حد أقصى 100 ميجابايت لكل مقطع)",
     "property.guideline3": "حد أقصى 20 صورة و 5 مقاطع فيديو",
-    "property.guideline4": "الوسائط عالية الجودة تساعد في جذب المزيد من المشترين",
+    "property.guideline4":
+      "الوسائط عالية الجودة تساعد في جذب المزيد من المشترين",
 
     // Property details
     "property.propertyDetailsTitle": "تفاصيل العقار",
@@ -890,7 +1119,8 @@ const translations = {
     "property.generateTitle": "إنشاء عنوان",
     "property.generateDescription": "إنشاء وصف",
     "property.generating": "جاري الإنشاء...",
-    "property.aiGenerationNote": "ارفع صور أو مقاطع فيديو لتمكين الإنشاء بالذكاء الاصطناعي",
+    "property.aiGenerationNote":
+      "ارفع صور أو مقاطع فيديو لتمكين الإنشاء بالذكاء الاصطناعي",
     "property.titlePlaceholder": "أدخل عنوان العقار",
     "property.descriptionPlaceholder": "اوصف عقارك بالتفصيل...",
     "property.writingTips": "نصائح الكتابة",
@@ -971,7 +1201,8 @@ const translations = {
     "property.locationTips": "نصائح الموقع",
     "property.locationTip1": "قدم العنوان الدقيق لرؤية أفضل",
     "property.locationTip2": "اذكر المعالم القريبة أو محطات المترو",
-    "property.locationTip3": "الإحداثيات الدقيقة تساعد المشترين في العثور على عقارك",
+    "property.locationTip3":
+      "الإحداثيات الدقيقة تساعد المشترين في العثور على عقارك",
     "property.locationTip4": "تحقق من الموقع قبل الإرسال",
     "property.creating": "جاري الإنشاء...",
 
@@ -1003,18 +1234,24 @@ const translations = {
     "property.descriptionStepDesc": "أنشئ وصفاً جذاباً لعقارك",
 
     // Success step
-    "property.propertyCreatedDesc": "تم إرسال عقارك وهو الآن في انتظار موافقة المدير.",
+    "property.propertyCreatedDesc":
+      "تم إرسال عقارك وهو الآن في انتظار موافقة المدير.",
     "property.pendingApproval": "في انتظار موافقة المدير",
-    "property.approvalMessage": "سيتم مراجعة قائمة عقارك من قبل فريق الإدارة ونشرها بمجرد الموافقة عليها. يستغرق هذا عادة 24-48 ساعة.",
+    "property.approvalMessage":
+      "سيتم مراجعة قائمة عقارك من قبل فريق الإدارة ونشرها بمجرد الموافقة عليها. يستغرق هذا عادة 24-48 ساعة.",
     "property.whatsNext": "ما التالي؟",
     "property.adminReview": "مراجعة المدير",
-    "property.adminReviewDesc": "سيراجع فريقنا تفاصيل عقارك ووسائطه للجودة والامتثال.",
+    "property.adminReviewDesc":
+      "سيراجع فريقنا تفاصيل عقارك ووسائطه للجودة والامتثال.",
     "property.approval": "الموافقة",
-    "property.approvalDesc": "بمجرد الموافقة، سيتم نشر عقارك وسيكون مرئياً للمشترين/المستأجرين المحتملين.",
+    "property.approvalDesc":
+      "بمجرد الموافقة، سيتم نشر عقارك وسيكون مرئياً للمشترين/المستأجرين المحتملين.",
     "property.inquiries": "الاستفسارات",
-    "property.inquiriesDesc": "ابدأ في تلقي استفسارات من المشترين والمستأجرين المهتمين من خلال منصتنا.",
+    "property.inquiriesDesc":
+      "ابدأ في تلقي استفسارات من المشترين والمستأجرين المهتمين من خلال منصتنا.",
     "property.notifications": "ابق محدثاً",
-    "property.notificationsDesc": "سنخطرك عبر البريد الإلكتروني والرسائل النصية حول حالة الموافقة وأي استفسارات.",
+    "property.notificationsDesc":
+      "سنخطرك عبر البريد الإلكتروني والرسائل النصية حول حالة الموافقة وأي استفسارات.",
     "property.emailNotifications": "إشعارات البريد الإلكتروني مفعلة",
     "property.smsNotifications": "إشعارات الرسائل النصية مفعلة",
     "property.goToDashboard": "الذهاب إلى لوحة التحكم",
@@ -1023,17 +1260,18 @@ const translations = {
     "property.needHelp": "تحتاج مساعدة أو لديك أسئلة؟",
     "property.contactSupport": "اتصل بالدعم",
 
-    // Location names
-    "location.riyadh": "الرياض",
-    "location.jeddah": "جدة",
-    "location.mecca": "مكة",
-    "location.medina": "المدينة",
-    "location.dammam": "الدمام",
-    "location.khobar": "الخبر",
-    "location.tabuk": "تبوك",
-    "location.abha": "أبها",
-    "location.hail": "حائل",
-    "location.najran": "نجران",
+    // Property Status Modal
+    "property.updateStatus": "تحديث حالة العقار",
+    "property.updateStatusDesc": "غيّر حالة هذا العقار لتعكس توفره الحالي.",
+    "property.propertyInfo": "معلومات العقار",
+    "property.currentStatus": "الحالة الحالية",
+    "property.newStatus": "الحالة الجديدة",
+    "property.newStatusPreview": "الحالة الجديدة ستكون",
+    "property.statusUpdated": "تم تحديث الحالة",
+    "property.statusUpdatedDesc": "تم تحديث حالة العقار بنجاح.",
+    "property.statusUpdateError":
+      "فشل في تحديث حالة العقار. يرجى المحاولة مرة أخرى.",
+    "property.updating": "جاري التحديث...",
 
     //Settings
     "stt.manageTitle": "إدارة حسابك وتفضيلاتك",
@@ -1052,12 +1290,26 @@ const translations = {
     "dashboard.manageProperties": "إدارة عقاراتك ومراقبة الأداء",
     "dashboard.quickActions": "إجراءات سريعة",
     "dashboard.viewAnalytics": "عرض الإحصائيات",
+
+    // Dashboard Charts
+    "dashboard.analytics": "التحليلات والإحصائيات",
+    "dashboard.viewsTrend": "اتجاه المشاهدات والاستفسارات",
+    "dashboard.propertyTypes": "توزيع أنواع العقارات",
+    "dashboard.revenueTrend": "اتجاه الإيرادات",
+    "dashboard.propertyStatus": "نظرة عامة على حالة العقارات",
+    "dashboard.inquirySources": "مصادر الاستفسارات",
+    "dashboard.kpiMetrics": "مؤشرات الأداء الرئيسية",
+    "dashboard.viewsLabel": "المشاهدات",
+    "dashboard.inquiriesLabel": "الاستفسارات",
+    "dashboard.revenue": "الإيرادات",
+    "dashboard.commission": "العمولة",
     "dashboard.messages": "الرسائل",
     "dashboard.responseRate": "معدل الاستجابة",
     "dashboard.excellent": "ممتاز",
     "dashboard.thisWeek": "هذا الأسبوع",
     "dashboard.active": "نشط",
-    "dashboard.subscriptionRequired": "تحتاج إلى اشتراك نشط لإضافة عقارات جديدة",
+    "dashboard.subscriptionRequired":
+      "تحتاج إلى اشتراك نشط لإضافة عقارات جديدة",
     "dashboard.freeAdsRemaining": "الإعلانات المجانية المتبقية",
     "dashboard.subscriptions": "الاشتراكات",
     "dashboard.subscriptionExpiresSoon": "اشتراكك سينتهي قريباً",
@@ -1065,14 +1317,17 @@ const translations = {
     "dashboard.renewSubscription": "تجديد الاشتراك",
     "dashboard.notSpecified": "غير محدد",
     "dashboard.error": "خطأ",
-    "dashboard.errorPropertyCount": "فشل في الحصول على عدد العقارات. يرجى المحاولة مرة أخرى.",
-    "dashboard.errorViews": "فشل في الحصول على المشاهدات. يرجى المحاولة مرة أخرى.",
+    "dashboard.errorPropertyCount":
+      "فشل في الحصول على عدد العقارات. يرجى المحاولة مرة أخرى.",
+    "dashboard.errorViews":
+      "فشل في الحصول على المشاهدات. يرجى المحاولة مرة أخرى.",
     "dashboard.editProperty": "تعديل العقار",
     "dashboard.editingProperty": "تعديل العقار",
     "dashboard.propertyDeleted": "تم حذف العقار",
     "dashboard.deletedSuccessfully": "تم حذفه بنجاح",
     "dashboard.deleteFailed": "فشل الحذف",
     "dashboard.deleteFailedDesc": "فشل في حذف العقار. يرجى المحاولة مرة أخرى.",
+    "dashboard.clickToView": "انقر للعرض",
 
     // Subscriptions
     "subscriptions.title": "الاشتراكات",
@@ -1097,7 +1352,8 @@ const translations = {
     "subscriptions.noRejected": "لا توجد طلبات مرفوضة",
     "subscriptions.noRejectedDesc": "ليس لديك أي طلبات اشتراك مرفوضة",
     "subscriptions.requestSent": "تم إرسال الطلب",
-    "subscriptions.requestSentDesc": "تم إرسال طلب الاشتراك بنجاح. انتظر موافقة الإدارة.",
+    "subscriptions.requestSentDesc":
+      "تم إرسال طلب الاشتراك بنجاح. انتظر موافقة الإدارة.",
     "subscriptions.requestError": "فشل في إرسال طلب الاشتراك",
     "subscriptions.loading": "جاري التحميل...",
     "subscriptions.notSpecified": "غير محدد",
@@ -1108,7 +1364,7 @@ const translations = {
     "office.pending": "قيد المراجعة",
     "office.follow": "متابعة",
     "office.following": "متابع",
-    "office.followers": "متابع",
+    "office.followersCount": "متابع",
     "office.views": "مشاهدة",
     "office.memberSince": "عضو منذ",
     "office.properties": "العقارات",
@@ -1167,37 +1423,51 @@ const translations = {
     "admin.noPendingProperties": "لا توجد عقارات معلقة",
     "admin.noPendingPropertiesDesc": "تم معالجة جميع طلبات العقارات",
     "admin.pendingOfficeRequests": "مراجعة والموافقة على طلبات المكاتب المعلقة",
-    "admin.pendingPropertyRequests": "مراجعة والموافقة على طلبات العقارات المعلقة",
+    "admin.pendingPropertyRequests":
+      "مراجعة والموافقة على طلبات العقارات المعلقة",
     "admin.contactInfo": "معلومات الاتصال",
     "admin.phoneNumber": "رقم الهاتف",
     "admin.location": "الموقع",
     "admin.documentation": "الوثائق",
     "admin.verificationDocument": "وثيقة التحقق",
     "admin.awaitingReview": "في انتظار مراجعة المدير",
+
+    // AI Suggestions for Offices
+    "admin.aiAnalyzing": "الذكاء الاصطناعي يحلل تسجيل هذا المكتب...",
+    "admin.aiSuggestion": "تحليل الذكاء الاصطناعي",
+    "admin.aiError": "خطأ",
+    "admin.confidence": "الثقة",
+    "admin.aiReasons": "أسباب التحليل",
+    "admin.documentAnalysis": "تحليل الوثيقة",
+    "admin.documentValid": "الوثيقة صحيحة",
+    "admin.documentType": "نوع الوثيقة",
+    "admin.documentIssues": "المشاكل",
+    "admin.locationAnalysis": "تحليل الموقع",
+    "admin.locationValid": "الموقع صحيح",
+    "admin.locationType": "نوع الموقع",
+    "admin.locationIssues": "مشاكل الموقع",
+    "admin.profileAnalysis": "تحليل الملف الشخصي",
+    "admin.profileCompleteness": "اكتمال الملف الشخصي",
+    "admin.missingFields": "الحقول المفقودة",
+    "admin.suggestions": "الاقتراحات",
+    "admin.aiReject": "رفض",
+    "admin.confident": "الثقة",
+    "admin.priceAnalysis": "تحليل السعر",
+    "admin.currentPrice": "السعر الحالي",
+    "admin.suggestedPrice": "السعر المقترح",
+    "admin.priceDifference": "الفرق",
+    "admin.marketComparison": "مقارنة بالأسواق",
+
     "admin.propertyDetails": "تفاصيل العقار",
     "admin.specifications": "المواصفات",
     "admin.authError": "فشل في المصادقة. يرجى تسجيل الدخول مرة أخرى.",
     "admin.permissionError": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
     "admin.notFoundError": "الطلب غير موجود.",
-    "admin.aiAnalyzing": "الذكاء الاصطناعي يحلل...",
-    "admin.aiApprove": "الذكاء الاصطناعي: موافقة",
-    "admin.aiReject": "الذكاء الاصطناعي: رفض",
-    "admin.aiReview": "الذكاء الاصطناعي: مراجعة",
-    "admin.aiError": "خطأ في الذكاء الاصطناعي",
-    "admin.aiSuggestion": "تحليل السعر بالذكاء الاصطناعي",
-    "admin.aiAnalyzingDesc": "مقارنة السعر مع معايير السوق وميزات العقار",
-    "admin.confidence": "الثقة",
-    "admin.confident": "واثق",
-    "admin.priceAnalysis": "تحليل السعر",
-    "admin.currentPrice": "السعر الحالي",
-    "admin.suggestedPrice": "السعر المقترح بالذكاء الاصطناعي",
-    "admin.priceDifference": "الفرق",
-    "admin.marketComparison": "مقارنة السوق",
-    "admin.aiReasons": "أسباب تحليل الذكاء الاصطناعي",
     "admin.aiSummary": "ملخص الذكاء الاصطناعي",
     "admin.manageSubscriptions": "إدارة الاشتراكات",
     "admin.pendingSubscriptions": "الاشتراكات المعلقة",
-    "admin.pendingSubscriptionsDesc": "مراجعة والموافقة على طلبات الاشتراك المعلقة",
+    "admin.pendingSubscriptionsDesc":
+      "مراجعة والموافقة على طلبات الاشتراك المعلقة",
     "admin.noPendingSubscriptions": "لا توجد اشتراكات معلقة",
     "admin.noPendingSubscriptionsDesc": "تم معالجة جميع طلبات الاشتراك",
     "admin.subscriptionApproved": "تم الموافقة على الاشتراك بنجاح",
@@ -1230,11 +1500,13 @@ const translations = {
     "aiChat.enterApiKey": "أدخل مفتاح Gemini API الخاص بك",
     "aiChat.apiKeyRequired": "مفتاح API مطلوب لبدء المحادثة الصوتية",
     "aiChat.liveVoiceChat": "محادثة صوتية مباشرة",
-    "aiChat.liveVoiceChatDescription": "محادثة صوتية في الوقت الفعلي مع المساعد الذكي",
+    "aiChat.liveVoiceChatDescription":
+      "محادثة صوتية في الوقت الفعلي مع المساعد الذكي",
     "aiChat.connected": "متصل",
     "aiChat.disconnected": "غير متصل",
     "aiChat.speakNow": "تحدث الآن... الذكاء الاصطناعي يستمع وسيرد بالصوت.",
-    "aiChat.clickToStart": "انقر على الميكروفون لبدء محادثة صوتية مع المساعد الذكي.",
+    "aiChat.clickToStart":
+      "انقر على الميكروفون لبدء محادثة صوتية مع المساعد الذكي.",
 
     // Add Property
     "add.title": "إضافة عقار جديد",
@@ -1292,15 +1564,18 @@ const translations = {
     // Map and Route
     "map.calculatingRoute": "جاري حساب المسار...",
     "map.locationPermissionRequired": "إذن الموقع مطلوب",
-    "map.enableLocationMessage": "يرجى تمكين الوصول إلى الموقع لرؤية المسار إلى هذا العقار.",
+    "map.enableLocationMessage":
+      "يرجى تمكين الوصول إلى الموقع لرؤية المسار إلى هذا العقار.",
     "map.tryAgain": "حاول مرة أخرى",
     "map.routeError": "خطأ في المسار",
     "map.retry": "إعادة المحاولة",
     "map.yourLocation": "موقعك",
     "map.destination": "موقع العقار",
-    "map.geolocationNotSupported": "تحديد الموقع الجغرافي غير مدعوم في هذا المتصفح.",
+    "map.geolocationNotSupported":
+      "تحديد الموقع الجغرافي غير مدعوم في هذا المتصفح.",
     "map.noRouteFound": "لم يتم العثور على مسار.",
-    "map.networkError": "خطأ في الشبكة: لا يمكن الاتصال بخدمة المسار. يرجى التحقق من اتصال الإنترنت.",
+    "map.networkError":
+      "خطأ في الشبكة: لا يمكن الاتصال بخدمة المسار. يرجى التحقق من اتصال الإنترنت.",
     "map.unknownError": "حدث خطأ غير معروف.",
     "map.locationRequired": "موقعك مطلوب للحصول على الاتجاهات.",
     "map.propertyLocation": "موقع العقار",
@@ -1380,7 +1655,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [language, setLanguage] = useState<Language>("en");
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<IUser | IOffice | null>(null);
   const [isLanguageTransitioning, setIsLanguageTransitioning] = useState(false);
 
   useEffect(() => {
@@ -1405,19 +1680,19 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLanguageTransitioning(true);
 
     // Add language transition class to body
-    document.body.classList.add('language-transition');
+    document.body.classList.add("language-transition");
 
     // Add content fade effect
-    const contentElements = document.querySelectorAll('main, .content-fade');
-    contentElements.forEach(el => {
-      el.classList.add('content-fade', 'transitioning');
+    const contentElements = document.querySelectorAll("main, .content-fade");
+    contentElements.forEach((el) => {
+      el.classList.add("content-fade", "transitioning");
     });
 
     setTimeout(() => {
       // Remove transition classes
-      document.body.classList.remove('language-transition');
-      contentElements.forEach(el => {
-        el.classList.remove('transitioning');
+      document.body.classList.remove("language-transition");
+      contentElements.forEach((el) => {
+        el.classList.remove("transitioning");
       });
       setIsLanguageTransitioning(false);
     }, 600);
@@ -1429,8 +1704,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     document.documentElement.lang = language;
 
     // Add smooth transition classes
-    document.body.classList.add('smooth-colors');
-    document.documentElement.classList.add('rtl-transition');
+    document.body.classList.add("smooth-colors");
+    document.documentElement.classList.add("rtl-transition");
 
     if (language === "ar") {
       document.body.style.fontFamily = "Rubik, sans-serif";
