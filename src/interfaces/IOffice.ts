@@ -10,7 +10,7 @@ interface IOffice {
   followers_count: number;
   views: number;
   image?: { url: string };
-  bio?: string;
+  document: { url: string };
   created_at: string;
   updated_at: string;
 }
