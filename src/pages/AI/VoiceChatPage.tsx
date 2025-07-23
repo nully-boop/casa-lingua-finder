@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import VoiceChat2 from "@/components/VoiceChat2";
+import VoiceChat from "@/components/VoiceChat";
 import { useQuery } from "@tanstack/react-query";
 import { propertiesAPI } from "@/services/api";
 import IProperty from "@/interfaces/IProperty";
@@ -238,7 +238,7 @@ When mentioning properties, include key details like price, location, and size.`
                   </p>
                 </div>
               )}
-              <VoiceChat2
+              <VoiceChat
                 geminiApiKey={localApiKey}
                 contextData={createContextData()}
                 systemPrompt={createSystemPrompt()}
