@@ -15,6 +15,8 @@ import Register from "./pages/Auth/Register";
 import Properties from "./pages/Property/Properties";
 import Dashboard from "./pages/office/Dashboard";
 import CreateProperty from "./pages/office/CreateProperty";
+import OfficeFollowers from "./pages/office/OfficeFollowers";
+import OfficeRequests from "./pages/office/OfficeRequests";
 import PropertyDetails from "./pages/Property/PropertyDetails";
 import Profile from "./pages/user/Profile";
 import Settings from "./pages/user/Settings";
@@ -56,6 +58,8 @@ const AppContent = () => {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/create-property" element={<CreateProperty />} />
                 <Route path="/subscriptions" element={<Subscriptions />} />
+                <Route path="/followers" element={<OfficeFollowers />} />
+                <Route path="/requests" element={<OfficeRequests />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/seller-setup" element={<SellerProfileSetup />} />
@@ -84,6 +88,8 @@ const AppContent = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-property" element={<CreateProperty />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/followers" element={<OfficeFollowers />} />
+            <Route path="/requests" element={<OfficeRequests />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/seller-setup" element={<SellerProfileSetup />} />
