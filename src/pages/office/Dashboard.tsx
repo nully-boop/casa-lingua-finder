@@ -8,20 +8,39 @@ import {
   Plus,
   Eye,
   MessageSquare,
-  TrendingUp,
   AlertTriangle,
   CreditCard,
+  Users,
+  TrendingUp,
+  BarChart3,
+  PieChart,
+  FileText,
 } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { Link, useNavigate } from "react-router-dom";
 import AccessDenied from "@/components/AccessDenied";
-import { useMemo, useState } from "react";
-import IProperty from "@/interfaces/IProperty";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { normalizeProperty } from "@/func/properties";
-import PropertyOfficeList from "@/components/office/PropertyOfficeList";
 import HeaderOffice from "@/components/office/HeaderOffice";
 import { useToast } from "@/hooks/use-toast";
 import { office } from "@/services/api";
+import IOffice from "@/interfaces/IOffice";
 
 // Mock data for dashboard
 const dashboardStats = {
@@ -29,35 +48,50 @@ const dashboardStats = {
   activeListings: 10,
 };
 
+// Chart data
+const propertyViewsData = [
+  { month: "Jan", views: 1200, inquiries: 45 },
+  { month: "Feb", views: 1900, inquiries: 67 },
+  { month: "Mar", views: 1600, inquiries: 52 },
+  { month: "Apr", views: 2100, inquiries: 78 },
+  { month: "May", views: 2400, inquiries: 89 },
+  { month: "Jun", views: 2800, inquiries: 95 },
+];
+
+const propertyTypeData = [
+  { name: "Apartments", value: 45, color: "#3B82F6" },
+  { name: "Houses", value: 30, color: "#10B981" },
+  { name: "Commercial", value: 15, color: "#F59E0B" },
+  { name: "Land", value: 10, color: "#EF4444" },
+];
+
+const propertyStatusData = [
+  { status: "Active", count: 25, color: "#10B981" },
+  { status: "Pending", count: 8, color: "#F59E0B" },
+  { status: "Sold", count: 12, color: "#3B82F6" },
+  { status: "Expired", count: 3, color: "#EF4444" },
+];
+
+const revenueData = [
+  { month: "Jan", revenue: 45000, commission: 12000 },
+  { month: "Feb", revenue: 52000, commission: 14500 },
+  { month: "Mar", revenue: 48000, commission: 13200 },
+  { month: "Apr", revenue: 61000, commission: 16800 },
+  { month: "May", revenue: 58000, commission: 15900 },
+  { month: "Jun", revenue: 67000, commission: 18200 },
+];
+
+const inquirySourceData = [
+  { name: "Website", value: 40, color: "#3B82F6" },
+  { name: "Social Media", value: 25, color: "#10B981" },
+  { name: "Referrals", value: 20, color: "#F59E0B" },
+  { name: "Walk-ins", value: 15, color: "#8B5CF6" },
+];
+
 const Dashboard = () => {
   const { t, language, user, isAuthenticated, hasToken } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const [deletingPropertyId, setDeletingPropertyId] = useState<number | null>(
-    null
-  );
-
-  const { data: apiProperties, isLoading } = useQuery({
-    queryKey: ["office-properties"],
-    queryFn: async () => {
-      if (!hasToken()) {
-        throw new Error("No authentication token found");
-      }
-      return await office.getProperties();
-    },
-    enabled: isAuthenticated && hasToken(),
-    retry: (failureCount, error: unknown) => {
-      const axiosError = error as { response?: { status?: number } };
-      if (axiosError?.response?.status === 401) return false;
-      return failureCount < 3;
-    },
-  });
-
-  const properties = useMemo(() => {
-    if (!apiProperties?.data) return [];
-    return apiProperties.data.data.map(normalizeProperty);
-  }, [apiProperties]);
 
   const { data: count, isLoading: isCountLoading } = useQuery({
     queryKey: ["property-count"],
@@ -72,6 +106,7 @@ const Dashboard = () => {
           activeCount: response.data.activeCount,
         };
       } catch (error) {
+        alert(error);
         toast({
           title: t("dashboard.error"),
           description: t("dashboard.errorPropertyCount"),
@@ -96,6 +131,7 @@ const Dashboard = () => {
           views: response.data.views,
         };
       } catch (error) {
+        alert(error);
         toast({
           title: t("dashboard.error"),
           description: t("dashboard.errorViews"),
@@ -180,52 +216,6 @@ const Dashboard = () => {
     return null;
   }, [subscriptions]);
 
-  // Handle edit property
-  const handleEditProperty = (property: IProperty) => {
-    toast({
-      title: "Edit Property",
-      description: `Editing property: ${property.title}`,
-    });
-
-    // Navigate to edit page (you'll need to create this route)
-    navigate(`/properties/${property.id}/edit`);
-  };
-
-  // Handle delete property
-  const handleDeleteProperty = async (property: IProperty) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${property.title}"? This action cannot be undone.`
-    );
-
-    if (!confirmed) return;
-
-    setDeletingPropertyId(property.id);
-
-    try {
-      // TODO: Replace with actual API call
-      // await deleteProperty(property.id);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      toast({
-        title: "Property Deleted",
-        description: `${property.title} has been deleted successfully.`,
-      });
-
-      // TODO: Refresh the properties list or remove from local state
-      // You might want to invalidate the query or refetch
-    } catch (error) {
-      toast({
-        title: "Delete Failed",
-        description: "Failed to delete property. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setDeletingPropertyId(null);
-    }
-  };
-
   if (!isAuthenticated || !hasToken() || user?.type !== "office") {
     return <AccessDenied />;
   }
@@ -289,11 +279,12 @@ const Dashboard = () => {
                   {t("dashboard.subscriptionExpiresSoon")}
                 </p>
                 <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
-                  {t("dashboard.expiresOn")}: {
-                    subscriptionExpiringSoon?.expires_at
-                      ? new Date(subscriptionExpiringSoon.expires_at).toLocaleDateString()
-                      : t("dashboard.notSpecified")
-                  }
+                  {t("dashboard.expiresOn")}:{" "}
+                  {subscriptionExpiringSoon?.expires_at
+                    ? new Date(
+                        subscriptionExpiringSoon.expires_at
+                      ).toLocaleDateString()
+                    : t("dashboard.notSpecified")}
                 </p>
               </div>
               <Button
@@ -303,7 +294,7 @@ const Dashboard = () => {
                 onClick={() => navigate("/subscriptions")}
               >
                 <CreditCard className="h-4 w-4 mr-2" />
-                {language === "ar" ? "تجديد الاشتراك" : "Renew Subscription"}
+                {t("dashboard.renewSubscription")}
               </Button>
             </AlertDescription>
           </Alert>
@@ -328,8 +319,7 @@ const Dashboard = () => {
                 <>
                   <div className="text-2xl font-bold">{count?.count || 0}</div>
                   <p className="text-xs text-muted-foreground">
-                    {count?.activeCount || 0}{" "}
-                    {language === "ar" ? "نشط" : "active"}
+                    {count?.activeCount || 0} {t("dashboard.active")}
                   </p>
                 </>
               )}
@@ -372,32 +362,36 @@ const Dashboard = () => {
                 {dashboardStats.totalInquiries}
               </div>
               <p className="text-xs text-muted-foreground">
-                +3 {language === "ar" ? "هذا الأسبوع" : "this week"}
+                +3 {t("dashboard.thisWeek")}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="animate-fade-in">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {language === "ar" ? "معدل الاستجابة" : "Response Rate"}
-              </CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">92%</div>
-              <p className="text-xs text-muted-foreground">
-                {language === "ar" ? "ممتاز" : "Excellent"}
-              </p>
-            </CardContent>
-          </Card>
+          <Link to="/followers" className="block">
+            <Card className="animate-fade-in hover:shadow-lg transition-shadow duration-200 cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {t("office.followers")}
+                </CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {(user as IOffice).followers_count}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.clickToView")}
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Quick Actions */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">
-              {language === "ar" ? "إجراءات سريعة" : "Quick Actions"}
+              {t("dashboard.quickActions")}
             </h2>
           </div>
 
@@ -414,9 +408,7 @@ const Dashboard = () => {
               className="flex items-center space-x-2 rtl:space-x-reverse"
             >
               <Eye className="h-4 w-4" />
-              <span>
-                {language === "ar" ? "عرض الإحصائيات" : "View Analytics"}
-              </span>
+              <span>{t("dashboard.viewAnalytics")}</span>
             </Button>
 
             <Button
@@ -424,31 +416,241 @@ const Dashboard = () => {
               className="flex items-center space-x-2 rtl:space-x-reverse"
             >
               <MessageSquare className="h-4 w-4" />
-              <span>{language === "ar" ? "الرسائل" : "Messages"}</span>
+              <span>{t("dashboard.messages")}</span>
             </Button>
+
+            <Link to="/requests">
+              <Button
+                variant="outline"
+                className="flex items-center space-x-2 rtl:space-x-reverse"
+              >
+                <FileText className="h-4 w-4" />
+                <span>{t("requests.title") || "Property Requests"}</span>
+              </Button>
+            </Link>
           </div>
         </div>
 
-        {/* Recent Properties */}
-        <div>
+        {/* Analytics Charts */}
+        <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold">
-              {t("dashboard.recentProperties")}
+              {t("dashboard.analytics")}
             </h2>
           </div>
 
-          <div className="mb-6">
-            <div className="flex gap-8">
-              <div className="flex-1">
-                <PropertyOfficeList
-                  properties={properties}
-                  isLoading={isLoading}
-                  onEdit={handleEditProperty}
-                  onDelete={handleDeleteProperty}
-                  deletingPropertyId={deletingPropertyId}
-                />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Property Views & Inquiries Trend */}
+            <Card className="animate-fade-in">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                  {t("dashboard.viewsTrend")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={propertyViewsData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Area
+                      type="monotone"
+                      dataKey="views"
+                      stackId="1"
+                      stroke="#3B82F6"
+                      fill="#3B82F6"
+                      fillOpacity={0.6}
+                      name={t("dashboard.viewsLabel")}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="inquiries"
+                      stackId="2"
+                      stroke="#10B981"
+                      fill="#10B981"
+                      fillOpacity={0.6}
+                      name={t("dashboard.inquiriesLabel")}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Property Type Distribution */}
+            <Card className="animate-fade-in">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChart className="h-5 w-5 text-green-600" />
+                  {t("dashboard.propertyTypes")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={propertyTypeData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) =>
+                        `${name} ${(percent * 100).toFixed(0)}%`
+                      }
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {propertyTypeData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Revenue Trend */}
+            <Card className="animate-fade-in">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-purple-600" />
+                  {t("dashboard.revenueTrend")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={revenueData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => [`$${value.toLocaleString()}`, ""]}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#8B5CF6"
+                      strokeWidth={3}
+                      name={t("dashboard.revenue")}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="commission"
+                      stroke="#EC4899"
+                      strokeWidth={3}
+                      name={t("dashboard.commission")}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Property Status Overview */}
+            <Card className="animate-fade-in">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-orange-600" />
+                  {t("dashboard.propertyStatus")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={propertyStatusData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="status" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]}>
+                      {propertyStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional Insights */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Inquiry Sources */}
+            <Card className="animate-fade-in lg:col-span-1">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChart className="h-5 w-5 text-indigo-600" />
+                  {t("dashboard.inquirySources")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={inquirySourceData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {inquirySourceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Performance Metrics */}
+            <Card className="animate-fade-in lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-emerald-600" />
+                  {t("dashboard.kpiMetrics")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">92%</div>
+                    <div className="text-sm text-muted-foreground">
+                      {t("dashboard.responseRate")}
+                    </div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">4.8</div>
+                    <div className="text-sm text-muted-foreground">
+                      {language === "ar" ? "تقييم العملاء" : "Client Rating"}
+                    </div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">15</div>
+                    <div className="text-sm text-muted-foreground">
+                      {language === "ar"
+                        ? "متوسط أيام البيع"
+                        : "Avg. Days to Sell"}
+                    </div>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">
+                      78%
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {language === "ar" ? "معدل التحويل" : "Conversion Rate"}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
