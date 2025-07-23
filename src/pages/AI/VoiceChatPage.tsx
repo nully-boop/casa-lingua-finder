@@ -223,8 +223,6 @@ When mentioning properties, include key details like price, location, and size.`
             </div>
           )}
 
-
-
           {/* Voice Chat Component */}
           {localApiKey && !isLoading && (
             <div className="space-y-4">
