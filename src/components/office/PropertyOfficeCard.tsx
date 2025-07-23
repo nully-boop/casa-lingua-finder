@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import IProperty from "@/interfaces/IProperty";
 import { useNavigate } from "react-router-dom";
+import PropertyStatusModal from "./PropertyStatusModal";
 
 interface PropertyCardProps {
   property: IProperty;
   onAdTypeFilter?: (adType: string) => void;
-  onEdit?: (property: IProperty) => void;
   onDelete?: (property: IProperty) => void;
   isDeleting?: boolean;
 }
@@ -19,13 +19,13 @@ interface PropertyCardProps {
 const PropertyOfficeCard: React.FC<PropertyCardProps> = ({
   property,
   onAdTypeFilter,
-  onEdit,
   onDelete,
   isDeleting = false,
 }) => {
   const { t } = useLanguage();
   const { formatPrice, formatPricePerSqm } = useCurrency();
   const navigate = useNavigate();
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 
   const handleViewClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -41,9 +41,7 @@ const PropertyOfficeCard: React.FC<PropertyCardProps> = ({
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onEdit) {
-      onEdit(property);
-    }
+    setIsStatusModalOpen(true);
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -70,38 +68,38 @@ const PropertyOfficeCard: React.FC<PropertyCardProps> = ({
 
         {/* Top badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-2 rtl:left-auto rtl:right-4">
-          <Badge
-            className={`px-3 py-1 text-xs font-semibold rounded-full shadow-lg backdrop-blur-sm border-0 ${
-              property.ad_type === "sale"
-                ? "bg-sellColor/90 text-sellColor-foreground hover:bg-sellColor"
-                : "bg-rentColor/90 text-rentColor-foreground hover:bg-rentColor"
-            } cursor-pointer transition-all duration-200`}
-            onClick={handleAdTypeClick}
-          >
-            {property.ad_type === "sale" ? t("common.sale") : t("common.rent")}
-          </Badge>
+          {property.position === "available" && (
+            <Badge
+              className={`px-3 py-1 text-xs font-semibold rounded-full shadow-lg backdrop-blur-sm border-0 ${
+                property.ad_type === "sale"
+                  ? "bg-sellColor/90 text-sellColor-foreground hover:bg-sellColor"
+                  : "bg-rentColor/90 text-rentColor-foreground hover:bg-rentColor"
+              } cursor-pointer transition-all duration-200`}
+              onClick={handleAdTypeClick}
+            >
+              {property.ad_type === "sale"
+                ? t("common.sale")
+                : t("common.rent")}
+            </Badge>
+          )}
 
           {/* Property status badge */}
-          <Badge
-            className="px-3 py-1 text-xs font-semibold rounded-full shadow-lg backdrop-blur-sm border-0 bg-green-500/90 text-white"
-          >
-            {t("property.active") || "Active"}
+          <Badge className="px-3 py-1 text-xs font-semibold rounded-full shadow-lg backdrop-blur-sm border-0 bg-green-500/90 text-white">
+            {property.position}
           </Badge>
         </div>
 
         {/* Action buttons */}
         <div className="absolute top-4 right-4 flex gap-2 rtl:right-auto rtl:left-4">
-          {onEdit && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-primary hover:text-primary-foreground transition-all duration-200"
-              onClick={handleEditClick}
-              title={t("common.edit") || "Edit"}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="icon"
+            className="bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-primary hover:text-primary-foreground transition-all duration-200"
+            onClick={handleEditClick}
+            title={t("common.edit") || "Edit"}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
           {onDelete && (
             <Button
               variant="outline"
@@ -137,7 +135,8 @@ const PropertyOfficeCard: React.FC<PropertyCardProps> = ({
             <span>ID: #{property.ad_number}</span>
             {property.created_at && (
               <span>
-                {t("property.listed") || "Listed"}: {new Date(property.created_at).toLocaleDateString()}
+                {t("property.listed") || "Listed"}:{" "}
+                {new Date(property.created_at).toLocaleDateString()}
               </span>
             )}
           </div>
@@ -189,6 +188,13 @@ const PropertyOfficeCard: React.FC<PropertyCardProps> = ({
           </Button>
         </div>
       </CardContent>
+
+      {/* Property Status Modal */}
+      <PropertyStatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        property={property}
+      />
     </Card>
   );
 };
