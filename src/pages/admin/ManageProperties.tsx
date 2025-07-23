@@ -322,10 +322,10 @@ const ManageProperties = () => {
                               <Badge
                                 variant="outline"
                                 className={`bg-yellow-50 text-yellow-700 border-yellow-300 shadow-sm transition-all duration-300 ${
-                                  isExpanded ? 'bg-yellow-100 border-yellow-400 shadow-md scale-105' : ''
+                                  isExpanded ? 'bg-yellow-100 border-yellow-400 shadow-md' : ''
                                 }`}
                               >
-                                <Clock className={`h-3 w-3 mr-1 transition-all duration-300 ${isExpanded ? 'animate-pulse' : ''}`} />
+                                <Clock className={`h-3 w-3 mr-1 transition-all duration-300 ${isExpanded ? 'text-yellow-700' : ''}`} />
                                 {t("admin.pending") || "Pending"}
                               </Badge>
                               <AISuggestionBadge suggestion={getSuggestion(request.id)} />
@@ -530,7 +530,7 @@ const ManageProperties = () => {
                             <div className="flex items-center gap-2 mb-1">
                               <Building className="h-4 w-4 text-slate-600 dark:text-slate-400 transition-all duration-300 hover:scale-110" />
                               <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                                {t("property.floor") || "Floor"}
+                                {t("property.floorNumber") || "Floor"}
                               </span>
                             </div>
                             <span className="text-sm font-medium">
