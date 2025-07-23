@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail, Calendar } from "lucide-react";
+import { Phone, Mail, Calendar, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import IOffice from "@/interfaces/IOffice";
@@ -25,11 +25,17 @@ const AgentSidebar: React.FC<Agent> = ({ owner }) => {
       <CardContent className="p-6">
         <div className="text-center mb-6">
           <Link to={`/office/${owner.id}`} className="block">
-            <img
-              src={owner.image?.url}
-              alt={owner.name}
-              className="w-20 h-20 rounded-full mx-auto mb-4 object-cover hover:opacity-80 transition-opacity cursor-pointer"
-            />
+            {owner.image?.url ? (
+              <img
+                src={owner.image.url}
+                alt={owner.name}
+                className="w-20 h-20 rounded-full mx-auto mb-4 object-cover hover:opacity-80 transition-opacity cursor-pointer"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full mx-auto mb-4 bg-primary/10 flex items-center justify-center border-4 border-primary/20 hover:opacity-80 transition-colors cursor-pointer">
+                <Users className="h-12 w-12 text-primary/60" />
+              </div>
+            )}
             <h3 className="text-xl font-semibold mb-1 hover:text-primary transition-colors cursor-pointer">
               {owner.name}
             </h3>
