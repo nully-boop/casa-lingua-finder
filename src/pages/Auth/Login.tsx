@@ -10,9 +10,9 @@ import { Building, Lock, Users, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import '@/styles/phone-input.css';
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import "@/styles/phone-input.css";
 
 const Login = () => {
   const { t, login } = useLanguage();
@@ -32,7 +32,9 @@ const Login = () => {
       return false;
     }
     if (phoneNumber.length < 12) {
-      setPhoneError(t("auth.phoneInvalid") || "Please enter a valid phone number");
+      setPhoneError(
+        t("auth.phoneInvalid") || "Please enter a valid phone number"
+      );
       return false;
     }
     setPhoneError("");
@@ -51,7 +53,7 @@ const Login = () => {
 
     try {
       const { user } = await authService.login({
-        phone: phone.startsWith('+') ? phone : `+${phone}`,
+        phone: phone.startsWith("+") ? phone : `+${phone}`,
         type: isOffice ? "office" : "user",
         password: password,
       });
@@ -106,7 +108,7 @@ const Login = () => {
                   <Label htmlFor="phone">{t("auth.phone")}</Label>
                   <div className="relative">
                     <PhoneInput
-                      country={'sy'}
+                      country={"sy"}
                       value={phone}
                       onChange={(phone) => {
                         setPhone(phone);
@@ -115,21 +117,27 @@ const Login = () => {
                         }
                       }}
                       inputProps={{
-                        name: 'phone',
+                        name: "phone",
                         required: true,
                         onBlur: () => validatePhone(phone),
-                        autoComplete: 'tel',
-                        'aria-describedby': phoneError ? 'phone-error' : undefined,
-                        'aria-invalid': phoneError ? 'true' : 'false'
+                        autoComplete: "tel",
+                        "aria-describedby": phoneError
+                          ? "phone-error"
+                          : undefined,
+                        "aria-invalid": phoneError ? "true" : "false",
                       }}
-                      containerClass={`w-full ${phoneError ? 'error' : ''}`}
-                      placeholder={t("auth.phonePlaceholder") || "Enter phone number"}
+                      containerClass={`w-full ${phoneError ? "error" : ""}`}
+                      placeholder={
+                        t("auth.phonePlaceholder") || "Enter phone number"
+                      }
                       enableSearch={true}
                       disableSearchIcon={false}
                       countryCodeEditable={false}
                       specialLabel=""
-                      searchPlaceholder={t("common.search") || "Search countries..."}
-                      preferredCountries={['sy', 'sa', 'ae', 'jo', 'lb', 'eg']}
+                      searchPlaceholder={
+                        t("common.search") || "Search countries..."
+                      }
+                      preferredCountries={["sy", "sa", "ae", "jo", "lb", "eg"]}
                       excludeCountries={[]}
                       onlyCountries={[]}
                       priority={{
@@ -138,17 +146,22 @@ const Login = () => {
                         ae: 2,
                         jo: 3,
                         lb: 4,
-                        eg: 5
+                        eg: 5,
                       }}
                     />
                   </div>
                   {phoneError && (
-                    <p id="phone-error" className="text-sm text-red-500 mt-1" role="alert">
+                    <p
+                      id="phone-error"
+                      className="text-sm text-red-500 mt-1"
+                      role="alert"
+                    >
                       {phoneError}
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    {t("auth.phoneHint") || "Enter your phone number with country code"}
+                    {t("auth.phoneHint") ||
+                      "Enter your phone number with country code"}
                   </p>
                 </div>
 
@@ -169,7 +182,11 @@ const Login = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 rtl:right-auto rtl:left-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -192,7 +209,9 @@ const Login = () => {
                     <Checkbox
                       id="office-type"
                       checked={isOffice}
-                      onCheckedChange={(checked) => setIsOffice(checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        setIsOffice(checked as boolean)
+                      }
                       className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     />
                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -202,17 +221,17 @@ const Login = () => {
                         className="text-sm font-normal cursor-pointer"
                       >
                         {isOffice
-                          ? (t("auth.officeAccount") || "Office Account")
-                          : (t("auth.userAccount") || "User Account")
-                        }
+                          ? t("auth.officeAccount") || "Office Account"
+                          : t("auth.userAccount") || "User Account"}
                       </Label>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {isOffice
-                      ? (t("auth.officeAccountDesc") || "Login as a real estate office to manage properties")
-                      : (t("auth.userAccountDesc") || "Login as a user to browse and search properties")
-                    }
+                      ? t("auth.officeAccountDesc") ||
+                        "Login as a real estate office to manage properties"
+                      : t("auth.userAccountDesc") ||
+                        "Login as a user to browse and search properties"}
                   </p>
                 </div>
 

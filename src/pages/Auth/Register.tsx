@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Building,
@@ -17,6 +18,9 @@ import {
   CheckCircle,
   Star,
   Shield,
+  Camera,
+  MapPin,
+  Loader2,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +33,9 @@ import '@/styles/phone-input.css';
 type RegistrationStep =
   | "type-selection"
   | "name"
+  | "photo-upload"
+  | "description"
+  | "location"
   | "credentials"
   | "file-upload"
   | "success";
@@ -54,6 +61,12 @@ const Register = () => {
   );
   const [phoneError, setPhoneError] = useState("");
 
+  // New office registration fields
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+
   // Phone validation function
   const validatePhone = (phoneNumber: string) => {
     if (!phoneNumber || phoneNumber.length < 10) {
@@ -68,6 +81,56 @@ const Register = () => {
     return true;
   };
 
+  // Get current location function
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: t("location.notSupported") || "Location not supported",
+        description: t("location.notSupportedDesc") || "Geolocation is not supported by this browser",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation(`${latitude}, ${longitude}`);
+        setIsGettingLocation(false);
+        toast({
+          title: t("location.success") || "Location obtained",
+          description: t("location.successDesc") || "Your current location has been set",
+        });
+      },
+      (error) => {
+        setIsGettingLocation(false);
+        let errorMessage = t("location.error") || "Failed to get location";
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = t("location.permissionDenied") || "Location access denied";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = t("location.unavailable") || "Location information unavailable";
+            break;
+          case error.TIMEOUT:
+            errorMessage = t("location.timeout") || "Location request timed out";
+            break;
+        }
+        toast({
+          title: t("location.error") || "Location Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000,
+      }
+    );
+  };
+
   // UI states
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -77,6 +140,9 @@ const Register = () => {
   const steps: RegistrationStep[] = [
     "type-selection",
     "name",
+    "photo-upload",
+    "description",
+    "location",
     "credentials",
     "file-upload",
     "success",
@@ -146,6 +212,35 @@ const Register = () => {
       toast({
         title: "Name required",
         description: "Please enter your name",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (isOffice) {
+      setCurrentStep("photo-upload");
+    } else {
+      setCurrentStep("credentials");
+    }
+  };
+
+  // Handle photo upload step
+  const handlePhotoSubmit = () => {
+    // Photo is optional, so we can proceed without validation
+    setCurrentStep("description");
+  };
+
+  // Handle description step
+  const handleDescriptionSubmit = () => {
+    // Description is optional, so we can proceed without validation
+    setCurrentStep("location");
+  };
+
+  // Handle location step
+  const handleLocationSubmit = () => {
+    if (!location.trim()) {
+      toast({
+        title: t("location.required") || "Location required",
+        description: t("location.requiredDesc") || "Please provide your location",
         variant: "destructive",
       });
       return;
@@ -233,6 +328,15 @@ const Register = () => {
       formData.append("type", "office");
       formData.append("document", pdfFile);
 
+      // Add new fields
+      if (photoFile) {
+        formData.append("url", photoFile);
+      }
+      if (description.trim()) {
+        formData.append("description", description);
+      }
+      formData.append("location", location);
+
       // Use the office API service
       const response = await office.registerOffice(formData);
 
@@ -285,8 +389,21 @@ const Register = () => {
       case "name":
         setCurrentStep("type-selection");
         break;
-      case "credentials":
+      case "photo-upload":
         setCurrentStep("name");
+        break;
+      case "description":
+        setCurrentStep("photo-upload");
+        break;
+      case "location":
+        setCurrentStep("description");
+        break;
+      case "credentials":
+        if (isOffice) {
+          setCurrentStep("location");
+        } else {
+          setCurrentStep("name");
+        }
         break;
       case "file-upload":
         setCurrentStep("credentials");
@@ -303,6 +420,12 @@ const Register = () => {
         return renderTypeSelection();
       case "name":
         return renderNameStep();
+      case "photo-upload":
+        return renderPhotoUploadStep();
+      case "description":
+        return renderDescriptionStep();
+      case "location":
+        return renderLocationStep();
       case "credentials":
         return renderCredentialsStep();
       case "file-upload":
@@ -506,6 +629,241 @@ const Register = () => {
         {t("common.next") || "Next"}
         <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
+    </CardContent>
+  );
+
+  // Photo Upload Step
+  const renderPhotoUploadStep = () => (
+    <CardContent className="space-y-6">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="photo">{t("office.photo") || "Office Photo"}</Label>
+          <p className="text-sm text-muted-foreground">
+            {t("office.photoDesc") || "Upload a photo of your office (optional)"}
+          </p>
+          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              {photoFile ? (
+                <div className="space-y-4 w-full">
+                  <div className="flex items-center justify-center">
+                    <img
+                      src={URL.createObjectURL(photoFile)}
+                      alt="Office preview"
+                      className="max-w-full max-h-48 rounded-lg object-cover"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <Camera className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">{photoFile.name}</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setPhotoFile(null)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Camera className="h-12 w-12 text-muted-foreground" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">
+                      {t("office.uploadPhoto") || "Upload office photo"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("office.photoFormats") || "PNG, JPG up to 10MB"}
+                    </p>
+                  </div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 10 * 1024 * 1024) {
+                          toast({
+                            title: t("office.fileTooLarge") || "File too large",
+                            description: t("office.fileTooLargeDesc") || "Please select a file smaller than 10MB",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        setPhotoFile(file);
+                      }
+                    }}
+                    className="hidden"
+                    id="photo-upload"
+                  />
+                  <Label
+                    htmlFor="photo-upload"
+                    className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    {t("office.selectPhoto") || "Select Photo"}
+                  </Label>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex space-x-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="flex-1"
+          onClick={goBack}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {t("common.back") || "Back"}
+        </Button>
+        <Button
+          type="button"
+          className="flex-1"
+          onClick={handlePhotoSubmit}
+        >
+          {t("common.next") || "Next"}
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    </CardContent>
+  );
+
+  // Description Step
+  const renderDescriptionStep = () => (
+    <CardContent className="space-y-6">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="description">{t("office.description") || "Office Description"}</Label>
+          <p className="text-sm text-muted-foreground">
+            {t("office.descriptionDesc") || "Describe your office and services (optional)"}
+          </p>
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t("office.descriptionPlaceholder") || "Tell potential clients about your office, services, and expertise..."}
+            className="min-h-[120px] resize-none"
+            maxLength={500}
+          />
+          <div className="text-right text-xs text-muted-foreground">
+            {description.length}/500
+          </div>
+        </div>
+      </div>
+
+      <div className="flex space-x-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="flex-1"
+          onClick={goBack}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {t("common.back") || "Back"}
+        </Button>
+        <Button
+          type="button"
+          className="flex-1"
+          onClick={handleDescriptionSubmit}
+        >
+          {t("common.next") || "Next"}
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    </CardContent>
+  );
+
+  // Location Step
+  const renderLocationStep = () => (
+    <CardContent className="space-y-6">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="location">{t("office.location") || "Office Location"}</Label>
+          <p className="text-sm text-muted-foreground">
+            {t("office.locationDesc") || "Provide your office location (required)"}
+          </p>
+
+          {/* Location Input */}
+          <div className="relative">
+            <MapPin className="absolute left-3 rtl:left-auto rtl:right-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="location"
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="pl-10 rtl:pl-3 rtl:pr-10"
+              placeholder={t("office.locationPlaceholder") || "Enter your office address or coordinates"}
+              required
+            />
+          </div>
+
+          {/* Location Options */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={getCurrentLocation}
+              disabled={isGettingLocation}
+              className="w-full"
+            >
+              {isGettingLocation ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t("location.getting") || "Getting location..."}
+                </>
+              ) : (
+                <>
+                  <MapPin className="mr-2 h-4 w-4" />
+                  {t("location.current") || "Use Current Location"}
+                </>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                // TODO: Implement map picker
+                toast({
+                  title: t("location.mapPicker") || "Map Picker",
+                  description: t("location.mapPickerDesc") || "Map picker will be available soon",
+                });
+              }}
+              className="w-full"
+            >
+              <MapPin className="mr-2 h-4 w-4" />
+              {t("location.pickOnMap") || "Pick on Map"}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex space-x-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="flex-1"
+          onClick={goBack}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {t("common.back") || "Back"}
+        </Button>
+        <Button
+          type="button"
+          className="flex-1"
+          onClick={handleLocationSubmit}
+          disabled={!location.trim()}
+        >
+          {t("common.next") || "Next"}
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
     </CardContent>
   );
 
