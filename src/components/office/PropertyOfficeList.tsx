@@ -9,7 +9,6 @@ interface PropertyOfficeListProps {
   properties: IProperty[];
   isLoading?: boolean;
   error?: Error | null;
-  onEdit?: (property: IProperty) => void;
   onDelete?: (property: IProperty) => void;
   deletingPropertyId?: number | null;
 }
@@ -18,7 +17,6 @@ const PropertyOfficeList: React.FC<PropertyOfficeListProps> = ({
   properties,
   isLoading,
   error,
-  onEdit,
   onDelete,
   deletingPropertyId,
 }) => {
@@ -64,7 +62,6 @@ const PropertyOfficeList: React.FC<PropertyOfficeListProps> = ({
             key={property.id}
             property={property}
             onAdTypeFilter={handleAdTypeFilter}
-            onEdit={onEdit}
             onDelete={onDelete}
             isDeleting={deletingPropertyId === property.id}
           />
