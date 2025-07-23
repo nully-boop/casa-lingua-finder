@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react';
-import { AISuggestion, aiSuggestionService, PropertyData } from '@/services/aiSuggestionService';
+import { AISuggestion, aiSuggestionService } from '@/services/aiSuggestionService';
+import IProperty from '@/interfaces/IProperty';
 
 export const useAISuggestions = () => {
   const [aiSuggestions, setAiSuggestions] = useState<Map<number, AISuggestion>>(new Map());
 
-  const analyzeProperty = useCallback(async (property: PropertyData, requestId: number) => {
+  const analyzeProperty = useCallback(async (property: IProperty, requestId: number) => {
     try {
       // Set loading state
       setAiSuggestions(prev => new Map(prev.set(requestId, aiSuggestionService.createLoadingSuggestion())));
