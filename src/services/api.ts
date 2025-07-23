@@ -284,6 +284,9 @@ export const office = {
   // Get office by ID (for public viewing)
   getOfficeById: (id: string) => api.get(`/user/showOffice/${id}`),
 
+  // Get all properties from an office
+  getAllOfficeProperties: (id: string) => api.get(`/user/getAllOfficeProperties/${id}`),
+
   followOffice: (officeId: string) => api.get(`/user/followOffice/${officeId}`),
 };
 
