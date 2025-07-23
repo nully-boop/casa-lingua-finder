@@ -367,7 +367,7 @@ const RequestsList: React.FC<RequestsListProps> = ({
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <DollarSign className="h-4 w-4" />
-                <span className="font-medium">{formatPrice(parseFloat(request.requestable.price))}</span>
+                <span className="font-medium">{formatPrice(request.requestable.price)}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Bed className="h-4 w-4" />

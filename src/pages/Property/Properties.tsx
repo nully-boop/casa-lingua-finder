@@ -122,15 +122,15 @@ const Properties = () => {
         locations: [],
         types: [],
         adTypes: [],
-        priceRange: [0, 5000000],
+        priceRange: [0, 5000000] as [number, number],
       };
 
     const locations = [
-      ...new Set(properties.map((p) => p.location).filter(Boolean)),
+      ...new Set(properties.map((p) => p.location).filter(Boolean) as string[]),
     ];
-    const types = [...new Set(properties.map((p) => p.type).filter(Boolean))];
+    const types = [...new Set(properties.map((p) => p.type).filter(Boolean) as string[])];
     const adTypes = [
-      ...new Set(properties.map((p) => p.ad_type).filter(Boolean)),
+      ...new Set(properties.map((p) => p.ad_type).filter(Boolean) as string[]),
     ];
     const prices = properties.map((p) => p.price).filter((p) => p > 0);
     const maxPrice = prices.length ? Math.max(...prices) : 5000000;

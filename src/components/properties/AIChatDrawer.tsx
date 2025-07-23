@@ -70,11 +70,11 @@ const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
     setInput("");
     setIsLoading(true);
 
+    // Add an empty AI message that we'll update with streaming content
+    const aiMessageIndex = messages.length + 1; // +1 because we just added user message
+
     try {
       let fullResponse = "";
-
-      // Add an empty AI message that we'll update with streaming content
-      const aiMessageIndex = messages.length + 1; // +1 because we just added user message
       setMessages((prev) => [...prev, { sender: "ai", text: "" }]);
 
       await runChat(apiKey, property, input, (chunk: string) => {
@@ -82,8 +82,9 @@ const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
         // Update the AI message with accumulated response
         setMessages((prev) => {
           const newMessages = [...prev];
-          if (newMessages[aiMessageIndex]) {
-            newMessages[aiMessageIndex] = { sender: "ai", text: fullResponse };
+          const lastIndex = newMessages.length - 1;
+          if (newMessages[lastIndex] && newMessages[lastIndex].sender === "ai") {
+            newMessages[lastIndex] = { sender: "ai", text: fullResponse };
           }
           return newMessages;
         });
@@ -96,11 +97,12 @@ const AIChatDrawer: React.FC<AIChatDrawerProps> = ({
           t("aiChat.error") ||
           "Sorry, I encountered an error. Please try again.",
       };
-      // Replace the empty AI message with error message
+      // Replace the last AI message with error message
       setMessages((prev) => {
         const newMessages = [...prev];
-        if (newMessages[aiMessageIndex]) {
-          newMessages[aiMessageIndex] = errorMessage;
+        const lastIndex = newMessages.length - 1;
+        if (newMessages[lastIndex] && newMessages[lastIndex].sender === "ai") {
+          newMessages[lastIndex] = errorMessage;
         } else {
           newMessages.push(errorMessage);
         }
