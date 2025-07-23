@@ -6,13 +6,15 @@ import { ar } from "date-fns/locale";
 import IUser from "@/interfaces/IUser";
 import IOffice from "@/interfaces/IOffice";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileHeaderProps {
   user: IUser | IOffice;
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+  const navigate = useNavigate();
 
   const date = format(new Date(user.created_at), "dd-MM-yyyy", {
     locale: language === "ar" ? ar : undefined,
@@ -59,7 +61,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
         <p className="text-muted-foreground mb-4">
           {isOffice
             ? (user as IOffice).description || "No description available."
-            : user.bio || "No bio available."}
+            : "No bio available."}
         </p>
 
         {isOffice && (
@@ -82,11 +84,15 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
               </span>
             </div>
 
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div
+              className="flex items-center space-x-2 text-sm text-muted-foreground cursor-pointer"
+              onClick={() => navigate("/followers")}
+            >
               <Users className="h-4 w-4" />
               <span>
                 {(user as IOffice).followers_count}{" "}
-                {language === "ar" ? "متابع" : "followers"}
+                {t("office.followersCount") ||
+                  (language === "ar" ? "متابع" : "followers")}
               </span>
             </div>
 
