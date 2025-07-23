@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import IProperty from "@/interfaces/IProperty";
 
 export interface AISuggestion {
   status: 'approve' | 'reject' | 'review' | 'loading' | 'error';
@@ -12,20 +13,6 @@ export interface AISuggestion {
   summary: string;
 }
 
-export interface PropertyData {
-  title: string;
-  type: string;
-  ad_type: string;
-  location: string;
-  price: number;
-  currency: string;
-  rooms: number;
-  bathrooms: number;
-  area: number;
-  floor_number: string;
-  description: string;
-}
-
 export class AISuggestionService {
   private genAI: GoogleGenerativeAI | null = null;
 
@@ -36,7 +23,7 @@ export class AISuggestionService {
     }
   }
 
-  private createAnalysisPrompt(property: PropertyData): string {
+  private createAnalysisPrompt(property: IProperty): string {
     return `
       Analyze this property listing and provide a recommendation on whether the price is appropriate:
 
@@ -93,7 +80,7 @@ export class AISuggestionService {
     return aiAnalysis as AISuggestion;
   }
 
-  public async analyzeProperty(property: PropertyData): Promise<AISuggestion> {
+  public async analyzeProperty(property: IProperty): Promise<AISuggestion> {
     if (!this.genAI) {
       throw new Error('Gemini API key not found');
     }
