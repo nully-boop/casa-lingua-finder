@@ -8,9 +8,9 @@ import IOffice from "@/interfaces/IOffice";
 import GlobalAIChatButton from "../buttons/GlobalAIChatButton";
 
 interface IHeaderOfficeProps {
-  profileData: IOffice;
-  isError: boolean;
-  error: unknown;
+  profileData?: IOffice;
+  isError?: boolean;
+  error?: unknown;
 }
 
 const HeaderOffice: React.FC<IHeaderOfficeProps> = ({
