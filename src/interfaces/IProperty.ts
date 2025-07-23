@@ -23,7 +23,7 @@ interface IProperty {
   longitude: string;
   floor_number: number;
   ad_type: string;
-  status: string;
+  position: string;
   is_offer: number;
   offer_expires_at: string;
   views: number;
