@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import IProperty from "@/interfaces/IProperty";
 import PropertyFilters from "@/components/properties/PropertyFilters";
@@ -11,11 +11,12 @@ import { useToast } from "@/hooks/use-toast";
 import { office } from "@/services/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AccessDenied from "@/components/AccessDenied";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 const PropertiesOffice = () => {
-  const { user, isAuthenticated, hasToken } = useLanguage();
+  const { t, user, isAuthenticated, hasToken } = useLanguage();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const [filteredProperties, setFilteredProperties] = useState<IProperty[]>([]);
@@ -59,15 +60,6 @@ const PropertiesOffice = () => {
     return apiProperties.data.data.map(normalizeProperty);
   }, [apiProperties]);
 
-  const handleEditProperty = (property: IProperty) => {
-    toast({
-      title: "Edit Property",
-      description: `Editing property: ${property.title}`,
-    });
-
-    navigate(`/properties/${property.id}/edit`);
-  };
-
   const handleDeleteProperty = async (property: IProperty) => {
     const confirmed = window.confirm(
       `Are you sure you want to delete "${property.title}"? This action cannot be undone.`
@@ -92,6 +84,7 @@ const PropertiesOffice = () => {
       // TODO: Refresh the properties list or remove from local state
       // You might want to invalidate the query or refetch
     } catch (error) {
+      alert(error);
       toast({
         title: "Delete Failed",
         description: "Failed to delete property. Please try again.",
@@ -225,6 +218,26 @@ const PropertiesOffice = () => {
       <HeaderOffice />
 
       <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              {t("office.properties") || "Properties"}
+            </h1>
+            <p className="text-muted-foreground">
+              {t("office.manageProperties") ||
+                "Manage and monitor your property listings"}
+            </p>
+          </div>
+          <Button asChild>
+            <Link to="/create-property">
+              <Plus className="h-4 w-4 mr-2" />
+              {t("dashboard.addProperty")}
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4">
         <PropertySearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -258,7 +271,6 @@ const PropertiesOffice = () => {
             <PropertyOfficeList
               properties={filteredProperties}
               isLoading={isLoading}
-              onEdit={handleEditProperty}
               onDelete={handleDeleteProperty}
               deletingPropertyId={deletingPropertyId}
             />

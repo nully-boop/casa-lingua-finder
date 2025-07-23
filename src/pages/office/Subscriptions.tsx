@@ -55,31 +55,10 @@ const Subscriptions = () => {
         language === "ar" ? "ar-EG" : "en-US"
       );
     } catch (error) {
+      alert(error);
       return t("subscriptions.invalidDate");
     }
   };
-
-  const {
-    data: officeData,
-    isError: isProfileQueryError,
-    error: profileQueryError,
-  } = useQuery({
-    queryKey: ["office-data"],
-    queryFn: async () => {
-      if (!hasToken()) {
-        throw new Error("No authentication token found");
-      }
-      try {
-        const response = await office.getOffice();
-        return response.office;
-      } catch (error) {
-        console.error("Error fetching office data:", error);
-        return null;
-      }
-    },
-    enabled: isAuthenticated && hasToken() && user?.type === "office",
-    retry: false,
-  });
 
   // Get active subscriptions
   const { data: activeSubscriptions, isLoading: isLoadingActive } = useQuery({
@@ -133,6 +112,7 @@ const Subscriptions = () => {
       queryClient.invalidateQueries({ queryKey: ["pending-subscriptions"] });
       setIsRequestDialogOpen(false);
     } catch (error) {
+      alert(error);
       toast({
         title: t("dashboard.error"),
         description: t("subscriptions.requestError"),
@@ -177,11 +157,7 @@ const Subscriptions = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <HeaderOffice
-        profileData={officeData}
-        isError={isProfileQueryError}
-        error={profileQueryError}
-      />
+      <HeaderOffice  />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
@@ -208,9 +184,7 @@ const Subscriptions = () => {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>
-                    {t("subscriptions.requestNew")}
-                  </DialogTitle>
+                  <DialogTitle>{t("subscriptions.requestNew")}</DialogTitle>
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4">
@@ -300,7 +274,8 @@ const Subscriptions = () => {
                               </h3>
                               <div className="flex items-center text-sm text-muted-foreground mt-1">
                                 <Calendar className="h-4 w-4 mr-1" />
-                                {t("subscriptions.expires")}: {formatDate(subscription.expires_at)}
+                                {t("subscriptions.expires")}:{" "}
+                                {formatDate(subscription.expires_at)}
                               </div>
                             </div>
                           </div>
@@ -350,7 +325,8 @@ const Subscriptions = () => {
                               </h3>
                               <div className="flex items-center text-sm text-muted-foreground mt-1">
                                 <Clock className="h-4 w-4 mr-1" />
-                                {t("subscriptions.requested")}: {formatDate(subscription.created_at)}
+                                {t("subscriptions.requested")}:{" "}
+                                {formatDate(subscription.created_at)}
                               </div>
                             </div>
                           </div>
@@ -401,7 +377,8 @@ const Subscriptions = () => {
                               </h3>
                               <div className="flex items-center text-sm text-muted-foreground mt-1">
                                 <XCircle className="h-4 w-4 mr-1" />
-                                {t("subscriptions.rejectedOn")}: {formatDate(subscription.updated_at)}
+                                {t("subscriptions.rejectedOn")}:{" "}
+                                {formatDate(subscription.updated_at)}
                               </div>
                             </div>
                           </div>
