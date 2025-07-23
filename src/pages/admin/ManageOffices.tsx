@@ -20,6 +20,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import AccessDenied from "@/components/AccessDenied";
 import { admin } from "@/services/api";
+import IOffice from "@/interfaces/IOffice";
+import { useOfficeAISuggestions } from "@/hooks/useOfficeAISuggestions";
+import { OfficeAISuggestionBadge } from "@/components/admin/OfficeAISuggestionBadge";
+import { OfficeAISuggestionDetails } from "@/components/admin/OfficeAISuggestionDetails";
 
 interface ApiError {
   response?: {
@@ -28,22 +32,6 @@ interface ApiError {
       message?: string;
     };
   };
-}
-
-interface Office {
-  id: number;
-  name: string;
-  description: string | null;
-  location: string | null;
-  phone: string;
-  type: string;
-  status: string;
-  document_path: string;
-  free_ads: number;
-  followers_count: number;
-  views: number;
-  created_at: string;
-  updated_at: string;
 }
 
 interface PendingRequest {
@@ -55,7 +43,7 @@ interface PendingRequest {
   target_id: number | null;
   created_at: string;
   updated_at: string;
-  requestable: Office;
+  requestable: IOffice;
 }
 
 interface ApiResponse {
@@ -81,6 +69,7 @@ const ManageOffices = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
+  const { analyzeOffice, getSuggestion } = useOfficeAISuggestions();
 
   const handleApiError = useCallback((error: unknown, defaultMessage: string) => {
     console.error("API Error:", error);
@@ -115,6 +104,11 @@ const ManageOffices = () => {
       );
 
       setPendingOffices(officeRequests);
+
+      // Trigger AI analysis for each office
+      officeRequests.forEach((request) => {
+        analyzeOffice(request.requestable, request.id);
+      });
     } catch (error) {
       const errorMessage = handleApiError(error, t("admin.fetchError") || "Failed to fetch pending offices");
       toast({
@@ -125,7 +119,7 @@ const ManageOffices = () => {
     } finally {
       setLoading(false);
     }
-  }, [t, toast, handleApiError]);
+  }, [t, toast, handleApiError, analyzeOffice]);
 
   useEffect(() => {
     fetchPendingOffices();
@@ -207,9 +201,8 @@ const ManageOffices = () => {
   };
 
   const handleDownloadDocument = (documentPath: string, officeName: string) => {
-    const fullUrl = `${window.location.origin}/storage/${documentPath}`;
     const link = document.createElement("a");
-    link.href = fullUrl;
+    link.href = documentPath;
     link.download = `${officeName}_document.pdf`;
     link.target = "_blank";
     document.body.appendChild(link);
@@ -298,15 +291,18 @@ const ManageOffices = () => {
                             }`}>
                               {request.requestable.name}
                             </CardTitle>
-                            <Badge
-                              variant="outline"
-                              className={`bg-yellow-50 text-yellow-700 border-yellow-300 shadow-sm flex-shrink-0 transition-all duration-300 ${
-                                isExpanded ? 'bg-yellow-100 border-yellow-400 shadow-md scale-105' : ''
-                              }`}
-                            >
-                              <Clock className={`h-3 w-3 mr-1 transition-all duration-300 ${isExpanded ? 'animate-pulse' : ''}`} />
-                              {t("admin.pending") || "Pending"}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant="outline"
+                                className={`bg-yellow-50 text-yellow-700 border-yellow-300 shadow-sm flex-shrink-0 transition-all duration-300 ${
+                                  isExpanded ? 'bg-yellow-100 border-yellow-400 shadow-md' : ''
+                                }`}
+                              >
+                                <Clock className={`h-3 w-3 mr-1 transition-all duration-300 ${isExpanded ? 'text-yellow-700' : ''}`} />
+                                {t("admin.pending") || "Pending"}
+                              </Badge>
+                              <OfficeAISuggestionBadge suggestion={getSuggestion(request.id)} />
+                            </div>
                           </div>
                           <div className={`flex items-center gap-4 text-sm text-muted-foreground transition-all duration-300 ${
                             isExpanded ? 'text-orange-600/80 dark:text-orange-400/80' : ''
@@ -454,7 +450,7 @@ const ManageOffices = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleDownloadDocument(request.requestable.document_path, request.requestable.name)}
+                              onClick={() => handleDownloadDocument(request.requestable.document.url, request.requestable.name)}
                               className="w-full hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-all duration-300 hover:scale-105 hover:shadow-md"
                             >
                               <Download className="h-4 w-4 mr-2 transition-all duration-300 hover:scale-110" />
@@ -478,6 +474,14 @@ const ManageOffices = () => {
                           </div>
                         </div>
                       )}
+
+                      {/* AI Suggestion Section */}
+                      <div className="animate-in slide-in-from-bottom-4 fade-in duration-700 delay-350">
+                        <OfficeAISuggestionDetails
+                          suggestion={getSuggestion(request.id)}
+                          requestId={request.id}
+                        />
+                      </div>
 
                       {/* Status Indicator */}
                       <div className="flex items-center justify-center pt-4 border-t border-orange-200/50 dark:border-orange-800/50 animate-in slide-in-from-bottom-2 fade-in duration-700 delay-400">
