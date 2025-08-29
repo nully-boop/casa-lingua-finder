@@ -13,10 +13,6 @@ const api = axios.create({
     Accept: "application/json",
     // Add ngrok-skip-browser-warning header for ngrok tunnels
     "ngrok-skip-browser-warning": "true",
-    // Add CORS headers
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   },
 });
 
