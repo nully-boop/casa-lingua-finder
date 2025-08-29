@@ -263,7 +263,7 @@ const PropertiesOffice = () => {
               setSelectedLocation("all");
               setSelectedType("all");
               setSelectedAdType("all");
-              setPriceRange([0, filterOptions.priceRange[1]]);
+              setPriceRange([0, filterOptions.priceRange[1] || 1000000]);
               setSortBy("newest");
             }}
           />

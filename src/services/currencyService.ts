@@ -277,7 +277,7 @@ class CurrencyService {
    */
   private static getDefaultRates(baseCurrency: string): Record<string, number> {
     console.log(`Using default currency rates for ${baseCurrency}`);
-    return baseCurrency in this.DEFAULT_RATES ? { ...this.DEFAULT_RATES[baseCurrency] } : { ...this.DEFAULT_RATES['USD'] };
+    return this.DEFAULT_RATES[baseCurrency] ? { ...this.DEFAULT_RATES[baseCurrency] } : { ...this.DEFAULT_RATES['USD'] };
   }
 
   /**
