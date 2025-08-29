@@ -103,7 +103,7 @@ const LiveVoiceChatPage: React.FC = () => {
     audioSourcesRef.current.clear();
   }, []);
 
-  const createBlob = (pcmData: Float32Array): ArrayBuffer => {
+  const createBlob = (pcmData: Float32Array): Blob => {
     const arrayBuffer = new ArrayBuffer(pcmData.length * 2);
     const view = new DataView(arrayBuffer);
     let offset = 0;
@@ -113,7 +113,7 @@ const LiveVoiceChatPage: React.FC = () => {
       view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
     }
     
-    return arrayBuffer;
+    return new Blob([arrayBuffer], { type: 'audio/wav' });
   };
 
   const decodeAudioData = async (
@@ -298,8 +298,8 @@ When mentioning properties, include key details like price, location, and size.`
         const pcmData = inputBuffer.getChannelData(0);
         
         if (sessionRef.current) {
-          const audioData = createBlob(pcmData);
-          sessionRef.current.sendRealtimeInput({ media: audioData });
+          const audioBlob = createBlob(pcmData);
+          sessionRef.current.sendRealtimeInput({ media: audioBlob as any });
         }
       };
 

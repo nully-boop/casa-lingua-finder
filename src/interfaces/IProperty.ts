@@ -32,9 +32,9 @@ interface IProperty {
   furnishing: string;
   features: string | null;
   is_available: number;
-  status?: string;
   created_at: string;
   updated_at: string;
+  status?: "active" | "inactive" | "pending";
   owner: IOffice | null;
   images: Array<{
     id: number;
