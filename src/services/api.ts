@@ -3,7 +3,7 @@ import IRegister from "@/interfaces/IRegister";
 import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
-const DEFAULT_API_URL = "https://c1175a0041e6.ngrok-free.app/api";
+const DEFAULT_API_URL = "https://89b99eb07c77.ngrok-free.app/api";
 
 const api = axios.create({
   baseURL: DEFAULT_API_URL,
@@ -285,7 +285,8 @@ export const office = {
   getOfficeById: (id: string) => api.get(`/user/showOffice/${id}`),
 
   // Get all properties from an office
-  getAllOfficeProperties: (id: string) => api.get(`/user/getAllOfficeProperties/${id}`),
+  getAllOfficeProperties: (id: string) =>
+    api.get(`/user/getAllOfficeProperties/${id}`),
 
   followOffice: (officeId: string) => api.get(`/user/followOffice/${officeId}`),
 };
