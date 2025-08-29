@@ -3,7 +3,7 @@ import IRegister from "@/interfaces/IRegister";
 import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
-const DEFAULT_API_URL = "https://c1175a0041e6.ngrok-free.app/api";
+const DEFAULT_API_URL = "https://89b99eb07c77.ngrok-free.app/api";
 
 const api = axios.create({
   baseURL: DEFAULT_API_URL,
@@ -13,10 +13,6 @@ const api = axios.create({
     Accept: "application/json",
     // Add ngrok-skip-browser-warning header for ngrok tunnels
     "ngrok-skip-browser-warning": "true",
-    // Add CORS headers
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   },
 });
 
