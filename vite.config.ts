@@ -10,6 +10,18 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/api': {
+        target: 'https://89b99eb07c77.ngrok-free.app',
+        changeOrigin: true,
+        secure: true,
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            proxyReq.setHeader('ngrok-skip-browser-warning', 'true');
+          });
+        }
+      }
+    }
   },
   plugins: [
     react(),

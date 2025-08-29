@@ -3,7 +3,7 @@ import IRegister from "@/interfaces/IRegister";
 import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
-const DEFAULT_API_URL = "https://89b99eb07c77.ngrok-free.app/api";
+const DEFAULT_API_URL = "/api";
 
 const api = axios.create({
   baseURL: DEFAULT_API_URL,
