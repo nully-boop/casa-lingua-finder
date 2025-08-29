@@ -18,6 +18,11 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    // Skip auth for visitor endpoints
+    if (config.url?.includes('/visitor/')) {
+      return config;
+    }
+    
     try {
       const user = localStorage.getItem("user");
       if (user) {
