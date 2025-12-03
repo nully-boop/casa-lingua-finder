@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import basicSsl from "@vitejs/plugin-basic-ssl";
+// import basicSsl from "@vitejs/plugin-basic-ssl";
 import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
@@ -11,22 +11,17 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: {
-      '/api': {
-        target: 'https://89b99eb07c77.ngrok-free.app',
+      "/api": {
+        target: "https://final-state-ecommerce.vercel.app/api",
         changeOrigin: true,
-        secure: true,
-        configure: (proxy, _options) => {
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            proxyReq.setHeader('ngrok-skip-browser-warning', 'true');
-          });
-        }
-      }
-    }
+        secure: false,
+      },
+    },
   },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    basicSsl(),
+    // basicSsl(),
     svgr(),
   ].filter(Boolean),
   resolve: {

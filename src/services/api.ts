@@ -3,26 +3,17 @@ import IRegister from "@/interfaces/IRegister";
 import IUpdateProfile from "@/interfaces/IUpdateProfile";
 import axios from "axios";
 
-const DEFAULT_API_URL = "/api";
-
+const DEFAULT_API_URL = "https://final-state-ecommerce.vercel.app/api";
 const api = axios.create({
   baseURL: DEFAULT_API_URL,
-  // timeout: 10000, // 10 seconds
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    // Add ngrok-skip-browser-warning header for ngrok tunnels
-    "ngrok-skip-browser-warning": "true",
   },
 });
 
 api.interceptors.request.use(
   (config) => {
-    // Skip auth for visitor endpoints
-    if (config.url?.includes('/visitor/')) {
-      return config;
-    }
-    
     try {
       const user = localStorage.getItem("user");
       if (user) {
@@ -39,7 +30,6 @@ api.interceptors.request.use(
     } catch (error) {
       console.error("Error parsing user token from localStorage:", error);
       localStorage.removeItem("user");
-
       window.location.href =
         "/login?session_expired=true&reason=token_parse_error";
     }
@@ -51,7 +41,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Log detailed error information for debugging
     console.error("API Error Details:", {
       message: error.message,
       status: error.response?.status,
@@ -61,20 +50,12 @@ api.interceptors.response.use(
       method: error.config?.method,
     });
 
-    // Handle specific error cases
-    if (error.code === "NETWORK_ERROR" || error.code === "ERR_NETWORK") {
-      console.error(
-        "Network error - check if ngrok tunnel is running and accessible"
-      );
-    }
-
     if (error.response?.status === 401) {
       console.error("Unauthorized request, removing user data");
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
 
-    // Handle CORS errors
     if (
       error.message?.includes("CORS") ||
       error.code === "ERR_BLOCKED_BY_CLIENT"
