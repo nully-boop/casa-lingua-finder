@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       "/api": {
-        target: "https://final-state-ecommerce.vercel.app/api",
+        target: "https://final-state-ecommerce.vercel.app",
         changeOrigin: true,
         secure: false,
       },

@@ -4,14 +4,18 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const apiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
 
 if (!apiKey) {
-  console.warn('Google Gemini API key not found. AI features will be disabled.');
+  console.warn(
+    "Google Gemini API key not found. AI features will be disabled."
+  );
 }
 
 // Initialize the Google Generative AI client
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 // Get the Gemini model
-const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.5-pro" }) : null;
+const model = genAI
+  ? genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+  : null;
 
 /**
  * Convert File to base64 string for Gemini API
@@ -23,24 +27,28 @@ const fileToBase64 = (file: File): Promise<string> => {
     reader.onload = () => {
       const base64 = reader.result as string;
       // Remove the data:image/jpeg;base64, prefix
-      const base64Data = base64.split(',')[1];
+      const base64Data = base64.split(",")[1];
       resolve(base64Data);
     };
-    reader.onerror = error => reject(error);
+    reader.onerror = (error) => reject(error);
   });
 };
 
 /**
  * Generate property title based on uploaded images
  */
-export const generatePropertyTitle = async (images: File[]): Promise<string> => {
+export const generatePropertyTitle = async (
+  images: File[]
+): Promise<string> => {
   try {
     if (!model) {
-      throw new Error('AI service is not available. Please check your API key configuration.');
+      throw new Error(
+        "AI service is not available. Please check your API key configuration."
+      );
     }
 
     if (!images || images.length === 0) {
-      throw new Error('No images provided for title generation');
+      throw new Error("No images provided for title generation");
     }
 
     // Use the first image for analysis
@@ -73,28 +81,31 @@ export const generatePropertyTitle = async (images: File[]): Promise<string> => 
     const title = response.text().trim();
 
     // Clean up the title (remove quotes if present)
-    return title.replace(/^["']|["']$/g, '');
-
+    return title.replace(/^["']|["']$/g, "");
   } catch (error) {
-    console.error('Error generating property title:', error);
+    console.error("Error generating property title:", error);
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error('Failed to generate property title. Please try again.');
+    throw new Error("Failed to generate property title. Please try again.");
   }
 };
 
 /**
  * Generate property description based on uploaded images
  */
-export const generatePropertyDescription = async (images: File[]): Promise<string> => {
+export const generatePropertyDescription = async (
+  images: File[]
+): Promise<string> => {
   try {
     if (!model) {
-      throw new Error('AI service is not available. Please check your API key configuration.');
+      throw new Error(
+        "AI service is not available. Please check your API key configuration."
+      );
     }
 
     if (!images || images.length === 0) {
-      throw new Error('No images provided for description generation');
+      throw new Error("No images provided for description generation");
     }
 
     // Use the first image for analysis
@@ -135,27 +146,32 @@ export const generatePropertyDescription = async (images: File[]): Promise<strin
     const description = response.text().trim();
 
     return description;
-
   } catch (error) {
-    console.error('Error generating property description:', error);
+    console.error("Error generating property description:", error);
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error('Failed to generate property description. Please try again.');
+    throw new Error(
+      "Failed to generate property description. Please try again."
+    );
   }
 };
 
 /**
  * Generate both title and description in one call (more efficient)
  */
-export const generatePropertyContent = async (images: File[]): Promise<{title: string, description: string}> => {
+export const generatePropertyContent = async (
+  images: File[]
+): Promise<{ title: string; description: string }> => {
   try {
     if (!model) {
-      throw new Error('AI service is not available. Please check your API key configuration.');
+      throw new Error(
+        "AI service is not available. Please check your API key configuration."
+      );
     }
 
     if (!images || images.length === 0) {
-      throw new Error('No images provided for content generation');
+      throw new Error("No images provided for content generation");
     }
 
     // Use the first image for analysis
@@ -201,28 +217,27 @@ export const generatePropertyContent = async (images: File[]): Promise<{title: s
       // Parse the JSON response
       const content = JSON.parse(text);
       return {
-        title: content.title?.replace(/^["']|["']$/g, '') || '',
-        description: content.description || ''
+        title: content.title?.replace(/^["']|["']$/g, "") || "",
+        description: content.description || "",
       };
     } catch {
       // Fallback: try to extract title and description manually
-      console.warn('Failed to parse JSON response, using fallback extraction');
-      
+      console.warn("Failed to parse JSON response, using fallback extraction");
+
       // Generate title and description separately
       const [title, description] = await Promise.all([
         generatePropertyTitle(images),
-        generatePropertyDescription(images)
+        generatePropertyDescription(images),
       ]);
-      
+
       return { title, description };
     }
-
   } catch (error) {
-    console.error('Error generating property content:', error);
+    console.error("Error generating property content:", error);
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error('Failed to generate property content. Please try again.');
+    throw new Error("Failed to generate property content. Please try again.");
   }
 };
 
@@ -250,7 +265,9 @@ export const generatePropertyDescriptionFromData = async (propertyData: {
 }): Promise<string> => {
   try {
     if (!model) {
-      throw new Error('AI service is not available. Please check your API key configuration.');
+      throw new Error(
+        "AI service is not available. Please check your API key configuration."
+      );
     }
 
     // Create a comprehensive prompt with all property information
@@ -258,24 +275,32 @@ export const generatePropertyDescriptionFromData = async (propertyData: {
       Generate a compelling, professional property description based on the following details:
 
       PROPERTY INFORMATION:
-      - Title: ${propertyData.title || 'Not specified'}
-      - Type: ${propertyData.property_type || 'Not specified'}
-      - Area: ${propertyData.area ? `${propertyData.area} m²` : 'Not specified'}
-      - Rooms: ${propertyData.rooms || 'Not specified'}
-      - Bathrooms: ${propertyData.bathrooms || 'Not specified'}
-      - Floor: ${propertyData.floor_number || 'Not specified'}
-      - Furnishing: ${propertyData.furnishing || 'Not specified'}
-      - Features: ${propertyData.features?.length ? propertyData.features.join(', ') : 'None specified'}
+      - Title: ${propertyData.title || "Not specified"}
+      - Type: ${propertyData.property_type || "Not specified"}
+      - Area: ${propertyData.area ? `${propertyData.area} m²` : "Not specified"}
+      - Rooms: ${propertyData.rooms || "Not specified"}
+      - Bathrooms: ${propertyData.bathrooms || "Not specified"}
+      - Floor: ${propertyData.floor_number || "Not specified"}
+      - Furnishing: ${propertyData.furnishing || "Not specified"}
+      - Features: ${
+        propertyData.features?.length
+          ? propertyData.features.join(", ")
+          : "None specified"
+      }
 
       PRICING:
-      - Price: ${propertyData.price && propertyData.currency ? `${propertyData.price} ${propertyData.currency}` : 'Not specified'}
-      - Type: ${propertyData.ad_type || 'Not specified'}
-      - Status: ${propertyData.status || 'Available'}
-      - Seller Type: ${propertyData.seller_type || 'Owner'}
+      - Price: ${
+        propertyData.price && propertyData.currency
+          ? `${propertyData.price} ${propertyData.currency}`
+          : "Not specified"
+      }
+      - Type: ${propertyData.ad_type || "Not specified"}
+      - Status: ${propertyData.status || "Available"}
+      - Seller Type: ${propertyData.seller_type || "Owner"}
 
       LOCATION:
-      - Address: ${propertyData.location || 'Not specified'}
-      - Governorate: ${propertyData.governorate || 'Not specified'}
+      - Address: ${propertyData.location || "Not specified"}
+      - Governorate: ${propertyData.governorate || "Not specified"}
 
       MEDIA:
       - Images: ${propertyData.images?.length || 0}
@@ -289,7 +314,9 @@ export const generatePropertyDescriptionFromData = async (propertyData: {
       - Include lifestyle and investment appeal
       - Structure with clear paragraphs
       - Be specific about the property's advantages
-      - Appeal to potential ${propertyData.ad_type === 'rent' ? 'tenants' : 'buyers'}
+      - Appeal to potential ${
+        propertyData.ad_type === "rent" ? "tenants" : "buyers"
+      }
 
       Generate only the description text, no additional formatting or explanations.
     `;
@@ -302,16 +329,20 @@ export const generatePropertyDescriptionFromData = async (propertyData: {
         const base64Image = await fileToBase64(firstImage);
 
         parts = [
-          prompt + "\n\nAdditionally, analyze the provided property image to enhance the description with visual details.",
+          prompt +
+            "\n\nAdditionally, analyze the provided property image to enhance the description with visual details.",
           {
             inlineData: {
               data: base64Image,
               mimeType: firstImage.type,
             },
-          }
+          },
         ];
       } catch (imageError) {
-        console.warn('Could not process image for description generation:', imageError);
+        console.warn(
+          "Could not process image for description generation:",
+          imageError
+        );
         // Continue without image
       }
     }
@@ -321,13 +352,14 @@ export const generatePropertyDescriptionFromData = async (propertyData: {
     const description = response.text().trim();
 
     return description;
-
   } catch (error) {
-    console.error('Error generating property description from data:', error);
+    console.error("Error generating property description from data:", error);
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error('Failed to generate property description. Please try again.');
+    throw new Error(
+      "Failed to generate property description. Please try again."
+    );
   }
 };
 

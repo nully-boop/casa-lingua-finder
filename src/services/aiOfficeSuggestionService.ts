@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import IOffice from "@/interfaces/IOffice";
 
 export interface OfficeAISuggestion {
-  status: 'approve' | 'reject' | 'review' | 'loading' | 'error';
+  status: "approve" | "reject" | "review" | "loading" | "error";
   confidence: number;
   reasons: string[];
   documentAnalysis: {
@@ -39,13 +39,13 @@ export class OfficeAISuggestionService {
 
       Office Details:
       - Name: ${office.name}
-      - Description: ${office.description || 'Not provided'}
-      - Location: ${office.location || 'Not provided'}
+      - Description: ${office.description || "Not provided"}
+      - Location: ${office.location || "Not provided"}
       - Phone: ${office.phone}
       - Type: ${office.type}
       - Status: ${office.status}
-      - Document URL: ${office.document?.url || 'Not provided'}
-      - Image URL: ${office.image?.url || 'Not provided'}
+      - Document URL: ${office.document?.url || "Not provided"}
+      - Image URL: ${office.image?.url || "Not provided"}
 
       Please analyze this office registration and provide:
 
@@ -106,20 +106,22 @@ export class OfficeAISuggestionService {
     // Parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      throw new Error('Invalid AI response format');
+      throw new Error("Invalid AI response format");
     }
 
     const aiAnalysis = JSON.parse(jsonMatch[0]);
-    
+
     // Validate required fields
-    if (!aiAnalysis.status || 
-        !aiAnalysis.confidence || 
-        !aiAnalysis.reasons || 
-        !aiAnalysis.documentAnalysis || 
-        !aiAnalysis.locationAnalysis ||
-        !aiAnalysis.profileAnalysis ||
-        !aiAnalysis.summary) {
-      throw new Error('Incomplete AI response');
+    if (
+      !aiAnalysis.status ||
+      !aiAnalysis.confidence ||
+      !aiAnalysis.reasons ||
+      !aiAnalysis.documentAnalysis ||
+      !aiAnalysis.locationAnalysis ||
+      !aiAnalysis.profileAnalysis ||
+      !aiAnalysis.summary
+    ) {
+      throw new Error("Incomplete AI response");
     }
 
     return aiAnalysis as OfficeAISuggestion;
@@ -127,69 +129,72 @@ export class OfficeAISuggestionService {
 
   public async analyzeOffice(office: IOffice): Promise<OfficeAISuggestion> {
     if (!this.genAI) {
-      throw new Error('Gemini API key not found');
+      throw new Error("Gemini API key not found");
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+      const model = this.genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+      });
       const prompt = this.createAnalysisPrompt(office);
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      
+
       return this.parseAIResponse(text);
     } catch (error) {
-      console.error('Office AI Analysis Error:', error);
+      console.error("Office AI Analysis Error:", error);
       throw error;
     }
   }
 
   public createLoadingSuggestion(): OfficeAISuggestion {
     return {
-      status: 'loading',
+      status: "loading",
       confidence: 0,
       reasons: [],
       documentAnalysis: {
         isValidDocument: false,
-        documentType: '',
-        documentIssues: []
+        documentType: "",
+        documentIssues: [],
       },
       locationAnalysis: {
         isValidLocation: false,
-        locationType: '',
-        locationIssues: []
+        locationType: "",
+        locationIssues: [],
       },
       profileAnalysis: {
         completeness: 0,
         missingFields: [],
-        suggestions: []
+        suggestions: [],
       },
-      summary: 'Analyzing office registration...'
+      summary: "Analyzing office registration...",
     };
   }
 
   public createErrorSuggestion(error?: string): OfficeAISuggestion {
     return {
-      status: 'error',
+      status: "error",
       confidence: 0,
-      reasons: ['AI analysis failed', 'Please review manually'],
+      reasons: ["AI analysis failed", "Please review manually"],
       documentAnalysis: {
         isValidDocument: false,
-        documentType: 'Unknown',
-        documentIssues: ['Analysis failed']
+        documentType: "Unknown",
+        documentIssues: ["Analysis failed"],
       },
       locationAnalysis: {
         isValidLocation: false,
-        locationType: 'Unknown',
-        locationIssues: ['Analysis failed']
+        locationType: "Unknown",
+        locationIssues: ["Analysis failed"],
       },
       profileAnalysis: {
         completeness: 0,
         missingFields: [],
-        suggestions: ['Manual review required']
+        suggestions: ["Manual review required"],
       },
-      summary: error || 'AI analysis encountered an error. Please review manually.'
+      summary:
+        error || "AI analysis encountered an error. Please review manually.",
     };
   }
 }

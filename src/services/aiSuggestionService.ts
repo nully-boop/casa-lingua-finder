@@ -86,7 +86,7 @@ export class AISuggestionService {
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+      const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
       const prompt = this.createAnalysisPrompt(property);
 
       const result = await model.generateContent(prompt);
